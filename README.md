@@ -1,4 +1,4 @@
 cl_raytracer
 ============
 
-A global lighting model renderer using photon maps.
+A ray tracer implementing global illumination using photon mapping.
