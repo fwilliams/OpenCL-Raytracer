@@ -19,21 +19,26 @@ float sphere2Pos[3] = { 0, 0, -10 };
 float sphereVelocity = 1;
 float sphereTransforms[2][16];
 
+unsigned char* pixels;// = new unsigned char[kWidth * kHeight * 4];
+
 cl_command_queue queue;
 cl_kernel kernel;
 cl_mem buffer, viewTransform, worldTransforms;
 
 int InitOpenCL() {
 	std::cout << "Initializing OpenCL" << std::endl;
-	// 1. Get a platform.
+
 	cl_platform_id platform;
+	cl_device_id device;
+	cl_context context;
+	cl_int error;
+
 	clGetPlatformIDs(1, &platform, NULL);
 
 	std::cout << "Got handle to OpenCL platform" << std::endl;
 
 
 	// 2. Find a gpu device.
-	cl_device_id device;
 	clGetDeviceIDs(platform, CL_DEVICE_TYPE_GPU, 1, &device,
 	NULL);
 
@@ -41,7 +46,7 @@ int InitOpenCL() {
 
 
 	// 3. Create a context and command queue on that device.
-	cl_context context = clCreateContext( NULL, 1, &device,
+	context = clCreateContext( NULL, 1, &device,
 	NULL, NULL, NULL);
 
 	std::cout << "Created OpenCL context" << std::endl;
@@ -143,7 +148,6 @@ void Render(int delta) {
 	clEnqueueUnmapMemObject(queue, worldTransforms, worldTransformsPtr, 0, 0,
 			0);
 
-	unsigned char* pixels = new unsigned char[kWidth * kHeight * 4];
 	for (int i = 0; i < kWidth * kHeight; i++) {
 		pixels[i * 4] = ptr[i].s[0] * 255;
 		pixels[i * 4 + 1] = ptr[i].s[1] * 255;
@@ -156,7 +160,7 @@ void Render(int delta) {
 	glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexImage2D(GL_TEXTURE_2D, 0, 4, kWidth, kHeight, 0, GL_RGBA,
 			GL_UNSIGNED_BYTE, pixels);
-	delete[] pixels;
+
 
 	glClearColor(1, 1, 1, 1);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -191,8 +195,7 @@ void Update(int delta) {
 		translate[2] = -0.01 * delta;
 	}
 	if (keys[SDLK_UP]) {
-		translate[2] = 0.01 * delta;
-	}
+		translate[2] = 0.01 * delta;	}
 	if (keys[SDLK_LEFT]) {
 		translate[0] = -0.01 * delta;
 	}
@@ -245,6 +248,8 @@ int main(int argc, char* argv[]) {
 		return 1;
 	}
 
+	pixels = new unsigned char[kWidth * kHeight * 4];
+
 	memset(viewMatrix, 0, sizeof(float) * 16);
 	viewMatrix[0] = viewMatrix[5] = viewMatrix[10] = viewMatrix[15] = 1;
 
@@ -283,6 +288,8 @@ int main(int argc, char* argv[]) {
 		ss << 1000.0f / delta;
 		SDL_WM_SetCaption(ss.str().c_str(), 0);
 	}
+
+	delete[] pixels;
 
 	return 0;
 }

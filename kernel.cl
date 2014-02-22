@@ -171,7 +171,7 @@ float4 raytrace(struct Ray* ray, struct Scene* scene,int traceDepth) {
 				float3 R = reflect(ray->dir, normal);
 				reflectRay.origin = intersectPos + R*0.001;
 				reflectRay.dir    = R;
-				diffuseColor += m->reflectivity*raytrace(&reflectRay, scene, traceDepth+1);
+//				diffuseColor += m->reflectivity*raytrace(&reflectRay, scene, traceDepth+1);
 		}
 
 		if ( traceDepth < kMaxTraceDepth && m->refractivity > 0 ){
@@ -180,7 +180,7 @@ float4 raytrace(struct Ray* ray, struct Scene* scene,int traceDepth) {
 				if ( dot(R,normal) < 0 ){
 					refractRay.origin = intersectPos + R*0.001;
 					refractRay.dir    = R;
-					diffuseColor = m->refractivity*raytrace(&refractRay, scene, traceDepth+1);
+//					diffuseColor = m->refractivity*raytrace(&refractRay, scene, traceDepth+1);
 				}
 		}
 
@@ -290,7 +290,7 @@ kernel void main(global float4 *dst, uint width, uint height, global float* view
 				struct Ray r;
 				r.origin = matrixVectorMultiply(viewTransform, &((float3){0.0, 0.0, -1.0}));
 				r.dir    = normalize(matrixVectorMultiply(viewTransform, &((float3){x, y, 0.0})) - r.origin);
-				float4 color = raytrace(&r, &scene, 0);
+				float4 color = (float4) {0.5, 0.5, 0.5, 1.0}; //raytrace(&r, &scene, 0);
 				dst[get_global_id(0)] += color / (kAntiAliasingSamples*kAntiAliasingSamples) ;
 		}
 	}

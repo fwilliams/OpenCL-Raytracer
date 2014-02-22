@@ -1,4 +1,4 @@
-cl_raytracer
-============
+reflectracer_raytracer
+======================
 
-A ray tracer implementing global illumination using photon mapping.
+A global illumination ray tracer used for my reflective surfaces rendering research.
