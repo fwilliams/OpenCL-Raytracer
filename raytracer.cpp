@@ -1,4 +1,6 @@
 #include <CL/cl.h>
+#include <CL/cl_ext.h>
+
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -6,18 +8,18 @@
 #include <SDL/SDL.h>
 #include <SDL/SDL_opengl.h>
 
-const int kWidth = 800;
-const int kHeight = 600;
+const int kWidth = 512;
+const int kHeight = 512;
 const bool kFullscreen = false;
 
 size_t global_work_size = kWidth * kHeight;
 
-float viewMatrix[16];
+cl_float viewMatrix[16];
 
-float sphere1Pos[3] = { 0, 0, 10 };
-float sphere2Pos[3] = { 0, 0, -10 };
-float sphereVelocity = 1;
-float sphereTransforms[2][16];
+cl_float sphere1Pos[3] = { 0, 0, 10 };
+cl_float sphere2Pos[3] = { 0, 0, -10 };
+cl_float sphereVelocity = 1;
+cl_float sphereTransforms[2][16];
 
 unsigned char* pixels;// = new unsigned char[kWidth * kHeight * 4];
 
@@ -25,34 +27,46 @@ cl_command_queue queue;
 cl_kernel kernel;
 cl_mem buffer, viewTransform, worldTransforms;
 
+#define CL_CHECK(_expr)                                                         \
+   do {                                                                         \
+     cl_int _err = _expr;                                                       \
+     if (_err == CL_SUCCESS)                                                    \
+       break;                                                                   \
+     fprintf(stderr, "OpenCL Error: '%s' returned %d!\n", #_expr, (int)_err);   \
+     abort();                                                                   \
+   } while (0)
+
+void pfn_notify(const char *errinfo, const void *private_info, size_t cb, void *user_data) {
+	fprintf(stderr, "OpenCL Error (via pfn_notify): %s\n", errinfo);
+}
+
 int InitOpenCL() {
 	std::cout << "Initializing OpenCL" << std::endl;
 
 	cl_platform_id platform;
 	cl_device_id device;
 	cl_context context;
+	cl_int error;
 
-	clGetPlatformIDs(1, &platform, NULL);
-
+	error = clGetPlatformIDs(1, &platform, NULL);
+	CL_CHECK(error);
 	std::cout << "Got handle to OpenCL platform" << std::endl;
 
 
 	// 2. Find a gpu device.
-	clGetDeviceIDs(platform, CL_DEVICE_TYPE_GPU, 1, &device,
-	NULL);
-
+	error = clGetDeviceIDs(platform, CL_DEVICE_TYPE_GPU, 1, &device, NULL);
+	CL_CHECK(error);
 	std::cout << "Got handle to GPU device" << std::endl;
 
 
 	// 3. Create a context and command queue on that device.
-	context = clCreateContext( NULL, 1, &device,
-	NULL, NULL, NULL);
-
+	context = clCreateContext(NULL, 1, &device, pfn_notify, NULL, &error);
+	CL_CHECK(error);
 	std::cout << "Created OpenCL context" << std::endl;
 
 
-	queue = clCreateCommandQueue(context, device, 0, NULL);
-
+	queue = clCreateCommandQueue(context, device, 0, &error);
+	CL_CHECK(error);
 	std::cout << "Created OpenCL command queue" << std::endl;
 
 
@@ -67,15 +81,17 @@ int InitOpenCL() {
 	}
 
 	cl_ulong maxSize;
-	clGetDeviceInfo(device, CL_DEVICE_MAX_MEM_ALLOC_SIZE, sizeof(cl_ulong),
+	error = clGetDeviceInfo(device, CL_DEVICE_MAX_MEM_ALLOC_SIZE, sizeof(cl_ulong),
 			&maxSize, 0);
+	CL_CHECK(error);
 
 	const char* str = source.c_str();
 	size_t len = source.size();
-	cl_program program = clCreateProgramWithSource(context, 1, &str, (const size_t*)&len, NULL);
+	cl_program program = clCreateProgramWithSource(context, 1, &str, (const size_t*)&len, &error);
+	CL_CHECK(error);
 	cl_int result = clBuildProgram(program, 1, &device, NULL, NULL, NULL);
 
-	if (result) {
+	if (result != CL_SUCCESS) {
 		std::cout << "Error during compilation! (" << result << ")" << std::endl;
 		// Determine the size of the log
 		size_t log_size;
@@ -92,28 +108,37 @@ int InitOpenCL() {
 		return 1;
 	}
 
-	kernel = clCreateKernel(program, "main", NULL);
-
+	kernel = clCreateKernel(program, "main", &error);
+	CL_CHECK(error);
 	std::cout << "Created ray tracer kernel" << std::endl;
 
 
 	// 5. Create a data buffer.
 	buffer = clCreateBuffer(
 			context, CL_MEM_WRITE_ONLY,
-			kWidth * kHeight * sizeof(cl_float4), NULL, 0);
+			kWidth * kHeight * sizeof(cl_float4), NULL, &error);
+	CL_CHECK(error);
+
 	viewTransform = clCreateBuffer(
 			context, CL_MEM_READ_WRITE,
-			16 * sizeof(cl_float), NULL, 0);
+			16 * sizeof(cl_float), NULL, &error);
+	CL_CHECK(error);
 
 	worldTransforms = clCreateBuffer(
 			context, CL_MEM_READ_WRITE,
-			16 * sizeof(cl_float) * 2, NULL, 0);
+			16 * sizeof(cl_float) * 2, NULL, &error);
+	CL_CHECK(error);
 
-	clSetKernelArg(kernel, 0, sizeof(buffer), (void*) &buffer);
-	clSetKernelArg(kernel, 1, sizeof(cl_uint), (void*) &kWidth);
-	clSetKernelArg(kernel, 2, sizeof(cl_uint), (void*) &kWidth);
-	clSetKernelArg(kernel, 3, sizeof(viewTransform), (void*) &viewTransform);
-	clSetKernelArg(kernel, 4, sizeof(worldTransforms), (void*) &worldTransforms);
+	error = clSetKernelArg(kernel, 0, sizeof(buffer), (void*) &buffer);
+	CL_CHECK(error);
+	error = clSetKernelArg(kernel, 1, sizeof(cl_uint), (void*) &kWidth);
+	CL_CHECK(error);
+	error = clSetKernelArg(kernel, 2, sizeof(cl_uint), (void*) &kWidth);
+	CL_CHECK(error);
+	error = clSetKernelArg(kernel, 3, sizeof(viewTransform), (void*) &viewTransform);
+	CL_CHECK(error);
+	error = clSetKernelArg(kernel, 4, sizeof(worldTransforms), (void*) &worldTransforms);
+	CL_CHECK(error);
 
 	std::cout << "Created input/output data buffers" << std::endl;
 
@@ -121,27 +146,53 @@ int InitOpenCL() {
 }
 
 void Render(int delta) {
-	clEnqueueNDRangeKernel(queue, kernel, 1,NULL, &global_work_size, NULL, 0, NULL, NULL);
+	cl_int error;
+	error = clEnqueueNDRangeKernel(
+			queue, kernel, 1, NULL, &global_work_size, NULL, 0, NULL, NULL);
+
+	if(error != CL_SUCCESS) {
+		std::cout << "clEnqueueNDRangeKernel error" << std::endl;
+		std::cout << "Error code " << error << std::endl;
+		throw(error);
+	}
 
 	// 7. Look at the results via synchronous buffer map.
 	cl_float4 *ptr = (cl_float4 *)
 		clEnqueueMapBuffer(
 			queue, buffer, CL_TRUE, CL_MAP_READ, 0,
-			kWidth * kHeight * sizeof(cl_float4), 0, NULL, NULL, NULL);
+			kWidth * kHeight * sizeof(cl_float4), 0, NULL, NULL, &error);
+
+	if(error != CL_SUCCESS) {
+		std::cout << "Failed to map viewport buffer." << std::endl;
+		std::cout << "Error code " << error << std::endl;
+		throw(error);
+	}
 
 	cl_float *viewTransformPtr = (cl_float *)
 		clEnqueueMapBuffer(
 			queue, viewTransform, CL_TRUE,
-			CL_MAP_WRITE, 0, 16 * sizeof(cl_float), 0, NULL, NULL, NULL);
+			CL_MAP_WRITE, 0, 16 * sizeof(cl_float), 0, NULL, NULL, &error);
+
+	if(error != CL_SUCCESS) {
+		std::cout << "Failed to map view transform buffer." << std::endl;
+		std::cout << "Error code " << error << std::endl;
+		throw(error);
+	}
 
 	cl_float *worldTransformsPtr = (cl_float *) clEnqueueMapBuffer(queue,
 			worldTransforms,
 			CL_TRUE,
-			CL_MAP_WRITE, 0, 16 * sizeof(cl_float) * 2, 0, NULL, NULL, NULL);
+			CL_MAP_WRITE, 0, 16 * sizeof(cl_float) * 2, 0, NULL, NULL, &error);
 
-	memcpy(viewTransformPtr, viewMatrix, sizeof(float) * 16);
-	memcpy(worldTransformsPtr, sphereTransforms[0], sizeof(float) * 16);
-	memcpy(worldTransformsPtr + 16, sphereTransforms[1], sizeof(float) * 16);
+	if(error != CL_SUCCESS) {
+		std::cout << "Failed to map world transform buffer." << std::endl;
+		std::cout << "Error code " << error << std::endl;
+		throw(error);
+	}
+
+	memcpy(viewTransformPtr, viewMatrix, sizeof(cl_float) * 16);
+	memcpy(worldTransformsPtr, sphereTransforms[0], sizeof(cl_float) * 16);
+	memcpy(worldTransformsPtr + 16, sphereTransforms[1], sizeof(cl_float) * 16);
 
 	clEnqueueUnmapMemObject(queue, viewTransform, viewTransformPtr, 0, 0, 0);
 	clEnqueueUnmapMemObject(queue, worldTransforms, worldTransformsPtr, 0, 0,
