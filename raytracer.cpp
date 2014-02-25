@@ -31,7 +31,6 @@ int InitOpenCL() {
 	cl_platform_id platform;
 	cl_device_id device;
 	cl_context context;
-	cl_int error;
 
 	clGetPlatformIDs(1, &platform, NULL);
 
