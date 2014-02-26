@@ -3,6 +3,7 @@
 struct Sphere {
 	double radius;
 	float3 position;
+	uint materialId;
 };
 
 struct Triangle {
@@ -12,6 +13,7 @@ struct Triangle {
 struct PointLight {
 	float3 position;
 	float3 power;
+	uint materialId;
 };
 
 struct Material {
@@ -20,7 +22,7 @@ struct Material {
 	float3 absorbtion;
 };
 
-kernel void raytrace(global Triangle* triangles, global Sphere* spheres,
-		global Material* materials, global float* viewTransform) {
-
+kernel void raytrace(global const Triangle* triangles,
+		global const Sphere* spheres, global const PointLight* light,
+		global Material* materials, global const float* viewTransform) {
 }

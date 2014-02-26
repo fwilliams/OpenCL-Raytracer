@@ -12,14 +12,17 @@
 #include <glm/glm.hpp>
 #include <memory>
 #include <vector>
+#include <string>
 
 struct Sphere {
 	double radius;
 	glm::vec3 position;
+	unsigned materialId;
 };
 
 struct Triangle {
 	glm::vec3 vertices[3];
+	unsigned materialId;
 };
 
 struct PointLight {
@@ -36,21 +39,32 @@ struct Material {
 struct renderer {
 	renderer(const std::vector<Sphere>& spheres,
 			const std::vector<Triangle>& tris,
-			const std::vector<PointLight>& lights);
+			const std::vector<PointLight>& lights,
+			const std::vector<Material>& materials);
+
+	cl::KernelFunctor raytrace;
 
 	void renderToTexture();
 
 private:
+	size_t viewportWidth, viewportHeight;
 	cl::Context ctx;
 	cl::CommandQueue cmdQueue;
 	cl::Program program;
-	cl::Buffer geometry, lights;
+	cl::Buffer tris, spheres, lights, materials;
+	cl::Kernel kernel;
+	cl::Device device;
 	glm::mat4 viewTransform;
 	cl_uint numSpheres, numTris, numLights;
 
-	inline void packBuffers(const std::vector<Sphere>& spheres,
+	cl::Program createProgramFromFile(std::string& filename);
+
+	void initOpenCL();
+
+	void packBuffers(const std::vector<Sphere>& spheres,
 			const std::vector<Triangle>& tris,
-			const std::vector<PointLight>& lights);
+			const std::vector<PointLight>& lights,
+			const std::vector<Material>& materials);
 };
 
 #endif /* RENDERER_H_ */
