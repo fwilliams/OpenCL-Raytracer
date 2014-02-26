@@ -247,7 +247,7 @@ kernel void main(global float4 *dst, uint width, uint height, global float* view
 	scene.spheres[1].radius = 3;
 	scene.spheres[1].m = &ballMaterial2;
 
-	scene.planesCount = 5;
+	scene.planesCount = 1;
 	scene.planes[0].point = (float3)(0,-5,0);
 	scene.planes[0].normal = (float3)(0,1,0);
 	scene.planes[0].m      = &floorMaterial;
@@ -290,7 +290,7 @@ kernel void main(global float4 *dst, uint width, uint height, global float* view
 				struct Ray r;
 				r.origin = matrixVectorMultiply(viewTransform, &((float3){0.0, 0.0, -1.0}));
 				r.dir    = normalize(matrixVectorMultiply(viewTransform, &((float3){x, y, 0.0})) - r.origin);
-				float4 color = (float4) {0.5, 0.5, 0.5, 1.0}; //raytrace(&r, &scene, 0);
+				float4 color = raytrace(&r, &scene, 0);
 				dst[get_global_id(0)] += color / (kAntiAliasingSamples*kAntiAliasingSamples) ;
 		}
 	}
