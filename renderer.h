@@ -8,32 +8,35 @@
 #ifndef RENDERER_H_
 #define RENDERER_H_
 
+#define __CL_ENABLE_EXCEPTIONS
+
 #include <CL/cl.hpp>
+#include <GL/gl.h>
 #include <glm/glm.hpp>
 #include <memory>
 #include <vector>
 #include <string>
 
 struct Sphere {
-	double radius;
-	glm::vec3 position;
-	unsigned materialId;
+	cl_float radius;
+	cl_float3 position;
+	cl_uint materialId;
 };
 
 struct Triangle {
-	glm::vec3 vertices[3];
-	unsigned materialId;
+	cl_float3 v1, v2, v3;
+	cl_uint materialId;
 };
 
 struct PointLight {
-	glm::vec3 position;
-	glm::vec3 power;
+	cl_float3 position;
+	cl_float3 power;
 };
 
 struct Material {
-	glm::vec3 reflection;
-	glm::vec3 refraction;
-	glm::vec3 absorbtion;
+	cl_float3 reflection;
+	cl_float3 refraction;
+	cl_float3 absorbtion;
 };
 
 struct renderer {
@@ -44,7 +47,11 @@ struct renderer {
 
 	cl::KernelFunctor raytrace;
 
-	void renderToTexture();
+	GLuint getGLTexture() {
+		return glResTexture;
+	}
+
+	void renderToTexture(GLuint tex);
 
 private:
 	size_t viewportWidth, viewportHeight;
@@ -56,7 +63,8 @@ private:
 	cl::Device device;
 	glm::mat4 viewTransform;
 	cl_uint numSpheres, numTris, numLights;
-
+	cl::Image2DGL clResTexture;
+	GLuint glResTexture;
 	cl::Program createProgramFromFile(std::string& filename);
 
 	void initOpenCL();

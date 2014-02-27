@@ -8,16 +8,17 @@
 #include "renderer.h"
 
 #include <fstream>
+#include <iostream>
 #include <glm/glm.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 using namespace std;
 using namespace glm;
 
 renderer::renderer(const vector<Sphere>& spheres, const vector<Triangle>& tris,
 		const vector<PointLight>& lights, const vector<Material>& materials) :
-		numSpheres(spheres.size()), numTris(tris.size()), numLights(
-				lights.size()) {
-
+		viewportWidth(640), viewportHeight(480), numSpheres(spheres.size()), numTris(
+				tris.size()), numLights(lights.size()) {
 	initOpenCL();
 	packBuffers(spheres, tris, lights, materials);
 }
@@ -38,29 +39,29 @@ void renderer::initOpenCL() {
 	string programFileName("reflectracer.cl");
 	program = createProgramFromFile(programFileName);
 	raytrace = cl::KernelFunctor(cl::Kernel(program, "raytrace"), cmdQueue,
-			cl::NullRange, cl::NDRange(viewportWidth * viewportHeight),
+			cl::NullRange, cl::NDRange(viewportWidth, viewportHeight),
 			cl::NullRange);
 }
 
 void renderer::packBuffers(const vector<Sphere>& spheres,
 		const vector<Triangle>& tris, const vector<PointLight>& lights,
-		const vector<Material>& materials) {
+		const vector<Material>& mats) {
 
 	size_t trisByteSize = sizeof(Triangle) * tris.size();
-	this->tris = cl::Buffer(ctx, CL_MEM_READ_ONLY, trisByteSize,
-			(void*) tris.data(), 0);
+	this->tris = cl::Buffer(ctx, CL_MEM_READ_ONLY, trisByteSize);
+	cmdQueue.enqueueWriteBuffer(this->tris, true, 0, trisByteSize,tris.data());
 
 	size_t lightByteSize = sizeof(PointLight) * lights.size();
-	this->lights = cl::Buffer(ctx, CL_MEM_READ_ONLY, lightByteSize,
-			(void*) lights.data(), 0);
+	this->lights = cl::Buffer(ctx, CL_MEM_READ_ONLY, lightByteSize);
+	cmdQueue.enqueueWriteBuffer(this->lights, true, 0, lightByteSize, lights.data());
 
 	size_t sphereByteSize = sizeof(Sphere) * spheres.size();
-	this->spheres = cl::Buffer(ctx, CL_MEM_READ_ONLY, sphereByteSize,
-			(void*) spheres.data(), 0);
+	this->spheres = cl::Buffer(ctx, CL_MEM_READ_ONLY, sphereByteSize);
+	cmdQueue.enqueueWriteBuffer(this->spheres, true, 0, sphereByteSize, spheres.data());
 
-	size_t materialByteSize = sizeof(Material) * materials.size();
-	this->materials = cl::Buffer(ctx, CL_MEM_READ_ONLY, materialByteSize,
-			(void*) materials.data(), 0);
+	size_t materialByteSize = sizeof(Material) * mats.size();
+	this->materials = cl::Buffer(ctx, CL_MEM_READ_ONLY, materialByteSize);
+	cmdQueue.enqueueWriteBuffer(this->materials, true, 0, materialByteSize, mats.data());
 }
 
 cl::Program renderer::createProgramFromFile(string& filename) {
@@ -82,12 +83,45 @@ cl::Program renderer::createProgramFromFile(string& filename) {
 	sources.push_back( { programString.c_str(), programString.size() });
 
 	cl::Program program(ctx, sources);
-	program.build( { device });
+	try {
+		program.build( { device });
+	} catch (cl::Error& e) {
+		cerr << string(program.getBuildInfo<CL_PROGRAM_BUILD_LOG>(device))
+				<< endl;
+	}
 
 	return program;
 }
 
-void renderer::renderToTexture() {
-	raytrace(tris, spheres, lights, materials, mat4(1.0));
+void renderer::renderToTexture(GLuint tex) {
+//	cl::Image2DGL img(ctx, CL_MEM_WRITE_ONLY, GL_TEXTURE_2D, 0, tex);
+
+	cl::Image2D img(ctx, CL_MEM_WRITE_ONLY, cl::ImageFormat(CL_RGBA, CL_FLOAT),
+			viewportWidth, viewportHeight, 0);
+
+	raytrace(tris, spheres, lights, materials, img);
+	glBindTexture(GL_TEXTURE_2D, tex);
+
+	cl::size_t<3> origin;
+	origin.push_back(0);
+	origin.push_back(0);
+	origin.push_back(0);
+	cl::size_t<3> size;
+	size.push_back(640);
+	size.push_back(480);
+	size.push_back(1);
+
+	cl_float4* pixels = new cl_float4[640*480];
+
+	cmdQueue.enqueueReadImage(
+			img, true, origin, size, 0, 0, pixels);
+
+	glTexImage2D(
+			GL_TEXTURE_2D,
+			0, GL_RGBA, 640, 480, 0, GL_RGBA, GL_FLOAT, pixels);
+
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	delete pixels;
 }
 
