@@ -16,11 +16,12 @@ using namespace std;
 using namespace glm;
 
 renderer::renderer(const vector<Sphere>& spheres, const vector<Triangle>& tris,
-		const vector<PointLight>& lights, const vector<Material>& materials) :
+		const vector<PointLight>& lights, const vector<Material>& materials,
+		RenderParams& params) :
 		viewportWidth(640), viewportHeight(480), numSpheres(spheres.size()), numTris(
 				tris.size()), numLights(lights.size()) {
 	initOpenCL();
-	packBuffers(spheres, tris, lights, materials);
+	packBuffers(spheres, tris, lights, materials, params);
 }
 
 void renderer::initOpenCL() {
@@ -45,7 +46,7 @@ void renderer::initOpenCL() {
 
 void renderer::packBuffers(const vector<Sphere>& spheres,
 		const vector<Triangle>& tris, const vector<PointLight>& lights,
-		const vector<Material>& mats) {
+		const vector<Material>& mats, RenderParams& renderParams) {
 
 	size_t trisByteSize = sizeof(Triangle) * tris.size();
 	this->tris = cl::Buffer(ctx, CL_MEM_READ_ONLY, trisByteSize);
@@ -62,6 +63,13 @@ void renderer::packBuffers(const vector<Sphere>& spheres,
 	size_t materialByteSize = sizeof(Material) * mats.size();
 	this->materials = cl::Buffer(ctx, CL_MEM_READ_ONLY, materialByteSize);
 	cmdQueue.enqueueWriteBuffer(this->materials, true, 0, materialByteSize, mats.data());
+
+	this->params = cl::Buffer(ctx, CL_MEM_READ_ONLY, sizeof(RenderParams));
+	cmdQueue.enqueueWriteBuffer(this->params, true, 0, sizeof(RenderParams), &renderParams);
+
+	resImg = cl::Image2D(ctx, CL_MEM_WRITE_ONLY, cl::ImageFormat(CL_RGBA, CL_FLOAT),
+							viewportWidth, viewportHeight, 0);
+
 }
 
 cl::Program renderer::createProgramFromFile(string& filename) {
@@ -80,11 +88,11 @@ cl::Program renderer::createProgramFromFile(string& filename) {
 	file.close();
 
 	cl::Program::Sources sources;
-	sources.push_back( { programString.c_str(), programString.size() });
+	sources.push_back({ programString.c_str(), programString.size() });
 
 	cl::Program program(ctx, sources);
 	try {
-		program.build( { device });
+		program.build({ device });
 	} catch (cl::Error& e) {
 		cerr << string(program.getBuildInfo<CL_PROGRAM_BUILD_LOG>(device))
 				<< endl;
@@ -94,12 +102,7 @@ cl::Program renderer::createProgramFromFile(string& filename) {
 }
 
 void renderer::renderToTexture(GLuint tex) {
-//	cl::Image2DGL img(ctx, CL_MEM_WRITE_ONLY, GL_TEXTURE_2D, 0, tex);
-
-	cl::Image2D img(ctx, CL_MEM_WRITE_ONLY, cl::ImageFormat(CL_RGBA, CL_FLOAT),
-			viewportWidth, viewportHeight, 0);
-
-	raytrace(tris, spheres, lights, materials, img);
+	raytrace(tris, spheres, lights, materials, params, resImg);
 	glBindTexture(GL_TEXTURE_2D, tex);
 
 	cl::size_t<3> origin;
@@ -114,7 +117,7 @@ void renderer::renderToTexture(GLuint tex) {
 	cl_float4* pixels = new cl_float4[640*480];
 
 	cmdQueue.enqueueReadImage(
-			img, true, origin, size, 0, 0, pixels);
+			resImg, true, origin, size, 0, 0, pixels);
 
 	glTexImage2D(
 			GL_TEXTURE_2D,

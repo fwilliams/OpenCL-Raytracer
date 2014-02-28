@@ -36,14 +36,22 @@ struct PointLight {
 struct Material {
 	cl_float3 reflection;
 	cl_float3 refraction;
-	cl_float3 absorbtion;
+	cl_float3 diffuseColor;;
+};
+
+struct RenderParams {
+	cl_float maxRenderDist;
+	cl_uint numTris;
+	cl_uint numSpheres;
+	cl_uint numLights;
 };
 
 struct renderer {
 	renderer(const std::vector<Sphere>& spheres,
 			const std::vector<Triangle>& tris,
 			const std::vector<PointLight>& lights,
-			const std::vector<Material>& materials);
+			const std::vector<Material>& materials,
+			RenderParams& params);
 
 	cl::KernelFunctor raytrace;
 
@@ -53,18 +61,21 @@ struct renderer {
 
 	void renderToTexture(GLuint tex);
 
+	void resizeViewport(unsigned vpWidth, unsigned vpHeight);
+
 private:
 	size_t viewportWidth, viewportHeight;
 	cl::Context ctx;
-	cl::CommandQueue cmdQueue;
-	cl::Program program;
-	cl::Buffer tris, spheres, lights, materials;
-	cl::Kernel kernel;
 	cl::Device device;
+	cl::CommandQueue cmdQueue;
+	cl::Kernel kernel;
+	cl::Program program;
+	cl::Buffer tris, spheres, lights, materials, params;
+	cl::Image2D resImg;
 	glm::mat4 viewTransform;
 	cl_uint numSpheres, numTris, numLights;
-	cl::Image2DGL clResTexture;
 	GLuint glResTexture;
+
 	cl::Program createProgramFromFile(std::string& filename);
 
 	void initOpenCL();
@@ -72,7 +83,8 @@ private:
 	void packBuffers(const std::vector<Sphere>& spheres,
 			const std::vector<Triangle>& tris,
 			const std::vector<PointLight>& lights,
-			const std::vector<Material>& materials);
+			const std::vector<Material>& materials,
+			RenderParams& renderparams);
 };
 
 #endif /* RENDERER_H_ */

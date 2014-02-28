@@ -41,9 +41,9 @@ typedef float* image2d_t;
 
 int get_global_id(int);
 
-float3 normalize(float3);
+int get_global_size(int);
 
-float3 matrixVectorMultiply(float*, float3*);
+float3 normalize(float3);
 
 float dot(float3, float3);
 
@@ -52,6 +52,7 @@ float sqrt(float);
 float length(float3);
 
 float4 clamp(float4, float, float);
+float3 clamp(float3, float, float);
 
 float max(float, float);
 

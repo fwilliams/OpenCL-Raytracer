@@ -41,8 +41,11 @@ int InitOpenCL() {
 	vector<Triangle> tris;
 	vector<PointLight> lights;
 	vector<Material> mats;
+	RenderParams params {100.0f, 1, 2, 3};
 
-	spheres.push_back(Sphere{1.0, cl_float3{{5.0, 0.0, 5.0}}, 0});
+	spheres.push_back(Sphere{1.0, cl_float3{{-3.0, 0.0, 5.0}}, 0});
+
+	spheres.push_back(Sphere{1.0, cl_float3{{3.0, 0.0, 5.0}}, 0});
 
 	tris.push_back(
 			Triangle{
@@ -53,16 +56,26 @@ int InitOpenCL() {
 
 	lights.push_back(
 			PointLight{
-				cl_float3{{0.0, 7.0, 0.0}},
-				cl_float3{{0.5, 0.5, 0.5}}});
+				cl_float3{{-1.0, 0.1, 5.0}},
+				cl_float3{{0.0, 1.0, 0.0}}});
+
+	lights.push_back(
+			PointLight{
+				cl_float3{{1.0, 0.1, 5.0}},
+				cl_float3{{1.0, 0.0, 0.0}}});
+
+	lights.push_back(
+			PointLight{
+				cl_float3{{0.0, 0.1, 0.0}},
+				cl_float3{{0.6, 0.6, 0.6}}});
 
 	mats.push_back(
 			Material{
-				cl_float3{{0.1, 0.1, 0.6}},
+				cl_float3{{0.5, 0.5, 0.3}},
 				cl_float3{{0.0, 0.0, 0.0}},
-				cl_float3{{0.9, 0.9, 0.4}}});
+				cl_float3{{0.5, 0.5, 0.7}}});
 
-	rndr = new renderer(spheres, tris, lights, mats);
+	rndr = new renderer(spheres, tris, lights, mats, params);
 
 	return 0;
 }
