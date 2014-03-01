@@ -60,7 +60,7 @@ struct renderer {
 		return glResTexture;
 	}
 
-	void renderToTexture(GLuint tex);
+	void renderToTexture(GLuint tex, cl_float viewMatrix[16]);
 
 	void resizeViewport(unsigned vpWidth, unsigned vpHeight);
 
@@ -71,7 +71,7 @@ private:
 	cl::CommandQueue cmdQueue;
 	cl::Kernel kernel;
 	cl::Program program;
-	cl::Buffer tris, spheres, lights, materials, params;
+	cl::Buffer tris, spheres, lights, materials, params, viewMatrix;
 	cl::Image2D resImg;
 	glm::mat4 viewTransform;
 	cl_uint numSpheres, numTris, numLights;
