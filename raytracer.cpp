@@ -15,7 +15,6 @@ const bool kFullscreen = false;
 using namespace std;
 using namespace glm;
 
-renderer* rndr;
 GLuint renderTex;
 
 void initOpenGL() {
@@ -36,7 +35,7 @@ void initOpenGL() {
 	glFinish();	// Texture needs to exist for openCL
 }
 
-int InitOpenCL() {
+renderer initOpenCL() {
 	vector<Sphere> spheres;
 	vector<Triangle> tris;
 	vector<PointLight> lights;
@@ -49,9 +48,9 @@ int InitOpenCL() {
 
 	tris.push_back(
 			Triangle{
-				cl_float3{{-0.5, 0.0, 0.0}},
-				cl_float3{{ 0.5, 0.0, 0.0}},
-				cl_float3{{ 0.0, 1.0, 0.0}},
+				cl_float3{{-0.5, 0.0, 1.0}},
+				cl_float3{{ 0.5, 0.0, 1.0}},
+				cl_float3{{ 0.0, 1.0, 1.0}},
 				0});
 
 	lights.push_back(
@@ -75,13 +74,11 @@ int InitOpenCL() {
 				cl_float3{{0.0, 0.0, 0.0}},
 				cl_float3{{0.5, 0.5, 0.7}}});
 
-	rndr = new renderer(spheres, tris, lights, mats, params);
-
-	return 0;
+	return renderer(spheres, tris, lights, mats, params);
 }
 
-void Render(int delta) {
-	rndr->renderToTexture(renderTex);
+void Render(int delta, renderer& rndr) {
+	rndr.renderToTexture(renderTex);
 
 	glClearColor(1, 1, 1, 1);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -140,9 +137,7 @@ void Update(int delta) {
 }
 
 int main(int argc, char* argv[]) {
-	if(InitOpenCL()) {
-		return 1;
-	}
+	renderer rndr = initOpenCL();
 
 	SDL_Init(SDL_INIT_EVERYTHING);
 
@@ -173,13 +168,12 @@ int main(int argc, char* argv[]) {
 		}
 
 		Update(delta);
-		Render(delta);
+		Render(delta, rndr);
 
 		std::stringstream ss;
 		ss << 1000.0f / delta;
 		SDL_WM_SetCaption(ss.str().c_str(), 0);
 	}
-	delete rndr;
 
 	return 0;
 }

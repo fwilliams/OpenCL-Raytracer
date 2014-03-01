@@ -47,6 +47,8 @@ float3 normalize(float3);
 
 float dot(float3, float3);
 
+float3 cross(float3, float3);
+
 float sqrt(float);
 
 float length(float3);
