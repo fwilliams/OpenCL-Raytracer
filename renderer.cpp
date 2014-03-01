@@ -17,8 +17,8 @@ using namespace glm;
 
 renderer::renderer(const vector<Sphere>& spheres, const vector<Triangle>& tris,
 		const vector<PointLight>& lights, const vector<Material>& materials,
-		RenderParams& params) :
-		viewportWidth(640), viewportHeight(480), numSpheres(spheres.size()), numTris(
+		RenderParams& params, unsigned vpWidth, unsigned vpHeight) :
+		viewportWidth(vpWidth), viewportHeight(vpHeight), numSpheres(spheres.size()), numTris(
 				tris.size()), numLights(lights.size()) {
 	initOpenCL();
 	packBuffers(spheres, tris, lights, materials, params);
@@ -110,18 +110,18 @@ void renderer::renderToTexture(GLuint tex) {
 	origin.push_back(0);
 	origin.push_back(0);
 	cl::size_t<3> size;
-	size.push_back(640);
-	size.push_back(480);
+	size.push_back(viewportWidth);
+	size.push_back(viewportHeight);
 	size.push_back(1);
 
-	cl_float4* pixels = new cl_float4[640*480];
+	cl_float4* pixels = new cl_float4[viewportWidth*viewportHeight];
 
 	cmdQueue.enqueueReadImage(
 			resImg, true, origin, size, 0, 0, pixels);
 
 	glTexImage2D(
 			GL_TEXTURE_2D,
-			0, GL_RGBA, 640, 480, 0, GL_RGBA, GL_FLOAT, pixels);
+			0, GL_RGBA, viewportWidth, viewportHeight, 0, GL_RGBA, GL_FLOAT, pixels);
 
 	glBindTexture(GL_TEXTURE_2D, 0);
 

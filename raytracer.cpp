@@ -8,8 +8,8 @@
 
 #include "renderer.h"
 
-const int kWidth = 800;
-const int kHeight = 600;
+const int kWidth = 1920;
+const int kHeight = 1080;
 const bool kFullscreen = false;
 
 using namespace std;
@@ -72,12 +72,12 @@ renderer initOpenCL() {
 			Material{
 				cl_float3{{0.5, 0.5, 0.3}},
 				cl_float3{{0.0, 0.0, 0.0}},
-				cl_float3{{0.5, 0.5, 0.7}}});
+				cl_float3{{0.5, 0.5, 0.5}}});
 
-	return renderer(spheres, tris, lights, mats, params);
+	return renderer(spheres, tris, lights, mats, params, kWidth, kHeight);
 }
 
-void Render(int delta, renderer& rndr) {
+void render(int delta, renderer& rndr) {
 	rndr.renderToTexture(renderTex);
 
 	glClearColor(1, 1, 1, 1);
@@ -100,40 +100,40 @@ void Render(int delta, renderer& rndr) {
 	SDL_GL_SwapBuffers();
 }
 
-void Update(int delta) {
-	int count;
-	Uint8* keys = SDL_GetKeyState(&count);
-
-	float translate[3] = { 0, 0, 0 };
-	if (keys[SDLK_DOWN]) {
-		translate[2] = -0.01 * delta;
-	}
-	if (keys[SDLK_UP]) {
-		translate[2] = 0.01 * delta;	}
-	if (keys[SDLK_LEFT]) {
-		translate[0] = -0.01 * delta;
-	}
-	if (keys[SDLK_RIGHT]) {
-		translate[0] = 0.01 * delta;
-	}
-
-	int x, y;
-	SDL_GetMouseState(&x, &y);
-	int relX = (kWidth / 2.0f - x) * delta;
-	int relY = (kHeight / 2.0f - y) * delta;
-	SDL_WarpMouse(kWidth / 2.0f, kHeight / 2.0f);
-
-	glMatrixMode(GL_MODELVIEW);
-
-	glLoadIdentity();
-	glTranslatef(translate[0], translate[1], translate[2]);
-
-	if (relX != 0) {
-		glRotatef(-relX / 200.0f, 0, 1, 0);
-	}
-	if (relY != 0) {
-		glRotatef(-relY / 200.0f, 1, 0, 0);
-	}
+void update(int delta) {
+//	int count;
+//	Uint8* keys = SDL_GetKeyState(&count);
+//
+//	float translate[3] = { 0, 0, 0 };
+//	if (keys[SDLK_DOWN]) {
+//		translate[2] = -0.01 * delta;
+//	}
+//	if (keys[SDLK_UP]) {
+//		translate[2] = 0.01 * delta;	}
+//	if (keys[SDLK_LEFT]) {
+//		translate[0] = -0.01 * delta;
+//	}
+//	if (keys[SDLK_RIGHT]) {
+//		translate[0] = 0.01 * delta;
+//	}
+//
+//	int x, y;
+//	SDL_GetMouseState(&x, &y);
+//	int relX = (kWidth / 2.0f - x) * delta;
+//	int relY = (kHeight / 2.0f - y) * delta;
+//	SDL_WarpMouse(kWidth / 2.0f, kHeight / 2.0f);
+//
+//	glMatrixMode(GL_MODELVIEW);
+//
+//	glLoadIdentity();
+//	glTranslatef(translate[0], translate[1], translate[2]);
+//
+//	if (relX != 0) {
+//		glRotatef(-relX / 200.0f, 0, 1, 0);
+//	}
+//	if (relY != 0) {
+//		glRotatef(-relY / 200.0f, 1, 0, 0);
+//	}
 }
 
 int main(int argc, char* argv[]) {
@@ -167,8 +167,8 @@ int main(int argc, char* argv[]) {
 			}
 		}
 
-		Update(delta);
-		Render(delta, rndr);
+		update(delta);
+		render(delta, rndr);
 
 		std::stringstream ss;
 		ss << 1000.0f / delta;

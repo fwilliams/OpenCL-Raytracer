@@ -51,7 +51,8 @@ struct renderer {
 			const std::vector<Triangle>& tris,
 			const std::vector<PointLight>& lights,
 			const std::vector<Material>& materials,
-			RenderParams& params);
+			RenderParams& params, unsigned vpWidth,
+			unsigned vpHeight);
 
 	cl::KernelFunctor raytrace;
 

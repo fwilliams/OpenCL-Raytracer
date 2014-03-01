@@ -68,7 +68,7 @@ bool rayTriangle(struct Ray* ray, global struct Triangle* tri, float* outT) {
 	T = ray->origin - tri->v1;
 
 	//Calculate u parameter and test bound
-	u = dot(T, P);
+	u = dot(T, P) * invDet;
 	if(u < 0.0f || u > 1.0f) {
 		//The intersection lies outside of the triangle
 		return false;
@@ -116,10 +116,11 @@ bool raySphere(struct Ray* r, global struct Sphere* s, float* t) {
 	return true;
 }
 
-float intersect(struct Ray* ray, global struct RenderParams* params,
-				global struct Sphere* spheres,
-				global struct Triangle* tris,
-				int* index, uint* type) {
+float intersect(
+		struct Ray* ray, global struct RenderParams* params,
+		global struct Sphere* spheres,
+		global struct Triangle* tris,
+		int* index, uint* type) {
 	float minT = params->maxRenderDist;
 
 	for(int i = 0; i < params->numSpheres; i++) {
@@ -151,12 +152,13 @@ float dt(float3 v1, float3 v2) {
 	return v1.x*v2.x + v1.y*v2.y + v1.z*v2.z;
 }
 
-float3 doRaytrace(struct Ray* ray,
-				global struct RenderParams* params,
-				global struct Sphere* spheres,
-				global struct Triangle* tris,
-				global struct PointLight* lights,
-				global struct Material* materials, int traceDepth) {
+float3 doRaytrace(
+		struct Ray* ray,
+		global struct RenderParams* params,
+		global struct Sphere* spheres,
+		global struct Triangle* tris,
+		global struct PointLight* lights,
+		global struct Material* materials, int traceDepth) {
 
 	int intersectObjIndex = -1;
 	uint intersectObjType = NULL_TYPE_ID;
@@ -175,8 +177,8 @@ float3 doRaytrace(struct Ray* ray,
 			m = &materials[spheres[intersectObjIndex].materialId];
 		} else if(intersectObjType == TRIANGLE_TYPE_ID) {
 			normal = normalize(
-					cross(tris[intersectObjIndex].v2 - tris[intersectObjIndex].v1,
-						  tris[intersectObjIndex].v3 - tris[intersectObjIndex].v1));
+						cross(tris[intersectObjIndex].v2 - tris[intersectObjIndex].v1,
+							  tris[intersectObjIndex].v3 - tris[intersectObjIndex].v1));
 			m = &materials[tris[intersectObjIndex].materialId];
 		}
 
