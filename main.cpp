@@ -46,22 +46,19 @@ renderer initOpenCL() {
 	spheres.push_back(Sphere{1.0, cl_float3{{-4.0, 0.0, 5.0}}, 0});
 	spheres.push_back(Sphere{1.0, cl_float3{{4.0, 0.0, 5.0}}, 0});
 	spheres.push_back(Sphere{1.0, cl_float3{{0.0, -2.0, 5.0}}, 0});
-
 	spheres.push_back(Sphere{1.0, cl_float3{{0.0, 2.0, 5.0}}, 0});
 
-	// Triangles
-//	tris.push_back(
-//			Triangle{
-//				cl_float3{{-0.5, 0.0, 1.0}},
-//				cl_float3{{ 0.5, 0.0, 1.0}},
-//				cl_float3{{ 0.0, 1.0, 1.0}},
-//				1});
+	spheres.push_back(Sphere{1.0, cl_float3{{-4.0, 0.0, 10.0}}, 0});
+	spheres.push_back(Sphere{1.0, cl_float3{{4.0, 0.0, 10.0}}, 0});
+	spheres.push_back(Sphere{1.0, cl_float3{{0.0, -2.0, 10.0}}, 0});
+	spheres.push_back(Sphere{1.0, cl_float3{{0.0, 2.0, 10.0}}, 0});
 
+	// Triangles
 	tris.push_back(
 			Triangle{
-				cl_float3{{-3.0, -1.5, 8.0}},
-				cl_float3{{ 3.0, -1.5, 8.0}},
-				cl_float3{{ 0.0,  1.5, 8.0}},
+				cl_float3{{-3.0, -1.5, -6.0}},
+				cl_float3{{ 3.0, -1.5, -6.0}},
+				cl_float3{{ 0.0,  1.5, -6.0}},
 				1});
 
 	// Lights
@@ -81,7 +78,7 @@ renderer initOpenCL() {
 	// Materials
 	mats.push_back(
 			Material{
-				cl_float3{{0.5, 0.5, 0.5}},
+				cl_float3{{0.8, 0.8, 0.8}},
 				cl_float3{{0.0, 0.0, 0.0}},
 				cl_float3{{0.5, 0.5, 0.5}}});
 
