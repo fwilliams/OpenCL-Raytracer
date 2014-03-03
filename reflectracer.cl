@@ -5,6 +5,8 @@
 #define SPHERE_TYPE_ID 1
 #define TRIANGLE_TYPE_ID 2
 
+#define MAX_REFLECTIONS 2
+
 #define EPSILON 0.000001
 
 
@@ -139,7 +141,7 @@ float intersect(
 		if(rayTriangle(ray, &tris[i], &t)) {
 			if(t < minT){
 				minT = t;
-				*type = SPHERE_TYPE_ID;
+				*type = TRIANGLE_TYPE_ID;
 				*index = i;
 			}
 		}
@@ -150,6 +152,10 @@ float intersect(
 
 float dt(float3 v1, float3 v2) {
 	return v1.x*v2.x + v1.y*v2.y + v1.z*v2.z;
+}
+
+float3 reflect(float3 v, float3 n) {
+	return v - 2.0f * dot(v, n) * n;
 }
 
 float3 doRaytrace(
@@ -178,12 +184,60 @@ float3 doRaytrace(
 		} else if(intersectObjType == TRIANGLE_TYPE_ID) {
 			normal = normalize(
 						cross(tris[intersectObjIndex].v2 - tris[intersectObjIndex].v1,
-							  tris[intersectObjIndex].v3 - tris[intersectObjIndex].v1));
+							  tris[intersectObjIndex].v2 - tris[intersectObjIndex].v3));
 			m = &materials[tris[intersectObjIndex].materialId];
 		}
+		
+		// If material is reflective
+		// foat3 color = (0, 0, 0)
+		// Material mat = m
+		// For i = 0 to max_reflective_bounces
+		//     Ray reflect_ray = reflect(ray);
+		//     object = intersect(reflect_ray, scene)
+		//     color += mat.reflection * object.material.diffuse_color;
+		//     mat = objet.material
+		
+		struct Ray reflectRay = *ray;
+		global struct Material* reflectMat = m;
+		float3 reflectNormal = normal;
 
-		// TODO: Accumulate reflected and refracted colors
+		for(int i = 0; i < MAX_REFLECTIONS; i++) {
+			float3 reflectColor = (float3) {0.0, 0.0, 0.0};
+			float3 reflection = reflectMat->reflection;
+			
+			reflectRay.direction = reflect(reflectRay.direction, reflectNormal);
+			
+			float rt = intersect(&reflectRay, params, spheres, tris, &intersectObjIndex, &intersectObjType);
 
+			reflectRay.origin = reflectRay.origin + rt * reflectRay.direction;
+			
+			if(intersectObjType == SPHERE_TYPE_ID) {
+				reflectNormal = normalize(reflectRay.origin - spheres[intersectObjIndex].position);
+				reflectMat = &materials[spheres[intersectObjIndex].materialId];
+			} else if(intersectObjType == TRIANGLE_TYPE_ID) {
+				reflectNormal = normalize(
+							cross(tris[intersectObjIndex].v2 - tris[intersectObjIndex].v1,
+								  tris[intersectObjIndex].v2 - tris[intersectObjIndex].v3));
+				reflectMat = &materials[tris[intersectObjIndex].materialId];
+			}
+	
+			for(int j = 0; j < params->numLights; j++) {
+				float3 L = lights[j].position - intersectPos;
+				float distanceToLight = length(L);
+				L = normalize(L);
+
+				struct Ray shadowRay;
+				shadowRay.origin = intersectPos + L*0.001;
+				shadowRay.direction = L;
+				float st = intersect(&shadowRay, params, spheres, tris, &intersectObjIndex, &intersectObjType);
+				if(st > distanceToLight) {
+					reflectColor += reflection * reflectMat->diffuseColor*lights[j].power*max(0.0f, dot(reflectNormal, L));
+				}
+			}
+			
+			color += reflectColor;
+		}
+		
 		for(int i = 0; i < params->numLights; i++) {
 			float3 L = lights[i].position - intersectPos;
 			float distanceToLight = length(L);
