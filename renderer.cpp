@@ -9,11 +9,8 @@
 
 #include <fstream>
 #include <iostream>
-#include <glm/glm.hpp>
-#include <glm/gtc/type_ptr.hpp>
 
 using namespace std;
-using namespace glm;
 
 renderer::renderer(const vector<Sphere>& spheres, const vector<Triangle>& tris,
 		const vector<PointLight>& lights, const vector<Material>& materials,
@@ -67,7 +64,7 @@ void renderer::packBuffers(const vector<Sphere>& spheres,
 	this->params = cl::Buffer(ctx, CL_MEM_READ_ONLY, sizeof(RenderParams));
 	cmdQueue.enqueueWriteBuffer(this->params, true, 0, sizeof(RenderParams), &renderParams);
 
-	//this->viewMatrix = cl::Buffer(ctx, CL_MEM_READ_ONLY, sizeof(cl_float)*16);
+	this->viewMatrix = cl::Buffer(ctx, CL_MEM_READ_ONLY, sizeof(cl_float)*16);
 
 	resImg = cl::Image2D(ctx, CL_MEM_WRITE_ONLY, cl::ImageFormat(CL_RGBA, CL_FLOAT),
 							viewportWidth, viewportHeight, 0);
@@ -103,9 +100,9 @@ cl::Program renderer::createProgramFromFile(string& filename) {
 	return program;
 }
 
-void renderer::renderToTexture(GLuint tex, cl_float viewMatrix[16]) {
-	//cmdQueue.enqueueWriteBuffer(this->viewMatrix, true, 0, sizeof(cl_float)*16, &viewMatrix[0]);
-	raytrace(tris, spheres, lights, materials, params, resImg);
+void renderer::renderToTexture(GLuint tex, cl_float viewMat[16]) {
+	cmdQueue.enqueueWriteBuffer(this->viewMatrix, true, 0, sizeof(cl_float)*16, viewMat);
+	raytrace(tris, spheres, lights, materials, params, viewMatrix, resImg);
 	glBindTexture(GL_TEXTURE_2D, tex);
 
 	cl::size_t<3> origin;

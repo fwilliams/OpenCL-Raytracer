@@ -12,7 +12,6 @@
 
 #include <CL/cl.hpp>
 #include <GL/gl.h>
-#include <glm/glm.hpp>
 #include <memory>
 #include <vector>
 #include <string>
@@ -60,7 +59,7 @@ struct renderer {
 		return glResTexture;
 	}
 
-	void renderToTexture(GLuint tex, cl_float viewMatrix[16]);
+	void renderToTexture(GLuint tex, cl_float viewMat[16]);
 
 	void resizeViewport(unsigned vpWidth, unsigned vpHeight);
 
@@ -73,7 +72,6 @@ private:
 	cl::Program program;
 	cl::Buffer tris, spheres, lights, materials, params, viewMatrix;
 	cl::Image2D resImg;
-	glm::mat4 viewTransform;
 	cl_uint numSpheres, numTris, numLights;
 	GLuint glResTexture;
 
