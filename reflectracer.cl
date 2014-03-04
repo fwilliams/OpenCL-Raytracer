@@ -253,6 +253,14 @@ float3 doRaytrace(
 	return clamp(color, 0.0, 1.0);
 }
 
+float3 matrixVectorMultiply(global float* matrix, float3* vector) { 
+	float3 result;
+	result.x = matrix[0]*((*vector).x)+matrix[4]*((*vector).y)+matrix[8]*((*vector).z)+matrix[12];
+	result.y = matrix[1]*((*vector).x)+matrix[5]*((*vector).y)+matrix[9]*((*vector).z)+matrix[13];
+	result.z = matrix[2]*((*vector).x)+matrix[6]*((*vector).y)+matrix[10]*((*vector).z)+matrix[14];
+	return result;
+}
+
 kernel void raytrace(
 		global const struct Triangle* triangles,
 		global const struct Sphere* spheres,
@@ -263,10 +271,11 @@ kernel void raytrace(
 		global write_only image2d_t res) {
 
 	float3 color = (float3) {0.0, 0.0, 0.0};
+	
 	for(int i = 0; i < ANTIALIAS_X; i++) {
 		for(int j = 0; j < ANTIALIAS_Y; j++) {
 			struct Ray ray;
-			ray.origin = (float3) {0.0f, 0.0f, 0.0f};
+			ray.origin = matrixVectorMultiply(viewMatrix, &((float3) {0.0f, 0.0f, 0.0f}));
 			ray.direction = normalize((float3) {
 				min(((float)get_global_id(0)+i)/(float)get_global_size(0) - 0.5f, 1.0),
 				min(((float)get_global_id(1)+j)/(float)get_global_size(1) - 0.5f, 1.0),

@@ -105,7 +105,7 @@ renderer initOpenCL() {
 
 void render(int delta, renderer& rndr) {
 	glm::mat4 viewMatrix;
-	viewMatrix = glm::lookAt(glm::vec3(0.0), glm::vec3(0.0, 0.0, 1.0), glm::vec3(0.0, 1.0, 0.0));
+	viewMatrix = glm::lookAt(glm::vec3(0.0, -1.0, 0.0), glm::vec3(1.0, 0.0, 1.0), glm::vec3(0.0, 1.0, 0.0));
 	rndr.renderToTexture(renderTex, glm::value_ptr(viewMatrix));
 
 	glClearColor(1, 1, 1, 1);
