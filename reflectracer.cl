@@ -5,7 +5,7 @@
 #define SPHERE_TYPE_ID 1
 #define TRIANGLE_TYPE_ID 2
 
-#define MAX_REFLECTIONS 2
+#define MAX_REFLECTIONS 6
 
 #define EPSILON 0.000001
 
@@ -195,11 +195,9 @@ float3 doRaytrace(
 		struct Ray reflectRay = *ray;
 		global struct Material* reflectMat = m;
 		float3 reflectNormal = normal;
-
+		float3 reflectionFactor = m->reflection;
+		
 		for(int i = 0; i < MAX_REFLECTIONS; i++) {
-			float3 reflectColor = (float3) {0.0, 0.0, 0.0};
-			float3 reflection = reflectMat->reflection;
-			
 			reflectRay.direction = reflect(reflectRay.direction, reflectNormal);
 			
 			float rt = intersect(&reflectRay, params, spheres, tris, &intersectObjIndex, &intersectObjType);
@@ -217,6 +215,8 @@ float3 doRaytrace(
 			} else {
 				break;
 			}
+			
+			reflectionFactor *= reflectMat->reflection;
 	
 			for(int j = 0; j < params->numLights; j++) {
 				float3 L = lights[j].position - reflectRay.origin;
@@ -228,11 +228,10 @@ float3 doRaytrace(
 				shadowRay.direction = L;
 				float st = intersect(&shadowRay, params, spheres, tris, &intersectObjIndex, &intersectObjType);
 				if(st > distanceToLight) {
-					reflectColor += reflection * reflectMat->diffuseColor*lights[j].power*max(0.0f, dot(reflectNormal, L));
+					color += reflectionFactor * reflectMat->diffuseColor*lights[j].power*max(0.0f, dot(reflectNormal, L));
 				}
 			}
 			
-			color += reflectColor;
 		}
 		
 		for(int i = 0; i < params->numLights; i++) {

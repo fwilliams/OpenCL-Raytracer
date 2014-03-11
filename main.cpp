@@ -10,8 +10,8 @@
 #include <glm/gtc/type_ptr.hpp>
 #include "renderer.h"
 
-const int kWidth = 800;
-const int kHeight = 600;
+const int kWidth = 256;
+const int kHeight = 256;
 const bool kFullscreen = false;
 
 using namespace std;
@@ -43,26 +43,39 @@ renderer initOpenCL() {
 	vector<Material> mats;
 
 	// Spheres
-	spheres.push_back(Sphere{1.0, cl_float3{{-4.0, -1.0, 5.0}}, 0});
-	spheres.push_back(Sphere{1.0, cl_float3{{ 4.0, -1.0, 5.0}}, 0});
+	spheres.push_back(Sphere{1.0, cl_float3{{-3.0, -0.0, 5.0}}, 0});
+	spheres.push_back(Sphere{1.0, cl_float3{{ 3.0, -0.0, 5.0}}, 0});
 	//spheres.push_back(Sphere{1.0, cl_float3{{ 0.0, -0.5, 3.0}}, 0});
 
-	spheres.push_back(Sphere{1.0, cl_float3{{-4.0, -1.0, 7.0}}, 0});
-	spheres.push_back(Sphere{1.0, cl_float3{{ 4.0, -1.0, 7.0}}, 0});
-	spheres.push_back(Sphere{1.0, cl_float3{{ 0.0, -1.0, 6.0}}, 0});
+	spheres.push_back(Sphere{1.0, cl_float3{{-3.0, -0.0, 7.0}}, 0});
+	spheres.push_back(Sphere{1.0, cl_float3{{ 3.0, -0.0, 7.0}}, 0});
+	//spheres.push_back(Sphere{1.0, cl_float3{{ 0.0, -0.0, 16.0}}, 0});
 
 	// Triangles
 	tris.push_back(
 			Triangle{
-				cl_float3{{-50.0, 1.0,  50.0}},
-				cl_float3{{ 50.0, 1.0, -50.0}},
-				cl_float3{{-50.0, 1.0, -50.0}},
+				cl_float3{{-50.0, 1.2,  50.0}},
+				cl_float3{{ 50.0, 1.2, -50.0}},
+				cl_float3{{-50.0, 1.2, -50.0}},
 				1});
 	tris.push_back(
 			Triangle{
-				cl_float3{{-50.0, 1.0,  50.0}},
-				cl_float3{{ 50.0, 1.0,  50.0}},
-				cl_float3{{ 50.0, 1.0, -50.0}},
+				cl_float3{{-50.0, 1.2,  50.0}},
+				cl_float3{{ 50.0, 1.2,  50.0}},
+				cl_float3{{ 50.0, 1.2, -50.0}},
+				1});
+
+	tris.push_back(
+			Triangle{
+				cl_float3{{-50.0, -1.2,  50.0}},
+				cl_float3{{-50.0, -1.2, -50.0}},
+				cl_float3{{ 50.0, -1.2, -50.0}},
+				1});
+	tris.push_back(
+			Triangle{
+				cl_float3{{-50.0, -1.2,  50.0}},
+				cl_float3{{ 50.0, -1.2, -50.0}},
+				cl_float3{{ 50.0, -1.2,  50.0}},
 				1});
 
 	// Lights
@@ -82,21 +95,15 @@ renderer initOpenCL() {
 	// Materials
 	mats.push_back(
 			Material{
-				cl_float3{{0.13, 0.13, 0.13}},
+				cl_float3{{0.2, 0.2, 0.2}},
+				cl_float3{{0.0, 0.0, 0.0}},
+				cl_float3{{0.1, 0.1, 0.6}}});
+
+	mats.push_back(
+			Material{
+				cl_float3{{0.99, 0.99, 0.99}},
 				cl_float3{{0.0, 0.0, 0.0}},
 				cl_float3{{0.5, 0.5, 0.5}}});
-
-	mats.push_back(
-			Material{
-				cl_float3{{0.5, 0.5, 0.5}},
-				cl_float3{{0.0, 0.0, 0.0}},
-				cl_float3{{0.1, 0.1, 0.5}}});
-
-	mats.push_back(
-			Material{
-				cl_float3{{0.1, 0.1, 0.1}},
-				cl_float3{{0.0, 0.0, 0.0}},
-				cl_float3{{0.5, 0.1, 0.1}}});
 
 	RenderParams params {100.0f, (cl_uint)tris.size(), (cl_uint)spheres.size(), (cl_uint)lights.size()};
 
@@ -105,7 +112,7 @@ renderer initOpenCL() {
 
 void render(int delta, renderer& rndr) {
 	glm::mat4 viewMatrix;
-	viewMatrix = glm::lookAt(glm::vec3(0.0, -1.0, 0.0), glm::vec3(1.0, 0.0, 1.0), glm::vec3(0.0, 1.0, 0.0));
+	viewMatrix = glm::lookAt(glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 0.0, 1.0), glm::vec3(0.0, 1.0, 0.0));
 	rndr.renderToTexture(renderTex, glm::value_ptr(viewMatrix));
 
 	glClearColor(1, 1, 1, 1);
