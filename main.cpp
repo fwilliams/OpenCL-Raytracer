@@ -114,7 +114,10 @@ renderer initOpenCL() {
 
 	RenderParams params {100.0f, (cl_uint)tris.size(), (cl_uint)spheres.size(), (cl_uint)lights.size()};
 
-	return renderer(spheres, tris, lights, mats, params, kWidth, kHeight);
+
+	return renderer(
+			std::shared_ptr<Scene<std::vector>>(new Scene<std::vector>(spheres, tris, lights, mats),
+					params, kWidth, kHeight);
 }
 
 void render(int delta, renderer& rndr) {

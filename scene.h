@@ -8,6 +8,8 @@
 #include <CL/cl.hpp>
 #include <algorithm>
 
+#include "geometry_types.h"
+
 #ifndef SCENE_H_
 #define SCENE_H_
 
@@ -16,7 +18,7 @@ struct NullBuffer {
 };
 
 // Allow buffering on the CPU for data
-template <template<class> class InputContainerType, template<class> class CPUBuffer = NullBuffer>
+template <template<class ...> class InputContainerType, template<class> class CPUBuffer = NullBuffer>
 struct Scene {
 	Scene(
 		cl::Context& ctx,

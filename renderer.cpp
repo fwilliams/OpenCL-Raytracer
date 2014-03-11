@@ -10,15 +10,14 @@
 #include <fstream>
 #include <iostream>
 
+
 using namespace std;
 
-renderer::renderer(const vector<Sphere>& spheres, const vector<Triangle>& tris,
-		const vector<PointLight>& lights, const vector<Material>& materials,
+renderer::renderer(std::shared_ptr<Scene<std::vector>> scene,
 		RenderParams& params, unsigned vpWidth, unsigned vpHeight) :
-		viewportWidth(vpWidth), viewportHeight(vpHeight), numSpheres(spheres.size()), numTris(
-				tris.size()), numLights(lights.size()) {
+		scene(scene), viewportWidth(vpWidth), viewportHeight(vpHeight) {
 	initOpenCL();
-	packBuffers(spheres, tris, lights, materials, params);
+	packBuffers(params);
 }
 
 void renderer::initOpenCL() {
@@ -41,26 +40,7 @@ void renderer::initOpenCL() {
 			cl::NullRange);
 }
 
-void renderer::packBuffers(const vector<Sphere>& spheres,
-		const vector<Triangle>& tris, const vector<PointLight>& lights,
-		const vector<Material>& mats, RenderParams& renderParams) {
-
-	size_t trisByteSize = sizeof(Triangle) * tris.size();
-	this->tris = cl::Buffer(ctx, CL_MEM_READ_ONLY, trisByteSize);
-	cmdQueue.enqueueWriteBuffer(this->tris, true, 0, trisByteSize,tris.data());
-
-	size_t lightByteSize = sizeof(PointLight) * lights.size();
-	this->lights = cl::Buffer(ctx, CL_MEM_READ_ONLY, lightByteSize);
-	cmdQueue.enqueueWriteBuffer(this->lights, true, 0, lightByteSize, lights.data());
-
-	size_t sphereByteSize = sizeof(Sphere) * spheres.size();
-	this->spheres = cl::Buffer(ctx, CL_MEM_READ_ONLY, sphereByteSize);
-	cmdQueue.enqueueWriteBuffer(this->spheres, true, 0, sphereByteSize, spheres.data());
-
-	size_t materialByteSize = sizeof(Material) * mats.size();
-	this->materials = cl::Buffer(ctx, CL_MEM_READ_ONLY, materialByteSize);
-	cmdQueue.enqueueWriteBuffer(this->materials, true, 0, materialByteSize, mats.data());
-
+void renderer::packBuffers(RenderParams& renderParams) {
 	this->params = cl::Buffer(ctx, CL_MEM_READ_ONLY, sizeof(RenderParams));
 	cmdQueue.enqueueWriteBuffer(this->params, true, 0, sizeof(RenderParams), &renderParams);
 
@@ -102,7 +82,13 @@ cl::Program renderer::createProgramFromFile(string& filename) {
 
 void renderer::renderToTexture(GLuint tex, cl_float viewMat[16]) {
 	cmdQueue.enqueueWriteBuffer(this->viewMatrix, true, 0, sizeof(cl_float)*16, viewMat);
-	raytrace(tris, spheres, lights, materials, params, viewMatrix, resImg);
+
+	raytrace(scene->getTriangleBuffer(),
+			scene->getSphereBuffer(),
+			scene->getPointLightBuffer(),
+			scene->getMaterialBuffer(),
+			params, viewMatrix, resImg);
+
 	glBindTexture(GL_TEXTURE_2D, tex);
 
 	cl::size_t<3> origin;

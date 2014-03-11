@@ -16,40 +16,10 @@
 #include <vector>
 #include <string>
 
-struct Sphere {
-	cl_float radius;
-	cl_float3 position;
-	cl_uint materialId;
-};
-
-struct Triangle {
-	cl_float3 v1, v2, v3;
-	cl_uint materialId;
-};
-
-struct PointLight {
-	cl_float3 position;
-	cl_float3 power;
-};
-
-struct Material {
-	cl_float3 reflection;
-	cl_float3 refraction;
-	cl_float3 diffuseColor;;
-};
-
-struct RenderParams {
-	cl_float maxRenderDist;
-	cl_uint numTris;
-	cl_uint numSpheres;
-	cl_uint numLights;
-};
+#include "scene.h"
 
 struct renderer {
-	renderer(const std::vector<Sphere>& spheres,
-			const std::vector<Triangle>& tris,
-			const std::vector<PointLight>& lights,
-			const std::vector<Material>& materials,
+	renderer(std::shared_ptr<Scene<std::vector>> scene,
 			RenderParams& params, unsigned vpWidth,
 			unsigned vpHeight);
 
@@ -64,13 +34,14 @@ struct renderer {
 	void resizeViewport(unsigned vpWidth, unsigned vpHeight);
 
 private:
+	std::shared_ptr<Scene<std::vector>> scene;
 	size_t viewportWidth, viewportHeight;
 	cl::Context ctx;
 	cl::Device device;
 	cl::CommandQueue cmdQueue;
 	cl::Kernel kernel;
 	cl::Program program;
-	cl::Buffer tris, spheres, lights, materials, params, viewMatrix;
+	cl::Buffer params, viewMatrix;
 	cl::Image2D resImg;
 	cl_uint numSpheres, numTris, numLights;
 	GLuint glResTexture;
@@ -79,11 +50,7 @@ private:
 
 	void initOpenCL();
 
-	void packBuffers(const std::vector<Sphere>& spheres,
-			const std::vector<Triangle>& tris,
-			const std::vector<PointLight>& lights,
-			const std::vector<Material>& materials,
-			RenderParams& renderparams);
+	void packBuffers(RenderParams& renderparams);
 };
 
 #endif /* RENDERER_H_ */
