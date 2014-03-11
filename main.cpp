@@ -57,13 +57,13 @@ renderer initOpenCL() {
 				cl_float3{{-50.0, 1.2,  50.0}},
 				cl_float3{{ 50.0, 1.2, -50.0}},
 				cl_float3{{-50.0, 1.2, -50.0}},
-				1});
+				2});
 	tris.push_back(
 			Triangle{
 				cl_float3{{-50.0, 1.2,  50.0}},
 				cl_float3{{ 50.0, 1.2,  50.0}},
 				cl_float3{{ 50.0, 1.2, -50.0}},
-				1});
+				2});
 
 	tris.push_back(
 			Triangle{
@@ -103,7 +103,13 @@ renderer initOpenCL() {
 			Material{
 				cl_float3{{0.99, 0.99, 0.99}},
 				cl_float3{{0.0, 0.0, 0.0}},
-				cl_float3{{0.5, 0.5, 0.5}}});
+				cl_float3{{0.3, 0.7, 0.3}}});
+
+	mats.push_back(
+			Material{
+				cl_float3{{0.99, 0.99, 0.99}},
+				cl_float3{{0.0, 0.0, 0.0}},
+				cl_float3{{0.3, 0.3, 0.7}}});
 
 	RenderParams params {100.0f, (cl_uint)tris.size(), (cl_uint)spheres.size(), (cl_uint)lights.size()};
 

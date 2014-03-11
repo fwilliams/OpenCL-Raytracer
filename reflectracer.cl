@@ -277,7 +277,7 @@ kernel void raytrace(
 			ray.origin = matrixVectorMultiply(viewMatrix, &((float3) {0.0f, 0.0f, 0.0f}));
 			ray.direction = normalize((float3) {
 				min(((float)get_global_id(0)+i)/(float)get_global_size(0) - 0.5f, 1.0),
-				min(((float)get_global_id(1)+j)/(float)get_global_size(1) - 0.5f, 1.0),
+				min(-((float)get_global_id(1)+j)/(float)get_global_size(1) + 0.5f, 1.0),
 												0.5});
 	
 			color += doRaytrace(&ray, params, spheres, triangles, lights, materials, 0);
