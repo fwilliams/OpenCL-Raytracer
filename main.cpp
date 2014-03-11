@@ -9,6 +9,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include "renderer.h"
+#include "scene.h"
 
 const int kWidth = 256;
 const int kHeight = 256;
