@@ -19,7 +19,7 @@
 #include "scene.h"
 
 struct renderer {
-	renderer(std::shared_ptr<Scene<std::vector>> scene,
+	renderer(std::shared_ptr<Scene<std::vector, CL_DEVICE_TYPE_GPU>> scene,
 			RenderParams& params, unsigned vpWidth,
 			unsigned vpHeight);
 
@@ -34,11 +34,8 @@ struct renderer {
 	void resizeViewport(unsigned vpWidth, unsigned vpHeight);
 
 private:
-	std::shared_ptr<Scene<std::vector>> scene;
+	std::shared_ptr<Scene<std::vector, CL_DEVICE_TYPE_GPU>> scene;
 	size_t viewportWidth, viewportHeight;
-	cl::Context ctx;
-	cl::Device device;
-	cl::CommandQueue cmdQueue;
 	cl::Kernel kernel;
 	cl::Program program;
 	cl::Buffer params, viewMatrix;

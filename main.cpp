@@ -8,6 +8,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <memory>
 #include "renderer.h"
 #include "scene.h"
 
@@ -114,9 +115,10 @@ renderer initOpenCL() {
 
 	RenderParams params {100.0f, (cl_uint)tris.size(), (cl_uint)spheres.size(), (cl_uint)lights.size()};
 
-
+	std::shared_ptr<ClDeviceContext<CL_DEVICE_TYPE_GPU>> devCtx(new ClDeviceContext<CL_DEVICE_TYPE_GPU>());
 	return renderer(
-			std::shared_ptr<Scene<std::vector>>(new Scene<std::vector>(spheres, tris, lights, mats),
+			std::make_shared<Scene<std::vector, CL_DEVICE_TYPE_GPU>>(
+					Scene<std::vector, CL_DEVICE_TYPE_GPU>(devCtx, spheres, tris, lights, mats)),
 					params, kWidth, kHeight);
 }
 

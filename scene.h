@@ -6,10 +6,10 @@
  */
 
 #include <CL/cl.hpp>
-#include <algorithm>
+#include <memory>
 
 #include "geometry_types.h"
-
+#include "cl_device_context.h"
 #ifndef SCENE_H_
 #define SCENE_H_
 
@@ -18,20 +18,21 @@ struct NullBuffer {
 };
 
 // Allow buffering on the CPU for data
-template <template<class ...> class InputContainerType, template<class> class CPUBuffer = NullBuffer>
+template <template<class ...> class InputContainerType,
+		  cl_device_type DEVICE_TYPE>
 struct Scene {
 	Scene(
-		cl::Context& ctx,
-		cl::CommandQueue& queue,
+		std::shared_ptr<ClDeviceContext<DEVICE_TYPE>> deviceContext,
 		InputContainerType<Sphere>& spheres,
 		InputContainerType<Triangle>& tris,
 		InputContainerType<PointLight>& pointLights,
 		InputContainerType<Material>& materials) :
-			  numSpheres(spheres.size()),
-			  numTriangles(tris.size()),
-			  numPointLights(pointLights.size()),
-			  numMaterials(materials.size()) {
-		packCLBuffers(ctx, queue, spheres, tris, pointLights, materials);
+			clDeviceContext(deviceContext),
+			numSpheres(spheres.size()),
+			numTriangles(tris.size()),
+			numPointLights(pointLights.size()),
+			numMaterials(materials.size()) {
+		packCLBuffers(spheres, tris, pointLights, materials);
 	}
 
 	const cl::Buffer& getSphereBuffer() const {
@@ -48,6 +49,10 @@ struct Scene {
 
 	const cl::Buffer& getMaterialBuffer() const {
 		return clMaterials;
+	}
+
+	std::shared_ptr<ClDeviceContext<DEVICE_TYPE>> getCLDeviceContext() const {
+		return clDeviceContext;
 	}
 
 	unsigned getNumSpheres() const {
@@ -67,11 +72,8 @@ struct Scene {
 	}
 
 private:
+	std::shared_ptr<ClDeviceContext<DEVICE_TYPE>> clDeviceContext;
 	cl::Buffer clTriangles, clSpheres, clPointlights, clMaterials;
-//	CPUBuffer<Triangle> cpuTriangles;
-//	CPUBuffer<Sphere> cpuSpheres;
-//	CPUBuffer<PointLight> cpuPointLights;
-//	CPUBuffer<Material> cpuMaterials;
 
 	unsigned numSpheres;
 	unsigned numTriangles;
@@ -79,40 +81,27 @@ private:
 	unsigned numMaterials;
 
 	inline void packCLBuffers(
-			cl::Context& ctx,
-			cl::CommandQueue& cmdQueue,
 			InputContainerType<Sphere>& spheres,
 			InputContainerType<Triangle>& tris,
 			InputContainerType<PointLight>& pointLights,
 			InputContainerType<Material>& materials) {
 
 		size_t sphereByteSize = sizeof(Sphere) * spheres.size();
-		clSpheres = cl::Buffer(ctx, CL_MEM_READ_ONLY, sphereByteSize);
-		cmdQueue.enqueueWriteBuffer(spheres, true, 0, sphereByteSize, spheres.data());
+		clSpheres = cl::Buffer(clDeviceContext->context, CL_MEM_READ_ONLY, sphereByteSize);
+		clDeviceContext->commandQueue.enqueueWriteBuffer(clSpheres, true, 0, sphereByteSize, spheres.data());
 
 		size_t trisByteSize = sizeof(Triangle) * tris.size();
-		clTriangles = cl::Buffer(ctx, CL_MEM_READ_ONLY, trisByteSize);
-		cmdQueue.enqueueWriteBuffer(tris, true, 0, trisByteSize,tris.data());
+		clTriangles = cl::Buffer(clDeviceContext->context, CL_MEM_READ_ONLY, trisByteSize);
+		clDeviceContext->commandQueue.enqueueWriteBuffer(clTriangles, true, 0, trisByteSize,tris.data());
 
 		size_t lightByteSize = sizeof(PointLight) * pointLights.size();
-		clPointlights = cl::Buffer(ctx, CL_MEM_READ_ONLY, lightByteSize);
-		cmdQueue.enqueueWriteBuffer(pointLights, true, 0, lightByteSize, pointLights.data());
+		clPointlights = cl::Buffer(clDeviceContext->context, CL_MEM_READ_ONLY, lightByteSize);
+		clDeviceContext->commandQueue.enqueueWriteBuffer(clPointlights, true, 0, lightByteSize, pointLights.data());
 
 		size_t materialByteSize = sizeof(Material) * materials.size();
-		clMaterials = cl::Buffer(ctx, CL_MEM_READ_ONLY, materialByteSize);
-		cmdQueue.enqueueWriteBuffer(materials, true, 0, materialByteSize, materials.data());
+		clMaterials = cl::Buffer(clDeviceContext->context, CL_MEM_READ_ONLY, materialByteSize);
+		clDeviceContext->commandQueue.enqueueWriteBuffer(clMaterials, true, 0, materialByteSize, materials.data());
 	}
-
-//	inline void packCPUBuffers(
-//			InputContainerType<Sphere>& spheres,
-//			InputContainerType<Triangle>& tris,
-//			InputContainerType<PointLight>& pointLights,
-//			InputContainerType<Material>& materials) {
-//		std::copy(spheres.begin(), spheres.end(), cpuSpheres.begin());
-//		std::copy(tris.begin(), tris.end(), cpuTriangles.begin());
-//		std::copy(pointLights.begin(), pointLights.end(), cpuPointLights.begin());
-//		std::copy(materials.begin(), materials.end(), cpuMaterials.begin());
-//	}
 };
 
 

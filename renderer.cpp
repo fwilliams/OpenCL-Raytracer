@@ -13,40 +13,28 @@
 
 using namespace std;
 
-renderer::renderer(std::shared_ptr<Scene<std::vector>> scene,
+renderer::renderer(std::shared_ptr<Scene<std::vector, CL_DEVICE_TYPE_GPU>> scene,
 		RenderParams& params, unsigned vpWidth, unsigned vpHeight) :
-		scene(scene), viewportWidth(vpWidth), viewportHeight(vpHeight) {
+				scene(scene), viewportWidth(vpWidth), viewportHeight(vpHeight) {
 	initOpenCL();
 	packBuffers(params);
 }
 
 void renderer::initOpenCL() {
-	vector<cl::Platform> allPlatforms;
-	cl::Platform::get(&allPlatforms);
-
-	vector<cl::Device> allDevices;
-	allPlatforms[0].getDevices(CL_DEVICE_TYPE_GPU, &allDevices);
-
-	device = allDevices[0];
-
-	ctx = cl::Context( { device });
-
-	cmdQueue = cl::CommandQueue(ctx, allDevices[0]);
-
 	string programFileName("reflectracer.cl");
 	program = createProgramFromFile(programFileName);
-	raytrace = cl::KernelFunctor(cl::Kernel(program, "raytrace"), cmdQueue,
+	raytrace = cl::KernelFunctor(cl::Kernel(program, "raytrace"), scene->getCLDeviceContext()->commandQueue,
 			cl::NullRange, cl::NDRange(viewportWidth, viewportHeight),
 			cl::NullRange);
 }
 
 void renderer::packBuffers(RenderParams& renderParams) {
-	this->params = cl::Buffer(ctx, CL_MEM_READ_ONLY, sizeof(RenderParams));
-	cmdQueue.enqueueWriteBuffer(this->params, true, 0, sizeof(RenderParams), &renderParams);
+	this->params = cl::Buffer(scene->getCLDeviceContext()->context, CL_MEM_READ_ONLY, sizeof(RenderParams));
+	scene->getCLDeviceContext()->commandQueue.enqueueWriteBuffer(this->params, true, 0, sizeof(RenderParams), &renderParams);
 
-	this->viewMatrix = cl::Buffer(ctx, CL_MEM_READ_ONLY, sizeof(cl_float)*16);
+	this->viewMatrix = cl::Buffer(scene->getCLDeviceContext()->context, CL_MEM_READ_ONLY, sizeof(cl_float)*16);
 
-	resImg = cl::Image2D(ctx, CL_MEM_WRITE_ONLY, cl::ImageFormat(CL_RGBA, CL_FLOAT),
+	resImg = cl::Image2D(scene->getCLDeviceContext()->context, CL_MEM_WRITE_ONLY, cl::ImageFormat(CL_RGBA, CL_FLOAT),
 							viewportWidth, viewportHeight, 0);
 
 }
@@ -69,11 +57,11 @@ cl::Program renderer::createProgramFromFile(string& filename) {
 	cl::Program::Sources sources;
 	sources.push_back({ programString.c_str(), programString.size() });
 
-	cl::Program program(ctx, sources);
+	cl::Program program(scene->getCLDeviceContext()->context, sources);
 	try {
-		program.build((vector<cl::Device>){ device });
+		program.build((vector<cl::Device>){ scene->getCLDeviceContext()->device });
 	} catch (cl::Error& e) {
-		cerr << string(program.getBuildInfo<CL_PROGRAM_BUILD_LOG>(device))
+		cerr << string(program.getBuildInfo<CL_PROGRAM_BUILD_LOG>(scene->getCLDeviceContext()->device))
 				<< endl;
 	}
 
@@ -81,7 +69,7 @@ cl::Program renderer::createProgramFromFile(string& filename) {
 }
 
 void renderer::renderToTexture(GLuint tex, cl_float viewMat[16]) {
-	cmdQueue.enqueueWriteBuffer(this->viewMatrix, true, 0, sizeof(cl_float)*16, viewMat);
+	scene->getCLDeviceContext()->commandQueue.enqueueWriteBuffer(this->viewMatrix, true, 0, sizeof(cl_float)*16, viewMat);
 
 	raytrace(scene->getTriangleBuffer(),
 			scene->getSphereBuffer(),
@@ -102,7 +90,7 @@ void renderer::renderToTexture(GLuint tex, cl_float viewMat[16]) {
 
 	cl_float4* pixels = new cl_float4[viewportWidth*viewportHeight];
 
-	cmdQueue.enqueueReadImage(
+	scene->getCLDeviceContext()->commandQueue.enqueueReadImage(
 			resImg, true, origin, size, 0, 0, pixels);
 
 	glTexImage2D(
