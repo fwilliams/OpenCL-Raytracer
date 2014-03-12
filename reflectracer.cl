@@ -5,7 +5,7 @@
 #define SPHERE_TYPE_ID 1
 #define TRIANGLE_TYPE_ID 2
 
-#define MAX_REFLECTIONS 0
+#define MAX_REFLECTIONS 6
 
 #define EPSILON 0.000001
 

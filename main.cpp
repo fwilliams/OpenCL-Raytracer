@@ -103,13 +103,13 @@ renderer<CL_DEVICE_TYPE_GPU> initOpenCL() {
 
 	mats.push_back(
 			Material{
-				cl_float3{{0.99, 0.99, 0.99}},
+				cl_float3{{0.7, 0.7, 0.7}},
 				cl_float3{{0.0, 0.0, 0.0}},
 				cl_float3{{0.3, 0.7, 0.3}}});
 
 	mats.push_back(
 			Material{
-				cl_float3{{0.99, 0.99, 0.99}},
+				cl_float3{{0.7, 0.7, 0.7}},
 				cl_float3{{0.0, 0.0, 0.0}},
 				cl_float3{{0.3, 0.3, 0.7}}});
 
