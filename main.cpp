@@ -38,7 +38,7 @@ void initOpenGL() {
 	glFinish();	// Texture needs to exist for openCL
 }
 
-renderer initOpenCL() {
+renderer<CL_DEVICE_TYPE_GPU> initOpenCL() {
 	vector<Sphere> spheres;
 	vector<Triangle> tris;
 	vector<PointLight> lights;
@@ -118,10 +118,10 @@ renderer initOpenCL() {
 	auto devCtx = std::make_shared<ClDeviceContext<CL_DEVICE_TYPE_GPU>>();
 	auto scene = std::make_shared<Scene<std::vector, CL_DEVICE_TYPE_GPU>>(
 			devCtx, spheres, tris, lights, mats);
-	return renderer(scene, params, kWidth, kHeight);
+	return renderer<CL_DEVICE_TYPE_GPU>(scene, params, kWidth, kHeight);
 }
 
-void render(int delta, renderer& rndr) {
+void render(int delta, renderer<CL_DEVICE_TYPE_GPU>& rndr) {
 	glm::mat4 viewMatrix;
 	viewMatrix = glm::lookAt(glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 0.0, 1.0), glm::vec3(0.0, 1.0, 0.0));
 	rndr.renderToTexture(renderTex, glm::value_ptr(viewMatrix));
@@ -183,7 +183,7 @@ void update(int delta) {
 }
 
 int main(int argc, char* argv[]) {
-	renderer rndr = initOpenCL();
+	renderer<CL_DEVICE_TYPE_GPU> rndr = initOpenCL();
 
 	SDL_Init(SDL_INIT_EVERYTHING);
 

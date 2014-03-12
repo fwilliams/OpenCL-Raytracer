@@ -8,6 +8,9 @@
 #include <CL/cl.hpp>
 
 #include <vector>
+#include <string>
+#include <fstream>
+#include <iostream>
 
 #ifndef CL_DEVICE_CONTEXT_H_
 #define CL_DEVICE_CONTEXT_H_
@@ -31,6 +34,34 @@ struct ClDeviceContext {
 	cl::Context context;
 	cl::Device device;
 	cl::CommandQueue commandQueue;
+
+	cl::Program createProgramFromFile(std::string& filename) {
+		std::string programString;
+		std::ifstream file;
+		file.exceptions(std::ifstream::badbit);
+		file.open(filename.c_str());
+
+		while (!file.eof()) {
+			std::string str;
+			std::getline(file, str);
+			programString += str;
+			programString.push_back('\n');
+		}
+
+		file.close();
+
+		cl::Program::Sources sources;
+		sources.push_back({ programString.c_str(), programString.size() });
+
+		cl::Program program(context, sources);
+		try {
+			program.build((std::vector<cl::Device>){ device });
+		} catch (cl::Error& e) {
+			std::cerr << std::string(program.getBuildInfo<CL_PROGRAM_BUILD_LOG>(device)) << std::endl;
+		}
+
+		return program;
+	}
 };
 
 #endif /* CL_DEVICE_CONTEXT_H_ */
