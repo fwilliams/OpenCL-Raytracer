@@ -41,14 +41,6 @@ struct Ray {
 	float3 direction;
 };
 
-// TODO: #define these for increases performance
-struct RenderParams {
-	float maxRenderDist;
-	uint numTris;
-	uint numSpheres;
-	uint numLights;
-};
-
 bool rayTriangle(struct Ray* ray, global struct Triangle* tri, float* outT) {
 	float3 e1, e2;
 	float3 P, Q, T;
@@ -123,13 +115,13 @@ bool raySphere(struct Ray* r, global struct Sphere* s, float* t) {
 }
 
 float intersect(
-		struct Ray* ray, global struct RenderParams* params,
+		struct Ray* ray,
 		global struct Sphere* spheres,
 		global struct Triangle* tris,
 		int* index, uint* type) {
-	float minT = params->maxRenderDist;
+	float minT = MAX_RENDER_DISTANCE;
 
-	for(int i = 0; i < params->numSpheres; i++) {
+	for(int i = 0; i < NUM_SPHERES; i++) {
 		float t;
 		if(raySphere(ray, &spheres[i], &t)) {
 			if(t < minT){
@@ -140,7 +132,7 @@ float intersect(
 		}
 	}
 
-	for(int i = 0; i < params->numTris; i++) {
+	for(int i = 0; i < NUM_TRIANGLES; i++) {
 		float t;
 		if(rayTriangle(ray, &tris[i], &t)) {
 			if(t < minT){
@@ -164,7 +156,6 @@ float3 reflect(float3 v, float3 n) {
 
 float3 doRaytrace(
 		struct Ray* ray,
-		global struct RenderParams* params,
 		global struct Sphere* spheres,
 		global struct Triangle* tris,
 		global struct PointLight* lights,
@@ -172,11 +163,11 @@ float3 doRaytrace(
 
 	int intersectObjIndex = -1;
 	uint intersectObjType = NULL_TYPE_ID;
-	float t = intersect(ray, params, spheres, tris, &intersectObjIndex, &intersectObjType);
+	float t = intersect(ray, spheres, tris, &intersectObjIndex, &intersectObjType);
 
 	float3 color = (float3){0.0f, 0.0f, 0.0f};
 
-	if(t < params->maxRenderDist) {
+	if(t < MAX_RENDER_DISTANCE) {
 		float3 intersectPos = ray->origin + ray->direction*t;
 		float3 normal;
 
@@ -200,7 +191,7 @@ float3 doRaytrace(
 		for(int i = 0; i < MAX_REFLECTIONS; i++) {
 			reflectRay.direction = reflect(reflectRay.direction, reflectNormal);
 			
-			float rt = intersect(&reflectRay, params, spheres, tris, &intersectObjIndex, &intersectObjType);
+			float rt = intersect(&reflectRay, spheres, tris, &intersectObjIndex, &intersectObjType);
 
 			reflectRay.origin = reflectRay.origin + rt * reflectRay.direction;
 			
@@ -218,7 +209,7 @@ float3 doRaytrace(
 			
 			reflectionFactor *= reflectMat->reflection;
 	
-			for(int j = 0; j < params->numLights; j++) {
+			for(int j = 0; j < NUM_LIGHTS; j++) {
 				float3 L = lights[j].position - reflectRay.origin;
 				float distanceToLight = length(L);
 				L = normalize(L);
@@ -226,7 +217,7 @@ float3 doRaytrace(
 				struct Ray shadowRay;
 				shadowRay.origin = intersectPos + L*0.001;
 				shadowRay.direction = L;
-				float st = intersect(&shadowRay, params, spheres, tris, &intersectObjIndex, &intersectObjType);
+				float st = intersect(&shadowRay, spheres, tris, &intersectObjIndex, &intersectObjType);
 				if(st > distanceToLight) {
 					color += reflectionFactor * reflectMat->diffuseColor*lights[j].power*max(0.0f, dot(reflectNormal, L));
 				}
@@ -234,7 +225,7 @@ float3 doRaytrace(
 			
 		}
 		
-		for(int i = 0; i < params->numLights; i++) {
+		for(int i = 0; i < NUM_LIGHTS; i++) {
 			float3 L = lights[i].position - intersectPos;
 			float distanceToLight = length(L);
 			L = normalize(L);
@@ -242,7 +233,7 @@ float3 doRaytrace(
 			struct Ray shadowRay;
 			shadowRay.origin = intersectPos + L*0.001;
 			shadowRay.direction = L;
-			t = intersect(&shadowRay, params, spheres, tris, &intersectObjIndex, &intersectObjType);
+			t = intersect(&shadowRay, spheres, tris, &intersectObjIndex, &intersectObjType);
 			if(t > distanceToLight) {
 				color += m->diffuseColor*lights[i].power*max(0.0f, dot(normal, L));
 			}
@@ -265,7 +256,6 @@ kernel void raytrace(
 		global const struct Sphere* spheres,
 		global const struct PointLight* lights,
 		global const struct Material* materials,
-		global const struct RenderParams* params,
 		global float* viewMatrix,
 		global write_only image2d_t res) {
 
@@ -280,7 +270,7 @@ kernel void raytrace(
 				min(-((float)get_global_id(1)+j)/(float)get_global_size(1) + 0.5f, 1.0),
 												0.5});
 	
-			color += doRaytrace(&ray, params, spheres, triangles, lights, materials, 0);
+			color += doRaytrace(&ray, spheres, triangles, lights, materials, 0);
 		}
 	}
 	

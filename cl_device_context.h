@@ -11,6 +11,7 @@
 #include <string>
 #include <fstream>
 #include <iostream>
+#include <map>
 
 #ifndef CL_DEVICE_CONTEXT_H_
 #define CL_DEVICE_CONTEXT_H_
@@ -35,7 +36,7 @@ struct ClDeviceContext {
 	cl::Device device;
 	cl::CommandQueue commandQueue;
 
-	cl::Program createProgramFromFile(std::string& filename) {
+	cl::Program createProgramFromFile(std::string& filename, std::map<std::string, std::string>& defines ) {
 		std::string programString;
 		std::ifstream file;
 		file.exceptions(std::ifstream::badbit);
@@ -53,9 +54,16 @@ struct ClDeviceContext {
 		cl::Program::Sources sources;
 		sources.push_back({ programString.c_str(), programString.size() });
 
+		std::string defineString;
+		for(auto i = defines.begin(); i != defines.end(); i++) {
+			defineString.append(
+					std::string("-D")+i->first+std::string("=")+i->second+std::string(" "));
+		}
+
 		cl::Program program(context, sources);
+
 		try {
-			program.build((std::vector<cl::Device>){ device });
+			program.build((std::vector<cl::Device>){ device }, defineString.c_str());
 		} catch (cl::Error& e) {
 			std::cerr << std::string(program.getBuildInfo<CL_PROGRAM_BUILD_LOG>(device)) << std::endl;
 		}

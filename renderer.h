@@ -21,8 +21,7 @@
 template <cl_device_type DEVICE_TYPE>
 struct renderer {
 	renderer(std::shared_ptr<Scene<std::vector, DEVICE_TYPE>> scene,
-			RenderParams& params, unsigned vpWidth,
-			unsigned vpHeight);
+			unsigned vpWidth, unsigned vpHeight);
 
 	cl::KernelFunctor raytrace;
 
@@ -50,31 +49,35 @@ private:
 
 	void initOpenCL();
 
-	void packBuffers(RenderParams& renderparams);
+	void packBuffers();
 };
 
 template <cl_device_type DEVICE_TYPE>
 renderer<DEVICE_TYPE>::renderer(std::shared_ptr<Scene<std::vector, DEVICE_TYPE>> scene,
-		RenderParams& params, unsigned vpWidth, unsigned vpHeight) :
+		unsigned vpWidth, unsigned vpHeight) :
 				scene(scene), deviceContext(scene->getCLDeviceContext()), viewportWidth(vpWidth), viewportHeight(vpHeight) {
 	initOpenCL();
-	packBuffers(params);
+	packBuffers();
 }
 
 template <cl_device_type DEVICE_TYPE>
 void renderer<DEVICE_TYPE>::initOpenCL() {
+	std::map<std::string, std::string> defines;
+	defines["NUM_SPHERES"] = std::to_string(scene->getNumSpheres());
+	defines["NUM_TRIANGLES"] = std::to_string(scene->getNumTriangles());
+	defines["NUM_LIGHTS"] = std::to_string(scene->getNumPointLights());
+	defines["NUM_MATERIALS"] = std::to_string(scene->getNumMaterials());
+	defines["MAX_RENDER_DISTANCE"] = std::to_string(100.0);
+
 	std::string programFileName("reflectracer.cl");
-	program = scene->getCLDeviceContext()->createProgramFromFile(programFileName);
+	program = scene->getCLDeviceContext()->createProgramFromFile(programFileName, defines);
 	raytrace = cl::KernelFunctor(cl::Kernel(program, "raytrace"), deviceContext->commandQueue,
 			cl::NullRange, cl::NDRange(viewportWidth, viewportHeight),
 			cl::NullRange);
 }
 
 template <cl_device_type DEVICE_TYPE>
-void renderer<DEVICE_TYPE>::packBuffers(RenderParams& renderParams) {
-	this->params = cl::Buffer(deviceContext->context, CL_MEM_READ_ONLY, sizeof(RenderParams));
-	deviceContext->commandQueue.enqueueWriteBuffer(this->params, true, 0, sizeof(RenderParams), &renderParams);
-
+void renderer<DEVICE_TYPE>::packBuffers() {
 	this->viewMatrix = cl::Buffer(deviceContext->context, CL_MEM_READ_ONLY, sizeof(cl_float)*16);
 
 	resImg = cl::Image2D(deviceContext->context, CL_MEM_WRITE_ONLY, cl::ImageFormat(CL_RGBA, CL_FLOAT),
@@ -90,7 +93,7 @@ void renderer<DEVICE_TYPE>::renderToTexture(GLuint tex, cl_float viewMat[16]) {
 			scene->getSphereBuffer(),
 			scene->getPointLightBuffer(),
 			scene->getMaterialBuffer(),
-			params, viewMatrix, resImg);
+			viewMatrix, resImg);
 
 	glBindTexture(GL_TEXTURE_2D, tex);
 

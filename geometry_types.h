@@ -30,13 +30,4 @@ struct Material {
 	cl_float3 diffuseColor;;
 };
 
-struct RenderParams {
-	cl_float maxRenderDist;
-	cl_uint numTris;
-	cl_uint numSpheres;
-	cl_uint numLights;
-};
-
-
-
 #endif /* GEOMETRY_TYPES_H_ */

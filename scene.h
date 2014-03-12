@@ -10,14 +10,10 @@
 
 #include "geometry_types.h"
 #include "cl_device_context.h"
+
 #ifndef SCENE_H_
 #define SCENE_H_
 
-template <typename T>
-struct NullBuffer {
-};
-
-// Allow buffering on the CPU for data
 template <template<class ...> class InputContainerType,
 		  cl_device_type DEVICE_TYPE>
 struct Scene {
