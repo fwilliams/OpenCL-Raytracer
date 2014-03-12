@@ -10,7 +10,6 @@
 #include <fstream>
 #include <iostream>
 
-
 using namespace std;
 
 renderer::renderer(std::shared_ptr<Scene<std::vector, CL_DEVICE_TYPE_GPU>> scene,

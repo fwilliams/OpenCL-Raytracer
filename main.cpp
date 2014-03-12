@@ -115,11 +115,10 @@ renderer initOpenCL() {
 
 	RenderParams params {100.0f, (cl_uint)tris.size(), (cl_uint)spheres.size(), (cl_uint)lights.size()};
 
-	std::shared_ptr<ClDeviceContext<CL_DEVICE_TYPE_GPU>> devCtx(new ClDeviceContext<CL_DEVICE_TYPE_GPU>());
-	return renderer(
-			std::make_shared<Scene<std::vector, CL_DEVICE_TYPE_GPU>>(
-					Scene<std::vector, CL_DEVICE_TYPE_GPU>(devCtx, spheres, tris, lights, mats)),
-					params, kWidth, kHeight);
+	auto devCtx = std::make_shared<ClDeviceContext<CL_DEVICE_TYPE_GPU>>();
+	auto scene = std::make_shared<Scene<std::vector, CL_DEVICE_TYPE_GPU>>(
+			devCtx, spheres, tris, lights, mats);
+	return renderer(scene, params, kWidth, kHeight);
 }
 
 void render(int delta, renderer& rndr) {
