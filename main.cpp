@@ -12,8 +12,8 @@
 #include "renderer.h"
 #include "scene.h"
 
-const int kWidth = 256;
-const int kHeight = 256;
+const int kWidth = 512;
+const int kHeight = 512;
 const bool kFullscreen = false;
 
 using namespace std;
