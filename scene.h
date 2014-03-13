@@ -7,6 +7,8 @@
 
 #include <CL/cl.hpp>
 #include <memory>
+#include <algorithm>
+#include <iterator>
 
 #include "geometry_types.h"
 #include "cl_device_context.h"
@@ -19,32 +21,23 @@ template <template<class ...> class InputContainerType,
 		  template<class ...> class StorageContainerType = std::vector>
 struct Scene {
 	template <typename SphereIter, typename TriIter, typename LightIter, typename MatIter>
-	Scene(
-		std::shared_ptr<ClDeviceContext<DEVICE_TYPE>> deviceContext,
-		InputContainerType<Sphere>& spheres,
-		InputContainerType<Triangle>& tris,
-		InputContainerType<PointLight>& pointLights,
-		InputContainerType<Material>& materials) :
-			clDeviceContext(deviceContext),
-			numSpheres(spheres.size()),
-			numTriangles(tris.size()),
-			numPointLights(pointLights.size()),
-			numMaterials(materials.size()) {
-		packCLBuffers(spheres, tris, pointLights, materials);
-	}
+	Scene(std::shared_ptr<ClDeviceContext<DEVICE_TYPE>> deviceContext,
+		  SphereIter sphereBegin, SphereIter sphereEnd,
+		  TriIter triBegin, TriIter triEnd,
+		  LightIter lightBegin, LightIter lightEnd,
+		  MatIter matBegin, MatIter matEnd) : clDeviceContext(deviceContext) {
 
-	Scene(
-		std::shared_ptr<ClDeviceContext<DEVICE_TYPE>> deviceContext,
-		InputContainerType<Sphere>& spheres,
-		InputContainerType<Triangle>& tris,
-		InputContainerType<PointLight>& pointLights,
-		InputContainerType<Material>& materials) :
-			clDeviceContext(deviceContext),
-			numSpheres(spheres.size()),
-			numTriangles(tris.size()),
-			numPointLights(pointLights.size()),
-			numMaterials(materials.size()) {
-		packCLBuffers(spheres, tris, pointLights, materials);
+		cpuSpheres.resize(std::distance(sphereBegin, sphereEnd));
+		cpuTriangles.resize(std::distance(triBegin, triEnd));
+		cpuPointLights.resize(std::distance(lightBegin, lightEnd));
+		cpuMaterials.resize(std::distance(matBegin, matEnd));
+
+		std::copy(sphereBegin, sphereEnd, cpuSpheres.begin());
+		std::copy(triBegin, triEnd, cpuTriangles.begin());
+		std::copy(lightBegin, lightEnd, cpuPointLights.begin());
+		std::copy(matBegin, matEnd, cpuMaterials.begin());
+
+		packCLBuffers2();
 	}
 
 	const cl::Buffer& getSphereBuffer() const {
@@ -68,19 +61,19 @@ struct Scene {
 	}
 
 	unsigned getNumSpheres() const {
-		return numSpheres;
+		return cpuSpheres.size();
 	}
 
 	unsigned getNumTriangles() const {
-		return numTriangles;
+		return cpuTriangles.size();
 	}
 
 	unsigned getNumPointLights() const {
-		return numPointLights;
+		return cpuPointLights.size();
 	}
 
 	unsigned getNumMaterials() const {
-		return numMaterials;
+		return cpuMaterials.size();
 	}
 
 private:
@@ -92,36 +85,7 @@ private:
 	std::shared_ptr<ClDeviceContext<DEVICE_TYPE>> clDeviceContext;
 	cl::Buffer clTriangles, clSpheres, clPointlights, clMaterials;
 
-	unsigned numSpheres;
-	unsigned numTriangles;
-	unsigned numPointLights;
-	unsigned numMaterials;
-
-	inline void packCLBuffers(
-			InputContainerType<Sphere>& spheres,
-			InputContainerType<Triangle>& tris,
-			InputContainerType<PointLight>& pointLights,
-			InputContainerType<Material>& materials) {
-
-		size_t sphereByteSize = sizeof(Sphere) * spheres.size();
-		clSpheres = cl::Buffer(clDeviceContext->context, CL_MEM_READ_ONLY, sphereByteSize);
-		clDeviceContext->commandQueue.enqueueWriteBuffer(clSpheres, true, 0, sphereByteSize, spheres.data());
-
-		size_t trisByteSize = sizeof(Triangle) * tris.size();
-		clTriangles = cl::Buffer(clDeviceContext->context, CL_MEM_READ_ONLY, trisByteSize);
-		clDeviceContext->commandQueue.enqueueWriteBuffer(clTriangles, true, 0, trisByteSize,tris.data());
-
-		size_t lightByteSize = sizeof(PointLight) * pointLights.size();
-		clPointlights = cl::Buffer(clDeviceContext->context, CL_MEM_READ_ONLY, lightByteSize);
-		clDeviceContext->commandQueue.enqueueWriteBuffer(clPointlights, true, 0, lightByteSize, pointLights.data());
-
-		size_t materialByteSize = sizeof(Material) * materials.size();
-		clMaterials = cl::Buffer(clDeviceContext->context, CL_MEM_READ_ONLY, materialByteSize);
-		clDeviceContext->commandQueue.enqueueWriteBuffer(clMaterials, true, 0, materialByteSize, materials.data());
-	}
-
 	inline void packCLBuffers2() {
-
 		size_t sphereByteSize = sizeof(Sphere) * cpuSpheres.size();
 		clSpheres = cl::Buffer(clDeviceContext->context, CL_MEM_READ_ONLY, sphereByteSize);
 		clDeviceContext->commandQueue.enqueueWriteBuffer(clSpheres, true, 0, sphereByteSize, cpuSpheres.data());

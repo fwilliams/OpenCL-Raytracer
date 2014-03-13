@@ -137,7 +137,11 @@ renderer<vector, CL_DEVICE_TYPE_GPU> initOpenCL() {
 
 	auto devCtx = std::make_shared<ClDeviceContext<CL_DEVICE_TYPE_GPU>>();
 	auto scene = std::make_shared<Scene<std::vector, CL_DEVICE_TYPE_GPU>>(
-			devCtx, spheres, tris, lights, mats);
+			devCtx, spheres.begin(), spheres.end(),
+					tris.begin(), tris.end(),
+					lights.begin(), lights.end(),
+					mats.begin(), mats.end());
+
 	return renderer<vector, CL_DEVICE_TYPE_GPU>(scene, kWidth, kHeight);
 }
 
