@@ -18,9 +18,9 @@
 
 #include "scene.h"
 
-template <cl_device_type DEVICE_TYPE>
+template <template<class ...> class InputContainerType, cl_device_type DEVICE_TYPE>
 struct renderer {
-	renderer(std::shared_ptr<Scene<std::vector, DEVICE_TYPE>> scene,
+	renderer(std::shared_ptr<Scene<InputContainerType, DEVICE_TYPE>> scene,
 			unsigned vpWidth, unsigned vpHeight);
 
 
@@ -48,7 +48,7 @@ struct renderer {
 	}
 
 private:
-	std::shared_ptr<Scene<std::vector, CL_DEVICE_TYPE_GPU>> scene;
+	std::shared_ptr<Scene<InputContainerType, CL_DEVICE_TYPE_GPU>> scene;
 	std::shared_ptr<ClDeviceContext<DEVICE_TYPE>> deviceContext;
 
 	size_t viewportWidth, viewportHeight;
@@ -58,8 +58,8 @@ private:
 	cl::Image2D resImg;
 };
 
-template <cl_device_type DEVICE_TYPE>
-renderer<DEVICE_TYPE>::renderer(std::shared_ptr<Scene<std::vector, DEVICE_TYPE>> scene,
+template <template<class ...> class InputContainerType, cl_device_type DEVICE_TYPE>
+renderer<InputContainerType, DEVICE_TYPE>::renderer(std::shared_ptr<Scene<InputContainerType, DEVICE_TYPE>> scene,
 		unsigned vpWidth, unsigned vpHeight) :
 				deviceContext(scene->getCLDeviceContext()), viewportWidth(vpWidth), viewportHeight(vpHeight) {
 	setScene(scene);
@@ -69,8 +69,8 @@ renderer<DEVICE_TYPE>::renderer(std::shared_ptr<Scene<std::vector, DEVICE_TYPE>>
 							viewportWidth, viewportHeight, 0);
 }
 
-template <cl_device_type DEVICE_TYPE>
-void renderer<DEVICE_TYPE>::renderToTexture(GLuint tex, cl_float viewMat[16]) {
+template <template<class ...> class InputContainerType, cl_device_type DEVICE_TYPE>
+void renderer<InputContainerType, DEVICE_TYPE>::renderToTexture(GLuint tex, cl_float viewMat[16]) {
 	deviceContext->commandQueue.enqueueWriteBuffer(this->viewMatrix, true, 0, sizeof(cl_float)*16, viewMat);
 
 	raytrace(scene->getTriangleBuffer(),

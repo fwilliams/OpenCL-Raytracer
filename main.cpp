@@ -12,11 +12,13 @@
 #include "renderer.h"
 #include "scene.h"
 
+#define RENDER_LIGHTS
+
+using namespace std;
+
 const int kWidth = 512;
 const int kHeight = 512;
 const bool kFullscreen = false;
-
-using namespace std;
 
 GLuint renderTex;
 
@@ -43,7 +45,7 @@ void initOpenGL() {
 	glFinish();	// Texture needs to exist for openCL
 }
 
-renderer<CL_DEVICE_TYPE_GPU> initOpenCL() {
+renderer<vector, CL_DEVICE_TYPE_GPU> initOpenCL() {
 	// Spheres
 	spheres.push_back(Sphere{1.0, cl_float3{{-2.5, -0.0, -3.0}}, 1});
 	spheres.push_back(Sphere{1.0, cl_float3{{ 2.5, -0.0, -3.0}}, 0});
@@ -55,8 +57,8 @@ renderer<CL_DEVICE_TYPE_GPU> initOpenCL() {
 	float planeWidth = 10.0;
 	float planeHeight = 10.0;
 	float planeSeparation = 2.4;
-	unsigned trisX = 4;
-	unsigned trisY = 4;
+	unsigned trisX = 1;
+	unsigned trisY = 1;
 
 	float halfSeperation = planeSeparation/2.0;
 	float halfWidth = planeWidth/2.0;
@@ -136,10 +138,10 @@ renderer<CL_DEVICE_TYPE_GPU> initOpenCL() {
 	auto devCtx = std::make_shared<ClDeviceContext<CL_DEVICE_TYPE_GPU>>();
 	auto scene = std::make_shared<Scene<std::vector, CL_DEVICE_TYPE_GPU>>(
 			devCtx, spheres, tris, lights, mats);
-	return renderer<CL_DEVICE_TYPE_GPU>(scene, kWidth, kHeight);
+	return renderer<vector, CL_DEVICE_TYPE_GPU>(scene, kWidth, kHeight);
 }
 
-void render(int delta, renderer<CL_DEVICE_TYPE_GPU>& rndr) {
+void render(int delta, renderer<vector, CL_DEVICE_TYPE_GPU>& rndr) {
 	glm::mat4 viewMatrix;
 	viewMatrix = glm::lookAt(glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 0.0, 1.0), glm::vec3(0.0, 1.0, 0.0));
 	rndr.renderToTexture(renderTex, glm::value_ptr(viewMatrix));
@@ -162,6 +164,7 @@ void render(int delta, renderer<CL_DEVICE_TYPE_GPU>& rndr) {
 	glBindTexture(GL_TEXTURE_2D, 0);
 
 
+#ifdef RENDER_LIGHTS
 	glMatrixMode(GL_PROJECTION);
 	glFrustum(-0.5, 0.5, -0.5, 0.5, 0.5, 100.0);
 
@@ -174,6 +177,8 @@ void render(int delta, renderer<CL_DEVICE_TYPE_GPU>& rndr) {
 	glEnd();
 	glLoadIdentity();
 	glMatrixMode(GL_MODELVIEW);
+#endif
+
 	SDL_GL_SwapBuffers();
 }
 

@@ -15,7 +15,8 @@
 #define SCENE_H_
 
 template <template<class ...> class InputContainerType,
-		  cl_device_type DEVICE_TYPE>
+		  cl_device_type DEVICE_TYPE,
+		  template<class ...> class StorageContainerType = std::vector>
 struct Scene {
 	Scene(
 		std::shared_ptr<ClDeviceContext<DEVICE_TYPE>> deviceContext,
@@ -68,6 +69,11 @@ struct Scene {
 	}
 
 private:
+	StorageContainerType<Triangle> cpuTriangles;
+	StorageContainerType<Sphere> cpuSpheres;
+	StorageContainerType<PointLight> cpuPointLights;
+	StorageContainerType<Material> cpuMaterials;
+
 	std::shared_ptr<ClDeviceContext<DEVICE_TYPE>> clDeviceContext;
 	cl::Buffer clTriangles, clSpheres, clPointlights, clMaterials;
 
