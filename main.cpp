@@ -219,7 +219,7 @@ void update(int delta) {
 }
 
 int main(int argc, char* argv[]) {
-	renderer<CL_DEVICE_TYPE_GPU> rndr = initOpenCL();
+	renderer<vector, CL_DEVICE_TYPE_GPU> rndr = initOpenCL();
 
 	SDL_Init(SDL_INIT_EVERYTHING);
 

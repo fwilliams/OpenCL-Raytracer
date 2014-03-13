@@ -18,6 +18,21 @@ template <template<class ...> class InputContainerType,
 		  cl_device_type DEVICE_TYPE,
 		  template<class ...> class StorageContainerType = std::vector>
 struct Scene {
+	template <typename SphereIter, typename TriIter, typename LightIter, typename MatIter>
+	Scene(
+		std::shared_ptr<ClDeviceContext<DEVICE_TYPE>> deviceContext,
+		InputContainerType<Sphere>& spheres,
+		InputContainerType<Triangle>& tris,
+		InputContainerType<PointLight>& pointLights,
+		InputContainerType<Material>& materials) :
+			clDeviceContext(deviceContext),
+			numSpheres(spheres.size()),
+			numTriangles(tris.size()),
+			numPointLights(pointLights.size()),
+			numMaterials(materials.size()) {
+		packCLBuffers(spheres, tris, pointLights, materials);
+	}
+
 	Scene(
 		std::shared_ptr<ClDeviceContext<DEVICE_TYPE>> deviceContext,
 		InputContainerType<Sphere>& spheres,
@@ -103,6 +118,25 @@ private:
 		size_t materialByteSize = sizeof(Material) * materials.size();
 		clMaterials = cl::Buffer(clDeviceContext->context, CL_MEM_READ_ONLY, materialByteSize);
 		clDeviceContext->commandQueue.enqueueWriteBuffer(clMaterials, true, 0, materialByteSize, materials.data());
+	}
+
+	inline void packCLBuffers2() {
+
+		size_t sphereByteSize = sizeof(Sphere) * cpuSpheres.size();
+		clSpheres = cl::Buffer(clDeviceContext->context, CL_MEM_READ_ONLY, sphereByteSize);
+		clDeviceContext->commandQueue.enqueueWriteBuffer(clSpheres, true, 0, sphereByteSize, cpuSpheres.data());
+
+		size_t trisByteSize = sizeof(Triangle) * cpuTriangles.size();
+		clTriangles = cl::Buffer(clDeviceContext->context, CL_MEM_READ_ONLY, trisByteSize);
+		clDeviceContext->commandQueue.enqueueWriteBuffer(clTriangles, true, 0, trisByteSize, cpuTriangles.data());
+
+		size_t lightByteSize = sizeof(PointLight) * cpuPointLights.size();
+		clPointlights = cl::Buffer(clDeviceContext->context, CL_MEM_READ_ONLY, lightByteSize);
+		clDeviceContext->commandQueue.enqueueWriteBuffer(clPointlights, true, 0, lightByteSize, cpuPointLights.data());
+
+		size_t materialByteSize = sizeof(Material) * cpuMaterials.size();
+		clMaterials = cl::Buffer(clDeviceContext->context, CL_MEM_READ_ONLY, materialByteSize);
+		clDeviceContext->commandQueue.enqueueWriteBuffer(clMaterials, true, 0, materialByteSize, cpuMaterials.data());
 	}
 };
 
