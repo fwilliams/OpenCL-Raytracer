@@ -20,6 +20,11 @@ using namespace std;
 
 GLuint renderTex;
 
+vector<Sphere> spheres;
+vector<Triangle> tris;
+vector<PointLight> lights;
+vector<Material> mats;
+
 void initOpenGL() {
 	glEnable(GL_TEXTURE_2D);
 
@@ -39,59 +44,57 @@ void initOpenGL() {
 }
 
 renderer<CL_DEVICE_TYPE_GPU> initOpenCL() {
-	vector<Sphere> spheres;
-	vector<Triangle> tris;
-	vector<PointLight> lights;
-	vector<Material> mats;
-
 	// Spheres
-	spheres.push_back(Sphere{1.0, cl_float3{{-3.0, -0.0, 5.0}}, 0});
-	spheres.push_back(Sphere{1.0, cl_float3{{ 3.0, -0.0, 5.0}}, 0});
+	spheres.push_back(Sphere{1.0, cl_float3{{-2.5, -0.0, -3.0}}, 1});
+	spheres.push_back(Sphere{1.0, cl_float3{{ 2.5, -0.0, -3.0}}, 0});
 	//spheres.push_back(Sphere{1.0, cl_float3{{ 0.0, -0.5, 3.0}}, 0});
 
-	spheres.push_back(Sphere{1.0, cl_float3{{-3.0, -0.0, 7.0}}, 0});
-	spheres.push_back(Sphere{1.0, cl_float3{{ 3.0, -0.0, 7.0}}, 0});
+	spheres.push_back(Sphere{1.0, cl_float3{{-2.5, -0.0, -5.0}}, 0});
+	spheres.push_back(Sphere{1.0, cl_float3{{ 2.5, -0.0, -5.0}}, 1});
+
+	//spheres.push_back(Sphere{2.0, cl_float3{{ 0.0, -0.0, -6.0}}, 1});
+
 	//spheres.push_back(Sphere{1.0, cl_float3{{ 0.0, -0.0, 16.0}}, 0});
 
 	// Triangles
 	tris.push_back(
 			Triangle{
-				cl_float3{{-50.0, 1.2,  50.0}},
-				cl_float3{{ 50.0, 1.2, -50.0}},
-				cl_float3{{-50.0, 1.2, -50.0}},
-				2});
+				cl_float3{{-5.0, 1.2,  00.0}},
+				cl_float3{{ 5.0, 1.2, -10.0}},
+				cl_float3{{-5.0, 1.2, -10.0}},
+				3});
 	tris.push_back(
 			Triangle{
-				cl_float3{{-50.0, 1.2,  50.0}},
-				cl_float3{{ 50.0, 1.2,  50.0}},
-				cl_float3{{ 50.0, 1.2, -50.0}},
-				2});
+				cl_float3{{-5.0, 1.2,  00.0}},
+				cl_float3{{ 5.0, 1.2,  00.0}},
+				cl_float3{{ 5.0, 1.2, -10.0}},
+				3});
 
 	tris.push_back(
 			Triangle{
-				cl_float3{{-50.0, -1.2,  50.0}},
-				cl_float3{{-50.0, -1.2, -50.0}},
-				cl_float3{{ 50.0, -1.2, -50.0}},
-				1});
+				cl_float3{{-5.0, -1.2,  00.0}},
+				cl_float3{{-5.0, -1.2, -10.0}},
+				cl_float3{{ 5.0, -1.2, -10.0}},
+				2});
 	tris.push_back(
 			Triangle{
-				cl_float3{{-50.0, -1.2,  50.0}},
-				cl_float3{{ 50.0, -1.2, -50.0}},
-				cl_float3{{ 50.0, -1.2,  50.0}},
-				1});
+				cl_float3{{-5.0, -1.2,  00.0}},
+				cl_float3{{ 5.0, -1.2, -10.0}},
+				cl_float3{{ 5.0, -1.2,  00.0}},
+				2});
 
 	// Lights
 	lights.push_back(
 			PointLight{
-				cl_float3{{-1.5, 0.1, 5.0}},
-				cl_float3{{0.0, 1.0, 0.0}}});
+				cl_float3{{-1.0, 0.1, -3.0}},
+				cl_float3{{0.7, 0.7, 0.7}}});
 	lights.push_back(
 			PointLight{
-				cl_float3{{1.5, 0.1, 5.0}},
-				cl_float3{{1.0, 0.0, 0.0}}});
+				cl_float3{{1.0, 0.1, -3.0}},
+				cl_float3{{0.7, 0.7, 0.7}}});
 	lights.push_back(
 			PointLight{
-				cl_float3{{0.0, 0.1, 0.0}},
+				cl_float3{{0.0, 0.1, 1.0}},
 				cl_float3{{0.6, 0.6, 0.6}}});
 
 	// Materials
@@ -103,15 +106,21 @@ renderer<CL_DEVICE_TYPE_GPU> initOpenCL() {
 
 	mats.push_back(
 			Material{
-				cl_float3{{0.7, 0.7, 0.7}},
+				cl_float3{{0.2, 0.2, 0.2}},
 				cl_float3{{0.0, 0.0, 0.0}},
-				cl_float3{{0.3, 0.7, 0.3}}});
+				cl_float3{{0.6, 0.1, 0.1}}});
 
 	mats.push_back(
 			Material{
-				cl_float3{{0.7, 0.7, 0.7}},
+				cl_float3{{0.99, 0.99, 0.99}},
 				cl_float3{{0.0, 0.0, 0.0}},
-				cl_float3{{0.3, 0.3, 0.7}}});
+				cl_float3{{0.3, 0.3, 0.3}}});
+
+	mats.push_back(
+			Material{
+				cl_float3{{0.99, 0.99, 0.99}},
+				cl_float3{{0.0, 0.0, 0.0}},
+				cl_float3{{0.3, 0.3, 0.3}}});
 
 	auto devCtx = std::make_shared<ClDeviceContext<CL_DEVICE_TYPE_GPU>>();
 	auto scene = std::make_shared<Scene<std::vector, CL_DEVICE_TYPE_GPU>>(
@@ -141,6 +150,19 @@ void render(int delta, renderer<CL_DEVICE_TYPE_GPU>& rndr) {
 	glEnd();
 	glBindTexture(GL_TEXTURE_2D, 0);
 
+
+	glMatrixMode(GL_PROJECTION);
+	glFrustum(-0.5, 0.5, -0.5, 0.5, 0.5, 100.0);
+
+	glPointSize(5.0);
+	glBegin(GL_POINTS);
+	for(auto i = lights.begin(); i != lights.end(); i++) {
+		glColor3fv((GLfloat*)&i->power);
+		glVertex3fv((GLfloat*)&i->position);
+	}
+	glEnd();
+	glLoadIdentity();
+	glMatrixMode(GL_MODELVIEW);
 	SDL_GL_SwapBuffers();
 }
 

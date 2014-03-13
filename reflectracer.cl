@@ -5,7 +5,7 @@
 #define SPHERE_TYPE_ID 1
 #define TRIANGLE_TYPE_ID 2
 
-#define MAX_REFLECTIONS 6
+#define MAX_REFLECTIONS 3
 
 #define EPSILON 0.000001
 
@@ -186,10 +186,12 @@ float3 doRaytrace(
 		struct Ray reflectRay = *ray;
 		global struct Material* reflectMat = m;
 		float3 reflectNormal = normal;
-		float3 reflectionFactor = m->reflection;
+		float3 reflectionFactor = 1.0f;
 		
 		for(int i = 0; i < MAX_REFLECTIONS; i++) {
-			reflectRay.direction = reflect(reflectRay.direction, reflectNormal);
+			reflectionFactor *= reflectMat->reflection;
+			
+			reflectRay.direction = reflect(normalize(reflectRay.direction), reflectNormal);
 			
 			float rt = intersect(&reflectRay, spheres, tris, &intersectObjIndex, &intersectObjType);
 
@@ -206,23 +208,21 @@ float3 doRaytrace(
 			} else {
 				break;
 			}
-			
-			reflectionFactor *= reflectMat->reflection;
 	
+			// Compute the color at the intersected surface
 			for(int j = 0; j < NUM_LIGHTS; j++) {
 				float3 L = lights[j].position - reflectRay.origin;
 				float distanceToLight = length(L);
 				L = normalize(L);
 
 				struct Ray shadowRay;
-				shadowRay.origin = intersectPos + L*0.001;
+				shadowRay.origin = reflectRay.origin + L*0.001;
 				shadowRay.direction = L;
 				float st = intersect(&shadowRay, spheres, tris, &intersectObjIndex, &intersectObjType);
 				if(st > distanceToLight) {
 					color += reflectionFactor * reflectMat->diffuseColor*lights[j].power*max(0.0f, dot(reflectNormal, L));
 				}
 			}
-			
 		}
 		
 		for(int i = 0; i < NUM_LIGHTS; i++) {
@@ -268,7 +268,7 @@ kernel void raytrace(
 			ray.direction = normalize((float3) {
 				min(((float)get_global_id(0)+i)/(float)get_global_size(0) - 0.5f, 1.0),
 				min(-((float)get_global_id(1)+j)/(float)get_global_size(1) + 0.5f, 1.0),
-												0.5});
+												-0.5});
 	
 			color += doRaytrace(&ray, spheres, triangles, lights, materials, 0);
 		}
