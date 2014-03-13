@@ -47,41 +47,52 @@ renderer<CL_DEVICE_TYPE_GPU> initOpenCL() {
 	// Spheres
 	spheres.push_back(Sphere{1.0, cl_float3{{-2.5, -0.0, -3.0}}, 1});
 	spheres.push_back(Sphere{1.0, cl_float3{{ 2.5, -0.0, -3.0}}, 0});
-	//spheres.push_back(Sphere{1.0, cl_float3{{ 0.0, -0.5, 3.0}}, 0});
 
 	spheres.push_back(Sphere{1.0, cl_float3{{-2.5, -0.0, -5.0}}, 0});
 	spheres.push_back(Sphere{1.0, cl_float3{{ 2.5, -0.0, -5.0}}, 1});
 
-	//spheres.push_back(Sphere{2.0, cl_float3{{ 0.0, -0.0, -6.0}}, 1});
 
-	//spheres.push_back(Sphere{1.0, cl_float3{{ 0.0, -0.0, 16.0}}, 0});
+	float planeWidth = 10.0;
+	float planeHeight = 10.0;
+	float planeSeparation = 2.4;
+	unsigned trisX = 4;
+	unsigned trisY = 4;
 
-	// Triangles
-	tris.push_back(
-			Triangle{
-				cl_float3{{-5.0, 1.2,  00.0}},
-				cl_float3{{ 5.0, 1.2, -10.0}},
-				cl_float3{{-5.0, 1.2, -10.0}},
-				3});
-	tris.push_back(
-			Triangle{
-				cl_float3{{-5.0, 1.2,  00.0}},
-				cl_float3{{ 5.0, 1.2,  00.0}},
-				cl_float3{{ 5.0, 1.2, -10.0}},
-				3});
+	float halfSeperation = planeSeparation/2.0;
+	float halfWidth = planeWidth/2.0;
+	float halfHeight = planeHeight/2.0;
+	float dX = planeWidth/trisX;
+	float dY = planeWidth/trisY;
 
-	tris.push_back(
-			Triangle{
-				cl_float3{{-5.0, -1.2,  00.0}},
-				cl_float3{{-5.0, -1.2, -10.0}},
-				cl_float3{{ 5.0, -1.2, -10.0}},
-				2});
-	tris.push_back(
-			Triangle{
-				cl_float3{{-5.0, -1.2,  00.0}},
-				cl_float3{{ 5.0, -1.2, -10.0}},
-				cl_float3{{ 5.0, -1.2,  00.0}},
-				2});
+	for(unsigned i = 0; i < trisX; i++) {
+		for(unsigned j = 0; j < trisY; j++) {
+			tris.push_back(
+				Triangle{
+					cl_float3{{-halfWidth+i*dX,     halfSeperation, -halfHeight+j*dY}},
+					cl_float3{{-halfWidth+(i+1)*dX, halfSeperation, -halfHeight+(j+1)*dY}},
+					cl_float3{{-halfWidth+i*dX,     halfSeperation, -halfHeight+(j+1)*dY}},
+					3});
+			tris.push_back(
+				Triangle{
+					cl_float3{{-halfWidth+i*dX,     halfSeperation, -halfHeight+j*dY}},
+					cl_float3{{-halfWidth+(i+1)*dX, halfSeperation, -halfHeight+j*dY}},
+					cl_float3{{-halfWidth+(i+1)*dX, halfSeperation, -halfHeight+(j+1)*dY}},
+					3});
+
+			tris.push_back(
+				Triangle{
+					cl_float3{{-halfWidth+i*dX,     -halfSeperation, -halfHeight+j*dY}},
+					cl_float3{{-halfWidth+(i+1)*dX, -halfSeperation, -halfHeight+(j+1)*dY}},
+					cl_float3{{-halfWidth+i*dX,     -halfSeperation, -halfHeight+(j+1)*dY}},
+					3});
+			tris.push_back(
+				Triangle{
+					cl_float3{{-halfWidth+i*dX,     -halfSeperation, -halfHeight+j*dY}},
+					cl_float3{{-halfWidth+(i+1)*dX, -halfSeperation, -halfHeight+j*dY}},
+					cl_float3{{-halfWidth+(i+1)*dX, -halfSeperation, -halfHeight+(j+1)*dY}},
+					3});
+		}
+	}
 
 	// Lights
 	lights.push_back(

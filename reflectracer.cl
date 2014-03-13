@@ -41,6 +41,51 @@ struct Ray {
 	float3 direction;
 };
 
+//int rayTriangle2(struct Ray* ray,
+//			global struct Triangle* tri, float* t) {
+//
+//	float3 e1,e2,h,s,q;
+//	float a,f,u,v;
+//	e1 = tri->v2 -tri->v1;
+//	e2 = tri->v3 -tri->v1;
+//
+//	h = cross(ray->direction,e2);
+//	a = dot(e1,h);
+//
+//	if (a > -0.00001 && a < 0.00001) {
+//		return false;
+//	}
+//
+//	f = 1.0/a;
+//	s = ray->origin - tri->v1;
+//	u = f * (dot(s,h));
+//
+//	if (u < 0.0 || u > 1.0) {
+//		return false;
+//	}
+//
+//	q = cross(s,e1);
+//	v = f * dot(ray->direction,q);
+//
+//	if (v < 0.0 || u + v > 1.0) {
+//		return false;
+//	}
+//
+//	// at this stage we can compute t to find out where
+//	// the intersection point is on the line
+//	*t = f * dot(e2,q);
+//
+//	if (*t > 0.00001) {// ray intersection
+//		return true;
+//	}
+//
+//	// this means that there is a line intersection
+//	 // but not a ray intersection
+//	else {
+//		 return false;
+//	}
+//}
+
 bool rayTriangle(struct Ray* ray, global struct Triangle* tri, float* outT) {
 	float3 e1, e2;
 	float3 P, Q, T;
