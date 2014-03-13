@@ -45,7 +45,7 @@ void initOpenGL() {
 	glFinish();	// Texture needs to exist for openCL
 }
 
-renderer<vector, CL_DEVICE_TYPE_GPU> initOpenCL() {
+renderer<CL_DEVICE_TYPE_GPU> initOpenCL() {
 	// Spheres
 	spheres.push_back(Sphere{1.0, cl_float3{{-2.5, -0.0, -3.0}}, 1});
 	spheres.push_back(Sphere{1.0, cl_float3{{ 2.5, -0.0, -3.0}}, 0});
@@ -136,16 +136,16 @@ renderer<vector, CL_DEVICE_TYPE_GPU> initOpenCL() {
 				cl_float3{{0.3, 0.3, 0.3}}});
 
 	auto devCtx = std::make_shared<ClDeviceContext<CL_DEVICE_TYPE_GPU>>();
-	auto scene = std::make_shared<Scene<std::vector, CL_DEVICE_TYPE_GPU>>(
+	auto scene = std::make_shared<Scene<CL_DEVICE_TYPE_GPU>>(
 			devCtx, spheres.begin(), spheres.end(),
 					tris.begin(), tris.end(),
 					lights.begin(), lights.end(),
 					mats.begin(), mats.end());
 
-	return renderer<vector, CL_DEVICE_TYPE_GPU>(scene, kWidth, kHeight);
+	return renderer<CL_DEVICE_TYPE_GPU>(scene, kWidth, kHeight);
 }
 
-void render(int delta, renderer<vector, CL_DEVICE_TYPE_GPU>& rndr) {
+void render(int delta, renderer<CL_DEVICE_TYPE_GPU>& rndr) {
 	glm::mat4 viewMatrix;
 	viewMatrix = glm::lookAt(glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 0.0, 1.0), glm::vec3(0.0, 1.0, 0.0));
 	rndr.renderToTexture(renderTex, glm::value_ptr(viewMatrix));
@@ -223,7 +223,7 @@ void update(int delta) {
 }
 
 int main(int argc, char* argv[]) {
-	renderer<vector, CL_DEVICE_TYPE_GPU> rndr = initOpenCL();
+	renderer<CL_DEVICE_TYPE_GPU> rndr = initOpenCL();
 
 	SDL_Init(SDL_INIT_EVERYTHING);
 

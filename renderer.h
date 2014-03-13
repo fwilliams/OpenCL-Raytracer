@@ -18,9 +18,9 @@
 
 #include "scene.h"
 
-template <template<class ...> class InputContainerType, cl_device_type DEVICE_TYPE>
+template <cl_device_type DEVICE_TYPE>
 struct renderer {
-	renderer(std::shared_ptr<Scene<InputContainerType, DEVICE_TYPE>> scene,
+	renderer(std::shared_ptr<Scene<DEVICE_TYPE>> scene,
 			unsigned vpWidth, unsigned vpHeight);
 
 
@@ -28,7 +28,7 @@ struct renderer {
 
 	void resizeViewport(unsigned vpWidth, unsigned vpHeight);
 
-	void setScene(std::shared_ptr<Scene<std::vector, DEVICE_TYPE>> newScene) {
+	void setScene(std::shared_ptr<Scene<DEVICE_TYPE>> newScene) {
 		scene = newScene;
 
 		// Create the program
@@ -42,24 +42,30 @@ struct renderer {
 		};
 
 		cl::Program program = scene->getCLDeviceContext()->createProgramFromFile(programFileName, defines);
-		raytrace = cl::KernelFunctor(cl::Kernel(program, "raytrace"), deviceContext->commandQueue,
+		kernel = cl::Kernel(program, "raytracer");
+		setViewportSize(viewportWidth, viewportHeight);
+	}
+
+	void setViewportSize(size_t width, size_t height) {
+		raytrace = cl::KernelFunctor(kernel, deviceContext->commandQueue,
 				cl::NullRange, cl::NDRange(viewportWidth, viewportHeight),
 				cl::NullRange);
 	}
 
 private:
-	std::shared_ptr<Scene<InputContainerType, CL_DEVICE_TYPE_GPU>> scene;
+	std::shared_ptr<Scene<CL_DEVICE_TYPE_GPU>> scene;
 	std::shared_ptr<ClDeviceContext<DEVICE_TYPE>> deviceContext;
 
 	size_t viewportWidth, viewportHeight;
 
+	cl::Kernel kernel;
 	cl::KernelFunctor raytrace;
 	cl::Buffer params, viewMatrix;
 	cl::Image2D resImg;
 };
 
-template <template<class ...> class InputContainerType, cl_device_type DEVICE_TYPE>
-renderer<InputContainerType, DEVICE_TYPE>::renderer(std::shared_ptr<Scene<InputContainerType, DEVICE_TYPE>> scene,
+template <cl_device_type DEVICE_TYPE>
+renderer<DEVICE_TYPE>::renderer(std::shared_ptr<Scene<DEVICE_TYPE>> scene,
 		unsigned vpWidth, unsigned vpHeight) :
 				deviceContext(scene->getCLDeviceContext()), viewportWidth(vpWidth), viewportHeight(vpHeight) {
 	setScene(scene);
@@ -69,8 +75,8 @@ renderer<InputContainerType, DEVICE_TYPE>::renderer(std::shared_ptr<Scene<InputC
 							viewportWidth, viewportHeight, 0);
 }
 
-template <template<class ...> class InputContainerType, cl_device_type DEVICE_TYPE>
-void renderer<InputContainerType, DEVICE_TYPE>::renderToTexture(GLuint tex, cl_float viewMat[16]) {
+template <cl_device_type DEVICE_TYPE>
+void renderer<DEVICE_TYPE>::renderToTexture(GLuint tex, cl_float viewMat[16]) {
 	deviceContext->commandQueue.enqueueWriteBuffer(this->viewMatrix, true, 0, sizeof(cl_float)*16, viewMat);
 
 	raytrace(scene->getTriangleBuffer(),
