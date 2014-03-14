@@ -9,11 +9,6 @@
 
 #define RAY_TRI_EPSILON 0.000001
 
-#define ANTIALIAS_X 1
-#define ANTIALIAS_Y 1
-#define AVG ((float) ANTIALIAS_X * ANTIALIAS_Y)
-
-
 struct Sphere {
 	float radius;
 	float3 position;
@@ -304,21 +299,15 @@ kernel void raytrace(
 		global float* viewMatrix,
 		global write_only image2d_t res) {
 
-	float3 color = (float3) {0.0, 0.0, 0.0};
+	struct Ray ray;
+	ray.origin = matrixVectorMultiply(viewMatrix, &((float3) {0.0f, 0.0f, 0.0f}));
+	ray.direction = normalize((float3) {
+		min(((float)get_global_id(0))/(float)get_global_size(0) - 0.5f, 1.0),
+		min(-((float)get_global_id(1))/(float)get_global_size(1) + 0.5f, 1.0),
+										-0.5});
 	
-	for(int i = 0; i < ANTIALIAS_X; i++) {
-		for(int j = 0; j < ANTIALIAS_Y; j++) {
-			struct Ray ray;
-			ray.origin = matrixVectorMultiply(viewMatrix, &((float3) {0.0f, 0.0f, 0.0f}));
-			ray.direction = normalize((float3) {
-				min(((float)get_global_id(0)+i)/(float)get_global_size(0) - 0.5f, 1.0),
-				min(-((float)get_global_id(1)+j)/(float)get_global_size(1) + 0.5f, 1.0),
-												-0.5});
-	
-			color += doRaytrace(&ray, spheres, triangles, lights, materials, 0);
-		}
-	}
+	float3 color = doRaytrace(&ray, spheres, triangles, lights, materials, 0);
 	
 	write_imagef(res, (int2) {get_global_id(0), get_global_id(1)},
-				 (float4){color.x/AVG, color.y/AVG, color.z/AVG, 1.0});
+				 (float4){color.x, color.y, color.z, 1.0});
 }
