@@ -34,12 +34,11 @@ void initOpenGL() {
 	glBindTexture(GL_TEXTURE_2D, renderTex);
 	glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 640, 480, 0, GL_RGBA, GL_FLOAT, nullptr);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, kWidth, kHeight, 0, GL_RGBA, GL_FLOAT, nullptr);
 	glBindTexture(GL_TEXTURE_2D, 0);
 
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	glOrtho(-1, 1, 1, -1, 1, 1);
 	glMatrixMode(GL_MODELVIEW);
 
 	glFinish();	// Texture needs to exist for openCL
@@ -47,8 +46,8 @@ void initOpenGL() {
 
 renderer<CL_DEVICE_TYPE_GPU> initOpenCL() {
 	// Spheres
-	spheres.push_back(Sphere{1.0, cl_float3{{-2.5, -0.0, -3.0}}, 1});
-	spheres.push_back(Sphere{1.0, cl_float3{{ 2.5, -0.0, -3.0}}, 0});
+	spheres.push_back(Sphere{1.0, cl_float3{{-2.5, -0.0, -3.0}}, 0});
+	spheres.push_back(Sphere{1.0, cl_float3{{ 2.5, -0.0, -3.0}}, 1});
 
 	spheres.push_back(Sphere{1.0, cl_float3{{-2.5, -0.0, -5.0}}, 0});
 	spheres.push_back(Sphere{1.0, cl_float3{{ 2.5, -0.0, -5.0}}, 1});
@@ -170,7 +169,10 @@ void render(int delta, renderer<CL_DEVICE_TYPE_GPU>& rndr) {
 
 #ifdef RENDER_LIGHTS
 	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
 	glFrustum(-0.5, 0.5, -0.5, 0.5, 0.5, 100.0);
+
+	glPushAttrib(GL_CURRENT_BIT);
 
 	glPointSize(5.0);
 	glBegin(GL_POINTS);
@@ -179,6 +181,9 @@ void render(int delta, renderer<CL_DEVICE_TYPE_GPU>& rndr) {
 		glVertex3fv((GLfloat*)&i->position);
 	}
 	glEnd();
+
+	glPopAttrib();
+
 	glLoadIdentity();
 	glMatrixMode(GL_MODELVIEW);
 #endif

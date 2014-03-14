@@ -42,7 +42,7 @@ struct renderer {
 		};
 
 		cl::Program program = scene->getCLDeviceContext()->createProgramFromFile(programFileName, defines);
-		kernel = cl::Kernel(program, "raytracer");
+		kernel = cl::Kernel(program, "raytrace");
 		setViewportSize(viewportWidth, viewportHeight);
 	}
 
@@ -57,7 +57,6 @@ private:
 	std::shared_ptr<ClDeviceContext<DEVICE_TYPE>> deviceContext;
 
 	size_t viewportWidth, viewportHeight;
-
 	cl::Kernel kernel;
 	cl::KernelFunctor raytrace;
 	cl::Buffer params, viewMatrix;
