@@ -7,7 +7,7 @@
 
 #define MAX_REFLECTIONS 3
 
-#define EPSILON 0.000001
+#define RAY_TRI_EPSILON 0.000001
 
 #define ANTIALIAS_X 1
 #define ANTIALIAS_Y 1
@@ -101,7 +101,7 @@ bool rayTriangle(struct Ray* ray, global struct Triangle* tri, float* outT) {
 	det = dot(e1, P);
 
 	//if determinant is near zero, ray lies in plane of triangle
-	if(det > -EPSILON && det < EPSILON) {
+	if(det > -RAY_TRI_EPSILON && det < RAY_TRI_EPSILON) {
 		return false;
 	}
 
@@ -129,7 +129,7 @@ bool rayTriangle(struct Ray* ray, global struct Triangle* tri, float* outT) {
 
 	t = dot(e2, Q) * invDet;
 
-	if(t > EPSILON) {
+	if(t > RAY_TRI_EPSILON) {
 		*outT = t;
 		return true;
 	}
