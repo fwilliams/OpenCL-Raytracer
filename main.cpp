@@ -12,7 +12,7 @@
 #include "renderer.h"
 #include "scene.h"
 
-#define RENDER_LIGHTS
+//#define RENDER_LIGHTS
 
 using namespace std;
 

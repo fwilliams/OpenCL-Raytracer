@@ -1,5 +1,7 @@
 #include "opencl_ide_fix.h"
 
+#define CONST_BRDF
+
 // TODO: Move all of these somewhere better
 #define NULL_TYPE_ID 0
 #define SPHERE_TYPE_ID 1
@@ -8,6 +10,26 @@
 #define MAX_REFLECTIONS 3
 
 #define RAY_TRI_EPSILON 0.000001
+
+struct Material {
+	float3 reflectivity;
+	float3 refraction;
+
+#if defined CONST_BRDF				// All surfaces lambertian
+	float3 color;
+	
+#elif defined PHONG_BRDF			// Phong lighting (physically implausible)
+	float3 kd;
+	float3 ks;
+	float exp;
+	
+#elif defined COOK_TORRANCE_BRDF	// Physically plausible lighting model (to be used with global illumination)
+	float3 kd;
+	float3 ks;
+	float2 rougness;
+
+#endif
+};
 
 struct Sphere {
 	float radius;
@@ -25,61 +47,10 @@ struct PointLight {
 	float3 power;
 };
 
-struct Material {
-	float3 reflection;
-	float3 refraction;
-	float3 diffuseColor;
-};
-
 struct Ray {
 	float3 origin;
 	float3 direction;
 };
-
-//int rayTriangle2(struct Ray* ray,
-//			global struct Triangle* tri, float* t) {
-//
-//	float3 e1,e2,h,s,q;
-//	float a,f,u,v;
-//	e1 = tri->v2 -tri->v1;
-//	e2 = tri->v3 -tri->v1;
-//
-//	h = cross(ray->direction,e2);
-//	a = dot(e1,h);
-//
-//	if (a > -0.00001 && a < 0.00001) {
-//		return false;
-//	}
-//
-//	f = 1.0/a;
-//	s = ray->origin - tri->v1;
-//	u = f * (dot(s,h));
-//
-//	if (u < 0.0 || u > 1.0) {
-//		return false;
-//	}
-//
-//	q = cross(s,e1);
-//	v = f * dot(ray->direction,q);
-//
-//	if (v < 0.0 || u + v > 1.0) {
-//		return false;
-//	}
-//
-//	// at this stage we can compute t to find out where
-//	// the intersection point is on the line
-//	*t = f * dot(e2,q);
-//
-//	if (*t > 0.00001) {// ray intersection
-//		return true;
-//	}
-//
-//	// this means that there is a line intersection
-//	 // but not a ray intersection
-//	else {
-//		 return false;
-//	}
-//}
 
 bool rayTriangle(struct Ray* ray, global struct Triangle* tri, float* outT) {
 	float3 e1, e2;
@@ -229,7 +200,7 @@ float3 doRaytrace(
 		float3 reflectionFactor = 1.0f;
 		
 		for(int i = 0; i < MAX_REFLECTIONS; i++) {
-			reflectionFactor *= reflectMat->reflection;
+			reflectionFactor *= reflectMat->reflectivity;
 			
 			reflectRay.direction = reflect(normalize(reflectRay.direction), reflectNormal);
 			
@@ -260,7 +231,7 @@ float3 doRaytrace(
 				shadowRay.direction = L;
 				float st = intersect(&shadowRay, spheres, tris, &intersectObjIndex, &intersectObjType);
 				if(st > distanceToLight) {
-					color += reflectionFactor * reflectMat->diffuseColor*lights[j].power*max(0.0f, dot(reflectNormal, L));
+					color += reflectionFactor * reflectMat->color*lights[j].power*max(0.0f, dot(reflectNormal, L));
 				}
 			}
 		}
@@ -275,7 +246,7 @@ float3 doRaytrace(
 			shadowRay.direction = L;
 			t = intersect(&shadowRay, spheres, tris, &intersectObjIndex, &intersectObjType);
 			if(t > distanceToLight) {
-				color += m->diffuseColor*lights[i].power*max(0.0f, dot(normal, L));
+				color += m->color*lights[i].power*max(0.0f, dot(normal, L));
 			}
 		}
 	}
