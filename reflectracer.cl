@@ -1,6 +1,7 @@
 #include "opencl_ide_fix.h"
 
-#define CONST_BRDF
+
+#define BLINN_PHONG_BRDF
 
 // TODO: Move all of these somewhere better
 #define NULL_TYPE_ID 0
@@ -13,12 +14,11 @@
 
 struct Material {
 	float3 reflectivity;
-	float3 refraction;
 
 #if defined CONST_BRDF				// All surfaces lambertian
 	float3 color;
 	
-#elif defined BLINN_PHONG_BRDF			// Phong lighting (physically implausible)
+#elif defined BLINN_PHONG_BRDF		// Phong lighting (physically implausible)
 	float3 kd;
 	float3 ks;
 	float exp;
@@ -161,6 +161,11 @@ float dt(float3 v1, float3 v2) {
 	return v1.x*v2.x + v1.y*v2.y + v1.z*v2.z;
 }
 
+
+float3 reflect(float3 v, float3 n) {
+	return v - 2.0f * dot(v, n) * n;
+}
+
 inline float3 computeRadiance(
 		float3* position, float3* normal, 
 		global struct Material* material, 
@@ -188,18 +193,16 @@ inline float3 computeRadiance(
 			color += material->color*lights[j].power*max(0.0f, dot(*normal, L));
 			
 			#elif defined BLINN_PHONG_BRDF
-			float3 H = normalize( L + normalize(-*position));
-			color += lights[j].power * (material->kd*max(0.0f, dot(*normal, L)) + material->ks*pow(max(0.0f, dot(normal, H)), material->exp));
+			float3 H = normalize(L + -*position);
+			color += lights[j].power * (material->kd*max(0.0f, dot(*normal, L)) + material->ks*pow(max(0.0f, dot(*normal, H)), material->exp));
+			#elif defined PHONG
+			color += lights[j].power * (material->kd*max(0.0f, dot(*normal, L)) + material->ks*pow(max(0.0f, dot(*normal, reflect(L,*normal))), material->exp));
 			#elif defined COOK_TORRANCE_BRDF
 
 			#endif
 		}
 	}
 	return color;
-}
-
-float3 reflect(float3 v, float3 n) {
-	return v - 2.0f * dot(v, n) * n;
 }
 
 float3 doRaytrace(

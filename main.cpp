@@ -1,3 +1,5 @@
+#define BLINN_PHONG
+
 #include <CL/cl.h>
 #include <iostream>
 #include <fstream>
@@ -109,30 +111,58 @@ renderer<CL_DEVICE_TYPE_GPU> initOpenCL() {
 				cl_float3{{0.0, 0.1, 1.0}},
 				cl_float3{{0.6, 0.6, 0.6}}});
 
+#ifdef BLINN_PHONG
 	// Materials
 	mats.push_back(
 			Material{
 				cl_float3{{0.2, 0.2, 0.2}},
-				cl_float3{{0.0, 0.0, 0.0}},
+				cl_float3{{0.1, 0.1, 0.6}},
+				cl_float3{{0.5, 0.5, 0.5}},
+				100.0
+	});
+
+	mats.push_back(
+			Material{
+				cl_float3{{0.2, 0.2, 0.2}},
+				cl_float3{{0.6, 0.1, 0.1}},
+				cl_float3{{0.5, 0.5, 0.5}},
+				100.0});
+
+	mats.push_back(
+			Material{
+				cl_float3{{0.99, 0.99, 0.99}},
+				cl_float3{{0.3, 0.3, 0.3}},
+				cl_float3{{0.3, 0.3, 0.3}},
+				10.0});
+
+	mats.push_back(
+			Material{
+				cl_float3{{0.99, 0.99, 0.99}},
+				cl_float3{{0.3, 0.3, 0.3}},
+				cl_float3{{0.3, 0.3, 0.3}},
+				10.0});
+#else
+	// Materials
+	mats.push_back(
+			Material{
+				cl_float3{{0.2, 0.2, 0.2}},
 				cl_float3{{0.1, 0.1, 0.6}}});
 
 	mats.push_back(
 			Material{
 				cl_float3{{0.2, 0.2, 0.2}},
-				cl_float3{{0.0, 0.0, 0.0}},
 				cl_float3{{0.6, 0.1, 0.1}}});
 
 	mats.push_back(
 			Material{
 				cl_float3{{0.99, 0.99, 0.99}},
-				cl_float3{{0.0, 0.0, 0.0}},
 				cl_float3{{0.3, 0.3, 0.3}}});
 
 	mats.push_back(
 			Material{
 				cl_float3{{0.99, 0.99, 0.99}},
-				cl_float3{{0.0, 0.0, 0.0}},
 				cl_float3{{0.3, 0.3, 0.3}}});
+#endif
 
 	auto devCtx = std::make_shared<ClDeviceContext<CL_DEVICE_TYPE_GPU>>();
 	auto scene = std::make_shared<Scene<CL_DEVICE_TYPE_GPU>>(

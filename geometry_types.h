@@ -8,6 +8,8 @@
 #ifndef GEOMETRY_TYPES_H_
 #define GEOMETRY_TYPES_H_
 
+#define BLINN_PHONG
+
 struct Sphere {
 	cl_float radius;
 	cl_float3 position;
@@ -25,9 +27,15 @@ struct PointLight {
 };
 
 struct Material {
-	cl_float3 reflection;
-	cl_float3 refraction;
-	cl_float3 diffuseColor;;
+	cl_float3 reflectivity;
+
+#ifdef BLINN_PHONG
+	cl_float3 kd;
+	cl_float3 ks;
+	cl_float exp;
+#else
+	cl_float3 color;
+#endif
 };
 
 #endif /* GEOMETRY_TYPES_H_ */
