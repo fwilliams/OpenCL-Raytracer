@@ -18,7 +18,7 @@ struct Material {
 #if defined CONST_BRDF				// All surfaces lambertian
 	float3 color;
 	
-#elif defined PHONG_BRDF			// Phong lighting (physically implausible)
+#elif defined BLINN_PHONG_BRDF			// Phong lighting (physically implausible)
 	float3 kd;
 	float3 ks;
 	float exp;
@@ -161,6 +161,43 @@ float dt(float3 v1, float3 v2) {
 	return v1.x*v2.x + v1.y*v2.y + v1.z*v2.z;
 }
 
+inline float3 computeRadiance(
+		float3* position, float3* normal, 
+		global struct Material* material, 
+		global struct PointLight* lights, 
+		global struct Sphere* spheres, 
+		global struct Triangle* tris) {
+	
+	float3 color = (float3){0.0, 0.0, 0.0};
+	
+	for(int j = 0; j < NUM_LIGHTS; j++) {
+		float3 L = lights[j].position - *position;
+		float distanceToLight = length(L);
+		L = normalize(L);
+
+		struct Ray shadowRay;
+		shadowRay.origin = *position + L*0.001;
+		shadowRay.direction = L;
+		
+		int index;
+		uint type;
+		float st = intersect(&shadowRay, spheres, tris, &index, &type);
+		
+		if(st > distanceToLight) {
+			#if defined CONST_BRDF
+			color += material->color*lights[j].power*max(0.0f, dot(*normal, L));
+			
+			#elif defined BLINN_PHONG_BRDF
+			float3 H = normalize( L + normalize(-*position));
+			color += lights[j].power * (material->kd*max(0.0f, dot(*normal, L)) + material->ks*pow(max(0.0f, dot(normal, H)), material->exp));
+			#elif defined COOK_TORRANCE_BRDF
+
+			#endif
+		}
+	}
+	return color;
+}
+
 float3 reflect(float3 v, float3 n) {
 	return v - 2.0f * dot(v, n) * n;
 }
@@ -220,35 +257,10 @@ float3 doRaytrace(
 				break;
 			}
 	
-			// Compute the color at the intersected surface
-			for(int j = 0; j < NUM_LIGHTS; j++) {
-				float3 L = lights[j].position - reflectRay.origin;
-				float distanceToLight = length(L);
-				L = normalize(L);
-
-				struct Ray shadowRay;
-				shadowRay.origin = reflectRay.origin + L*0.001;
-				shadowRay.direction = L;
-				float st = intersect(&shadowRay, spheres, tris, &intersectObjIndex, &intersectObjType);
-				if(st > distanceToLight) {
-					color += reflectionFactor * reflectMat->color*lights[j].power*max(0.0f, dot(reflectNormal, L));
-				}
-			}
+			color += reflectionFactor * computeRadiance(&reflectRay.origin, &reflectNormal, reflectMat, lights, spheres, tris);
 		}
 		
-		for(int i = 0; i < NUM_LIGHTS; i++) {
-			float3 L = lights[i].position - intersectPos;
-			float distanceToLight = length(L);
-			L = normalize(L);
-
-			struct Ray shadowRay;
-			shadowRay.origin = intersectPos + L*0.001;
-			shadowRay.direction = L;
-			t = intersect(&shadowRay, spheres, tris, &intersectObjIndex, &intersectObjType);
-			if(t > distanceToLight) {
-				color += m->color*lights[i].power*max(0.0f, dot(normal, L));
-			}
-		}
+		color += computeRadiance(&intersectPos, &normal, m, lights, spheres, tris);
 	}
 
 	return clamp(color, 0.0, 1.0);
