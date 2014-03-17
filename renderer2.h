@@ -94,7 +94,7 @@ void renderer<DEVICE_TYPE>::renderToTexture(GLuint tex, cl_float viewMat[16]) {
 			scene->getMaterialBuffer(),
 			resImg);
 
-	for(int i = 0; i < 10; i++) {
+	for(int i = 0; i < 5; i++) {
 		reflectPass(rayBuffer,
 				reflectivityBuffer,
 				scene->getTriangleBuffer(),

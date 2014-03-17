@@ -45,8 +45,8 @@ kernel void first_pass(global struct Ray* rayBuffer,
 		res[i] = clamp(res[i], 0.0, 1.0);
 		if(dot(m->reflectivity, m->reflectivity) != 0.0) {
 			reflectivityBuffer[i] = m->reflectivity;
-			rayBuffer[i].origin = intersectPos;
 			rayBuffer[i].direction = normalize(reflect(ray.direction, normal));
+			rayBuffer[i].origin = intersectPos + 0.00001*rayBuffer[i].direction;
 		}
 	}
 }
