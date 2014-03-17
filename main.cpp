@@ -139,7 +139,7 @@ renderer<CL_DEVICE_TYPE_GPU> initOpenCL() {
 			Material{
 				cl_float3{{0.99, 0.99, 0.99}},
 				cl_float3{{0.3, 0.3, 0.3}},
-				cl_float3{{0.3, 0.3, 0.3}},
+				cl_float3{{0.5, 0.5, 0.5}},
 				10.0});
 #else
 	// Materials
