@@ -11,7 +11,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#include "renderer.h"
+#include "renderer2.h"
 #include "scene.h"
 
 //#define RENDER_LIGHTS
@@ -72,14 +72,14 @@ renderer<CL_DEVICE_TYPE_GPU> initOpenCL() {
 			tris.push_back(
 				Triangle{
 					cl_float3{{-halfWidth+i*dX,     halfSeperation, -halfHeight+j*dY}},
-					cl_float3{{-halfWidth+(i+1)*dX, halfSeperation, -halfHeight+(j+1)*dY}},
 					cl_float3{{-halfWidth+i*dX,     halfSeperation, -halfHeight+(j+1)*dY}},
+					cl_float3{{-halfWidth+(i+1)*dX, halfSeperation, -halfHeight+(j+1)*dY}},
 					3});
 			tris.push_back(
 				Triangle{
 					cl_float3{{-halfWidth+i*dX,     halfSeperation, -halfHeight+j*dY}},
-					cl_float3{{-halfWidth+(i+1)*dX, halfSeperation, -halfHeight+j*dY}},
 					cl_float3{{-halfWidth+(i+1)*dX, halfSeperation, -halfHeight+(j+1)*dY}},
+					cl_float3{{-halfWidth+(i+1)*dX, halfSeperation, -halfHeight+j*dY}},
 					3});
 
 			tris.push_back(
@@ -137,7 +137,7 @@ renderer<CL_DEVICE_TYPE_GPU> initOpenCL() {
 
 	mats.push_back(
 			Material{
-				cl_float3{{0.99, 0.99, 0.99}},
+				cl_float3{{0.19, 0.19, 0.19}},
 				cl_float3{{0.3, 0.3, 0.3}},
 				cl_float3{{0.5, 0.5, 0.5}},
 				10.0});

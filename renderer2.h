@@ -1,12 +1,9 @@
 /*
- * renderer.h
+ * renderer2.h
  *
- *  Created on: Feb 24, 2014
+ *  Created on: Mar 17, 2014
  *      Author: francis
  */
-
-#ifndef RENDERER_H_
-#define RENDERER_H_
 
 #define __CL_ENABLE_EXCEPTIONS
 
@@ -17,6 +14,9 @@
 #include <string>
 
 #include "scene.h"
+
+#ifndef RENDERER2_H_
+#define RENDERER2_H_
 
 template <cl_device_type DEVICE_TYPE>
 struct renderer {
@@ -32,7 +32,8 @@ struct renderer {
 		scene = newScene;
 
 		// Create the program
-		std::string programFileName("reflectracer.cl");
+		std::string programFileName("first_pass.cl");
+		std::string reflProgFname("reflect.cl");
 		std::map<std::string, std::string> defines {
 			{"NUM_SPHERES", std::to_string(scene->getNumSpheres())},
 			{"NUM_TRIANGLES", std::to_string(scene->getNumTriangles())},
@@ -41,13 +42,23 @@ struct renderer {
 			{"MAX_RENDER_DISTANCE", std::to_string(100.0)}
 		};
 
-		cl::Program program = scene->getCLDeviceContext()->createProgramFromFile(programFileName, defines);
-		firstPassKernel = cl::Kernel(program, "raytrace");
+		cl::Program program2 =
+				scene->getCLDeviceContext()->createProgramFromFile(reflProgFname, defines);
+		reflectPassKernel = cl::Kernel(program2, "reflect_pass");
+
+		cl::Program program =
+				scene->getCLDeviceContext()->createProgramFromFile(programFileName, defines);
+		firstPassKernel = cl::Kernel(program, "first_pass");
+
 		setViewportSize(viewportWidth, viewportHeight);
 	}
 
 	void setViewportSize(size_t width, size_t height) {
 		firstPass = cl::KernelFunctor(firstPassKernel, deviceContext->commandQueue,
+				cl::NullRange, cl::NDRange(viewportWidth, viewportHeight),
+				cl::NullRange);
+
+		reflectPass = cl::KernelFunctor(reflectPassKernel, deviceContext->commandQueue,
 				cl::NullRange, cl::NDRange(viewportWidth, viewportHeight),
 				cl::NullRange);
 	}
@@ -57,10 +68,10 @@ private:
 	std::shared_ptr<ClDeviceContext<DEVICE_TYPE>> deviceContext;
 
 	size_t viewportWidth, viewportHeight;
-	cl::Kernel firstPassKernel;
-	cl::KernelFunctor firstPass;
-	cl::Buffer params, viewMatrix;
-	cl::Image2D resImg;
+	cl::Kernel firstPassKernel, reflectPassKernel;
+	cl::KernelFunctor firstPass, reflectPass;
+	cl::Buffer params, rayBuffer, reflectivityBuffer;
+	cl::Buffer resImg;
 };
 
 template <cl_device_type DEVICE_TYPE>
@@ -68,21 +79,30 @@ renderer<DEVICE_TYPE>::renderer(std::shared_ptr<Scene<DEVICE_TYPE>> scene,
 		unsigned vpWidth, unsigned vpHeight) :
 				deviceContext(scene->getCLDeviceContext()), viewportWidth(vpWidth), viewportHeight(vpHeight) {
 	setScene(scene);
-	this->viewMatrix = cl::Buffer(deviceContext->context, CL_MEM_READ_ONLY, sizeof(cl_float)*16);
-
-	resImg = cl::Image2D(deviceContext->context, CL_MEM_WRITE_ONLY, cl::ImageFormat(CL_RGBA, CL_FLOAT),
-							viewportWidth, viewportHeight, 0);
+	this->rayBuffer = cl::Buffer(deviceContext->context, CL_MEM_READ_WRITE, sizeof(Ray)*viewportWidth*viewportHeight);
+	this->reflectivityBuffer = cl::Buffer(deviceContext->context, CL_MEM_READ_WRITE, sizeof(cl_float3)*viewportWidth*viewportHeight);
+	this->resImg = cl::Buffer(deviceContext->context, CL_MEM_READ_WRITE, sizeof(cl_float4)*viewportWidth*viewportHeight);
 }
 
 template <cl_device_type DEVICE_TYPE>
 void renderer<DEVICE_TYPE>::renderToTexture(GLuint tex, cl_float viewMat[16]) {
-	deviceContext->commandQueue.enqueueWriteBuffer(this->viewMatrix, true, 0, sizeof(cl_float)*16, viewMat);
-
-	firstPass(scene->getTriangleBuffer(),
+	firstPass(rayBuffer,
+			reflectivityBuffer,
+			scene->getTriangleBuffer(),
 			scene->getSphereBuffer(),
 			scene->getPointLightBuffer(),
 			scene->getMaterialBuffer(),
-			viewMatrix, resImg);
+			resImg);
+
+	for(int i = 0; i < 10; i++) {
+		reflectPass(rayBuffer,
+				reflectivityBuffer,
+				scene->getTriangleBuffer(),
+				scene->getSphereBuffer(),
+				scene->getPointLightBuffer(),
+				scene->getMaterialBuffer(),
+				resImg);
+	}
 
 	glBindTexture(GL_TEXTURE_2D, tex);
 
@@ -97,8 +117,8 @@ void renderer<DEVICE_TYPE>::renderToTexture(GLuint tex, cl_float viewMat[16]) {
 
 	cl_float4 pixels[viewportWidth*viewportHeight];
 
-	deviceContext->commandQueue.enqueueReadImage(
-			resImg, true, origin, size, 0, 0, pixels);
+	deviceContext->commandQueue.enqueueReadBuffer(
+		resImg, true, 0, viewportWidth*viewportHeight*sizeof(cl_float4), pixels);
 
 	glTexImage2D(
 			GL_TEXTURE_2D,
@@ -107,4 +127,4 @@ void renderer<DEVICE_TYPE>::renderToTexture(GLuint tex, cl_float viewMat[16]) {
 	glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-#endif /* RENDERER_H_ */
+#endif /* RENDERER2_H_ */

@@ -38,4 +38,9 @@ struct Material {
 #endif
 };
 
+struct Ray {
+	cl_float3 origin;
+	cl_float3 direction;
+};
+
 #endif /* GEOMETRY_TYPES_H_ */
