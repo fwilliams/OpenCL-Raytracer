@@ -1,4 +1,4 @@
-#define PHONG_BRDF
+#define BLINN_PHONG_BRDF
 #include "cl_data_structures.h"
 #include "cl_geometry.h"
 
