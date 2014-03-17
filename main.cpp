@@ -69,19 +69,21 @@ renderer<CL_DEVICE_TYPE_GPU> initOpenCL() {
 
 	for(unsigned i = 0; i < trisX; i++) {
 		for(unsigned j = 0; j < trisY; j++) {
+			// Top plane
 			tris.push_back(
 				Triangle{
 					cl_float3{{-halfWidth+i*dX,     halfSeperation, -halfHeight+j*dY}},
-					cl_float3{{-halfWidth+(i+1)*dX, halfSeperation, -halfHeight+(j+1)*dY}},
 					cl_float3{{-halfWidth+i*dX,     halfSeperation, -halfHeight+(j+1)*dY}},
-					3});
+					cl_float3{{-halfWidth+(i+1)*dX, halfSeperation, -halfHeight+(j+1)*dY}},
+					2});
 			tris.push_back(
 				Triangle{
 					cl_float3{{-halfWidth+i*dX,     halfSeperation, -halfHeight+j*dY}},
-					cl_float3{{-halfWidth+(i+1)*dX, halfSeperation, -halfHeight+j*dY}},
 					cl_float3{{-halfWidth+(i+1)*dX, halfSeperation, -halfHeight+(j+1)*dY}},
-					3});
+					cl_float3{{-halfWidth+(i+1)*dX, halfSeperation, -halfHeight+j*dY}},
+					2});
 
+			// Bottom plane
 			tris.push_back(
 				Triangle{
 					cl_float3{{-halfWidth+i*dX,     -halfSeperation, -halfHeight+j*dY}},
