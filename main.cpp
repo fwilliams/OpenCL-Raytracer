@@ -125,7 +125,7 @@ renderer<CL_DEVICE_TYPE_GPU> initOpenCL() {
 
 	mats.push_back(
 			Material{
-				cl_float3{{0.2, 0.2, 0.2}},
+				cl_float3{{0.99, 0.99, 0.99}},
 				cl_float3{{0.6, 0.1, 0.1}},
 				cl_float3{{0.5, 0.5, 0.5}},
 				100.0});
