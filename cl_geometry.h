@@ -16,7 +16,7 @@
 #define SPHERE_TYPE_ID 1
 #define TRIANGLE_TYPE_ID 2
 
-
+#define RAY_SURFACE_EPSILON 0.0001
 #define RAY_TRI_EPSILON 0.000001
 
 bool rayTriangle(struct Ray* ray, global struct Triangle* tri, float* outT) {
@@ -150,7 +150,7 @@ inline float3 computeRadiance(
 		L = normalize(L);
 
 		struct Ray shadowRay;
-		shadowRay.origin = *position + L*0.001;
+		shadowRay.origin = *position + L*RAY_SURFACE_EPSILON;
 		shadowRay.direction = L;
 
 		int index;

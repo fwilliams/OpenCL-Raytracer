@@ -129,7 +129,7 @@ kernel void raytrace(
 		global write_only image2d_t res) {
 
 	struct Ray ray;
-	ray.origin = matrixVectorMultiply(viewMatrix, &((float3) {0.0f, 0.0f, 0.0f}));
+	ray.origin = (float3){0.0, 0.0, 0.0};//matrixVectorMultiply(viewMatrix, &((float3) {0.0f, 0.0f, 0.0f}));
 	ray.direction = normalize((float3) {
 		min(((float)get_global_id(0))/(float)get_global_size(0) - 0.5f, 1.0),
 		min(-((float)get_global_id(1))/(float)get_global_size(1) + 0.5f, 1.0),
