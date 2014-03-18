@@ -19,7 +19,9 @@ kernel void reflect_pass(global struct Ray* rayBuffer,
 
 		int intersectObjIndex = -1;
 		uint intersectObjType = NULL_TYPE_ID;
+		
 		float t = intersect(&ray, spheres, triangles, &intersectObjIndex, &intersectObjType);
+		
 		if(t < MAX_RENDER_DISTANCE) {
 			float3 intersectPos = ray.origin + ray.direction*t;
 			float3 normal;

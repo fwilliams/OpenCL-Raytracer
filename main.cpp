@@ -14,12 +14,14 @@
 #include "renderer2.h"
 #include "scene.h"
 
-//#define RENDER_LIGHTS
+#define RENDER_LIGHTS
 
 using namespace std;
 
 const int kWidth = 512;
 const int kHeight = 512;
+const int numReflectivePasses = 100;
+const double maxViewDistance = 15.0;
 const bool kFullscreen = false;
 
 GLuint renderTex;
@@ -46,17 +48,9 @@ void initOpenGL() {
 	glFinish();	// Texture needs to exist for openCL
 }
 
-renderer<CL_DEVICE_TYPE_GPU> initOpenCL() {
-	// Spheres
-	spheres.push_back(Sphere{1.0, cl_float3{{-2.5, -0.0, -3.0}}, 0});
-	spheres.push_back(Sphere{1.0, cl_float3{{ 2.5, -0.0, -3.0}}, 1});
-
-	spheres.push_back(Sphere{1.0, cl_float3{{-2.5, -0.0, -5.0}}, 0});
-	spheres.push_back(Sphere{1.0, cl_float3{{ 2.5, -0.0, -5.0}}, 1});
-
-
-	float planeWidth = 10.0;
-	float planeHeight = 10.0;
+std::shared_ptr<Scene<CL_DEVICE_TYPE_GPU>> initScene() {
+	float planeWidth = 100.0;
+	float planeHeight = 100.0;
 	float planeSeparation = 2.4;
 	unsigned trisX = 1;
 	unsigned trisY = 1;
@@ -99,6 +93,22 @@ renderer<CL_DEVICE_TYPE_GPU> initOpenCL() {
 		}
 	}
 
+	// Spheres
+	spheres.push_back(Sphere{1.0, cl_float3{{-2.5, -0.0, -3.0}}, 0});
+	spheres.push_back(Sphere{1.0, cl_float3{{ 2.5, -0.0, -3.0}}, 1});
+
+	spheres.push_back(Sphere{1.0, cl_float3{{-2.4, -0.0, -5.0}}, 1});
+	spheres.push_back(Sphere{1.0, cl_float3{{ 2.4, -0.0, -5.0}}, 0});
+
+	spheres.push_back(Sphere{1.0, cl_float3{{-2.3, -0.0, -7.0}}, 0});
+	spheres.push_back(Sphere{1.0, cl_float3{{ 2.3, -0.0, -7.0}}, 1});
+
+	spheres.push_back(Sphere{1.0, cl_float3{{-2.2, -0.0, -9.0}}, 1});
+	spheres.push_back(Sphere{1.0, cl_float3{{ 2.2, -0.0, -9.0}}, 0});
+
+	spheres.push_back(Sphere{1.0, cl_float3{{-2.1, -0.0, -11.0}}, 0});
+	spheres.push_back(Sphere{1.0, cl_float3{{ 2.1, -0.0, -11.0}}, 1});
+
 	// Lights
 	lights.push_back(
 			PointLight{
@@ -117,32 +127,32 @@ renderer<CL_DEVICE_TYPE_GPU> initOpenCL() {
 	// Materials
 	mats.push_back(
 			Material{
-				cl_float3{{0.2, 0.2, 0.2}},
-				cl_float3{{0.1, 0.1, 0.6}},
+				cl_float3{{0.005, 0.005, 0.005}},
+				cl_float3{{0.6, 0.6, 0.6}},
 				cl_float3{{0.5, 0.5, 0.5}},
-				100.0
+				10000.0
 	});
 
 	mats.push_back(
 			Material{
-				cl_float3{{0.99, 0.99, 0.99}},
-				cl_float3{{0.6, 0.1, 0.1}},
-				cl_float3{{0.5, 0.5, 0.5}},
-				100.0});
+				cl_float3{{0.05, 0.05, 0.05}},
+				cl_float3{{0.3, 0.3, 0.5}},
+				cl_float3{{0.5, 0.5, 0.3}},
+				1000.0});
 
 	mats.push_back(
 			Material{
 				cl_float3{{0.99, 0.99, 0.99}},
+				cl_float3{{0.3, 0.3, 0.31}},
 				cl_float3{{0.3, 0.3, 0.3}},
-				cl_float3{{0.3, 0.3, 0.3}},
-				10.0});
+				1000.0});
 
 	mats.push_back(
 			Material{
 				cl_float3{{0.99, 0.99, 0.99}},
-				cl_float3{{0.3, 0.3, 0.3}},
+				cl_float3{{0.3, 0.31, 0.3}},
 				cl_float3{{0.5, 0.5, 0.5}},
-				10.0});
+				1000.0});
 #else
 	// Materials
 	mats.push_back(
@@ -167,16 +177,15 @@ renderer<CL_DEVICE_TYPE_GPU> initOpenCL() {
 #endif
 
 	auto devCtx = std::make_shared<ClDeviceContext<CL_DEVICE_TYPE_GPU>>();
-	auto scene = std::make_shared<Scene<CL_DEVICE_TYPE_GPU>>(
+	return std::make_shared<Scene<CL_DEVICE_TYPE_GPU>>(
 			devCtx, spheres.begin(), spheres.end(),
 					tris.begin(), tris.end(),
 					lights.begin(), lights.end(),
 					mats.begin(), mats.end());
-
-	return renderer<CL_DEVICE_TYPE_GPU>(scene, kWidth, kHeight);
 }
 
-void render(int delta, renderer<CL_DEVICE_TYPE_GPU>& rndr) {
+template <typename Renderer>
+void render(int delta, Renderer& rndr) {
 	glm::mat4 viewMatrix;
 	viewMatrix = glm::lookAt(glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 0.0, 1.0), glm::vec3(0.0, 1.0, 0.0));
 	rndr.renderToTexture(renderTex, glm::value_ptr(viewMatrix));
@@ -260,7 +269,8 @@ void update(int delta) {
 }
 
 int main(int argc, char* argv[]) {
-	renderer<CL_DEVICE_TYPE_GPU> rndr = initOpenCL();
+	MultiPassRenderer<CL_DEVICE_TYPE_GPU> rndr =
+			MultiPassRenderer<CL_DEVICE_TYPE_GPU>(initScene(), kWidth, kHeight, numReflectivePasses, maxViewDistance);
 
 	SDL_Init(SDL_INIT_EVERYTHING);
 

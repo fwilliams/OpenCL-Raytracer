@@ -36,7 +36,7 @@ struct ClDeviceContext {
 	cl::Device device;
 	cl::CommandQueue commandQueue;
 
-	cl::Program createProgramFromFile(std::string& filename, std::map<std::string, std::string>& defines ) {
+	cl::Program createProgramFromFile(const std::string& filename, std::map<std::string, std::string>& defines ) {
 		std::string programString;
 		std::ifstream file;
 		file.exceptions(std::ifstream::badbit);

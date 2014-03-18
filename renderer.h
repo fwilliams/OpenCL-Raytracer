@@ -19,8 +19,8 @@
 #include "scene.h"
 
 template <cl_device_type DEVICE_TYPE>
-struct renderer {
-	renderer(std::shared_ptr<Scene<DEVICE_TYPE>> scene,
+struct MultiPassRenderer {
+	MultiPassRenderer(std::shared_ptr<Scene<DEVICE_TYPE>> scene,
 			unsigned vpWidth, unsigned vpHeight);
 
 
@@ -64,7 +64,7 @@ private:
 };
 
 template <cl_device_type DEVICE_TYPE>
-renderer<DEVICE_TYPE>::renderer(std::shared_ptr<Scene<DEVICE_TYPE>> scene,
+MultiPassRenderer<DEVICE_TYPE>::MultiPassRenderer(std::shared_ptr<Scene<DEVICE_TYPE>> scene,
 		unsigned vpWidth, unsigned vpHeight) :
 				deviceContext(scene->getCLDeviceContext()), viewportWidth(vpWidth), viewportHeight(vpHeight) {
 	setScene(scene);
@@ -75,7 +75,7 @@ renderer<DEVICE_TYPE>::renderer(std::shared_ptr<Scene<DEVICE_TYPE>> scene,
 }
 
 template <cl_device_type DEVICE_TYPE>
-void renderer<DEVICE_TYPE>::renderToTexture(GLuint tex, cl_float viewMat[16]) {
+void MultiPassRenderer<DEVICE_TYPE>::renderToTexture(GLuint tex, cl_float viewMat[16]) {
 	deviceContext->commandQueue.enqueueWriteBuffer(this->viewMatrix, true, 0, sizeof(cl_float)*16, viewMat);
 
 	firstPass(scene->getTriangleBuffer(),
