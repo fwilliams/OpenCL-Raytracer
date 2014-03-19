@@ -22,8 +22,8 @@ using namespace std;
 
 const int kWidth = 640;
 const int kHeight = 480;
-const int numReflectivePasses = 3;
-const double maxViewDistance = 15.0;
+const int numReflectivePasses = 10;
+const double maxViewDistance = 1000.0;
 const bool kFullscreen = false;
 
 GLuint renderTex;
@@ -50,10 +50,12 @@ void initOpenGL() {
 	glFinish();	// Texture needs to exist for openCL
 }
 
+#define FRAND 0.0f
+//static_cast <float> (rand()) / static_cast <float> (RAND_MAX)
 std::shared_ptr<Scene<CL_DEVICE_TYPE_GPU, BLINN_PHONG>> initScene() {
 	float planeWidth = 100.0;
 	float planeHeight = 100.0;
-	float planeSeparation = 5.0;
+	float planeSeparation = 10.0;
 	unsigned trisX = 1;
 	unsigned trisY = 1;
 
@@ -68,66 +70,98 @@ std::shared_ptr<Scene<CL_DEVICE_TYPE_GPU, BLINN_PHONG>> initScene() {
 			// Top plane
 			tris.push_back(
 				Triangle{
-					cl_float3{{-halfWidth+i*dX,     halfSeperation, -halfHeight+j*dY}},
-					cl_float3{{-halfWidth+i*dX,     halfSeperation, -halfHeight+(j+1)*dY}},
-					cl_float3{{-halfWidth+(i+1)*dX, halfSeperation, -halfHeight+(j+1)*dY}},
+					cl_float3{{-halfWidth+i*dX,     halfSeperation+FRAND, -halfHeight+j*dY}},
+					cl_float3{{-halfWidth+i*dX,     halfSeperation+FRAND, -halfHeight+(j+1)*dY}},
+					cl_float3{{-halfWidth+(i+1)*dX, halfSeperation+FRAND, -halfHeight+(j+1)*dY}},
 					2});
 			tris.push_back(
 				Triangle{
-					cl_float3{{-halfWidth+i*dX,     halfSeperation, -halfHeight+j*dY}},
-					cl_float3{{-halfWidth+(i+1)*dX, halfSeperation, -halfHeight+(j+1)*dY}},
-					cl_float3{{-halfWidth+(i+1)*dX, halfSeperation, -halfHeight+j*dY}},
+					cl_float3{{-halfWidth+i*dX,     halfSeperation+FRAND, -halfHeight+j*dY}},
+					cl_float3{{-halfWidth+(i+1)*dX, halfSeperation+FRAND, -halfHeight+(j+1)*dY}},
+					cl_float3{{-halfWidth+(i+1)*dX, halfSeperation+FRAND, -halfHeight+j*dY}},
 					2});
 
 			// Bottom plane
 			tris.push_back(
 				Triangle{
-					cl_float3{{-halfWidth+i*dX,     -halfSeperation, -halfHeight+j*dY}},
-					cl_float3{{-halfWidth+(i+1)*dX, -halfSeperation, -halfHeight+(j+1)*dY}},
-					cl_float3{{-halfWidth+i*dX,     -halfSeperation, -halfHeight+(j+1)*dY}},
+					cl_float3{{-halfWidth+i*dX,     -halfSeperation-FRAND, -halfHeight+j*dY}},
+					cl_float3{{-halfWidth+(i+1)*dX, -halfSeperation-FRAND, -halfHeight+(j+1)*dY}},
+					cl_float3{{-halfWidth+i*dX,     -halfSeperation-FRAND, -halfHeight+(j+1)*dY}},
 					3});
 			tris.push_back(
 				Triangle{
-					cl_float3{{-halfWidth+i*dX,     -halfSeperation, -halfHeight+j*dY}},
-					cl_float3{{-halfWidth+(i+1)*dX, -halfSeperation, -halfHeight+j*dY}},
-					cl_float3{{-halfWidth+(i+1)*dX, -halfSeperation, -halfHeight+(j+1)*dY}},
+					cl_float3{{-halfWidth+i*dX,     -halfSeperation-FRAND, -halfHeight+j*dY}},
+					cl_float3{{-halfWidth+(i+1)*dX, -halfSeperation-FRAND, -halfHeight+j*dY}},
+					cl_float3{{-halfWidth+(i+1)*dX, -halfSeperation-FRAND, -halfHeight+(j+1)*dY}},
 					3});
+
+			// Front Plane
+			tris.push_back(
+				Triangle{
+					cl_float3{{-halfWidth+i*dX,     -halfHeight+j*dY, 	  -halfSeperation+FRAND}},
+					cl_float3{{-halfWidth+i*dX,     -halfHeight+(j+1)*dY, -halfSeperation+FRAND}},
+					cl_float3{{-halfWidth+(i+1)*dX, -halfHeight+(j+1)*dY, -halfSeperation+FRAND}},
+					4});
+			tris.push_back(
+				Triangle{
+					cl_float3{{-halfWidth+i*dX,     -halfHeight+j*dY,    -halfSeperation+FRAND}},
+					cl_float3{{-halfWidth+(i+1)*dX, -halfHeight+(j+1)*dY,-halfSeperation+FRAND}},
+					cl_float3{{-halfWidth+(i+1)*dX, -halfHeight+j*dY,    -halfSeperation+FRAND}},
+					4});
+
+			// Back Plane
+			tris.push_back(
+				Triangle{
+					cl_float3{{-halfWidth+i*dX,     -halfHeight+j*dY, 	  halfSeperation+FRAND}},
+					cl_float3{{-halfWidth+i*dX,     -halfHeight+(j+1)*dY, halfSeperation+FRAND}},
+					cl_float3{{-halfWidth+(i+1)*dX, -halfHeight+(j+1)*dY, halfSeperation+FRAND}},
+					5});
+			tris.push_back(
+				Triangle{
+					cl_float3{{-halfWidth+i*dX,     -halfHeight+j*dY,    halfSeperation+FRAND}},
+					cl_float3{{-halfWidth+(i+1)*dX, -halfHeight+(j+1)*dY,halfSeperation+FRAND}},
+					cl_float3{{-halfWidth+(i+1)*dX, -halfHeight+j*dY,    halfSeperation+FRAND}},
+					5});
 		}
 	}
 
 	// Spheres
-	spheres.push_back(Sphere{1.0, cl_float3{{-2.5, -0.0, -3.0}}, 0});
-	spheres.push_back(Sphere{1.0, cl_float3{{ 2.5, -0.0, -3.0}}, 1});
+	spheres.push_back(Sphere{1.0, cl_float3{{-2.5, FRAND, -3.0}}, 0});
+	spheres.push_back(Sphere{1.0, cl_float3{{ 2.5, FRAND, -3.0}}, 1});
 
-	spheres.push_back(Sphere{1.0, cl_float3{{-2.4, -0.0, -5.0}}, 1});
-	spheres.push_back(Sphere{1.0, cl_float3{{ 2.4, -0.0, -5.0}}, 0});
-
-	spheres.push_back(Sphere{1.0, cl_float3{{-2.3, -0.0, -7.0}}, 0});
-	spheres.push_back(Sphere{1.0, cl_float3{{ 2.3, -0.0, -7.0}}, 1});
-
-	spheres.push_back(Sphere{1.0, cl_float3{{-2.2, -0.0, -9.0}}, 1});
-	spheres.push_back(Sphere{1.0, cl_float3{{ 2.2, -0.0, -9.0}}, 0});
-
-	spheres.push_back(Sphere{1.0, cl_float3{{-2.1, -0.0, -11.0}}, 0});
-	spheres.push_back(Sphere{1.0, cl_float3{{ 2.1, -0.0, -11.0}}, 1});
+//	spheres.push_back(Sphere{1.0, cl_float3{{-2.4, FRAND, -5.0}}, 1});
+//	spheres.push_back(Sphere{1.0, cl_float3{{ 2.4, FRAND, -5.0}}, 0});
+//
+//	spheres.push_back(Sphere{1.0, cl_float3{{-2.3, FRAND, -7.0}}, 0});
+//	spheres.push_back(Sphere{1.0, cl_float3{{ 2.3, FRAND, -7.0}}, 1});
+//
+//	spheres.push_back(Sphere{1.0, cl_float3{{-2.2, FRAND, -9.0}}, 1});
+//	spheres.push_back(Sphere{1.0, cl_float3{{ 2.2, FRAND, -9.0}}, 0});
+//
+//	spheres.push_back(Sphere{1.0, cl_float3{{-2.1, FRAND, -11.0}}, 0});
+//	spheres.push_back(Sphere{1.0, cl_float3{{ 2.1, FRAND, -11.0}}, 1});
 
 	// Lights
 	lights.push_back(
 			PointLight{
-				cl_float3{{-1.0, 0.1, -3.0}},
+				cl_float3{{-0.0, 0.1, -4.0}},
 				cl_float3{{0.7, 0.7, 0.7}}});
-	lights.push_back(
-			PointLight{
-				cl_float3{{1.0, 0.1, -3.0}},
-				cl_float3{{0.7, 0.7, 0.7}}});
-	lights.push_back(
-			PointLight{
-				cl_float3{{0.0, 0.1, 1.0}},
-				cl_float3{{0.6, 0.6, 0.6}}});
+//	lights.push_back(
+//			PointLight{
+//				cl_float3{{1.0, 0.1, -1.0}},
+//				cl_float3{{0.7, 0.7, 0.7}}});
+//	lights.push_back(
+//			PointLight{
+//				cl_float3{{0.0, 0.1, 1.0}},
+//				cl_float3{{0.6, 0.6, 0.6}}});
+//	lights.push_back(
+//			PointLight{
+//				cl_float3{{0.0, 0.0, -5.0}},
+//				cl_float3{{0.2, 0.2, 0.8}}});
 
 	// Materials
 	mats.push_back(
-			Material<BLINN_PHONG>{
+			Material<BLINN_PHONG> {
 				cl_float3{{0.005, 0.005, 0.005}},
 				cl_float3{{0.6, 0.6, 0.6}},
 				cl_float3{{0.5, 0.5, 0.5}},
@@ -135,25 +169,39 @@ std::shared_ptr<Scene<CL_DEVICE_TYPE_GPU, BLINN_PHONG>> initScene() {
 	});
 
 	mats.push_back(
-			Material<BLINN_PHONG>{
+			Material<BLINN_PHONG> {
 				cl_float3{{0.05, 0.05, 0.05}},
 				cl_float3{{0.6, 0.4, 0.4}},
 				cl_float3{{0.5, 0.5, 0.5}},
+				1000.0});
+
+	mats.push_back(
+			Material<BLINN_PHONG> {
+				cl_float3{{0.99, 0.99, 0.99}},
+				cl_float3{{0.0, 0.0, 0.3}},
+				cl_float3{{0.1, 0.1, 0.1}},
 				100.0});
 
 	mats.push_back(
-			Material<BLINN_PHONG>{
+			Material<BLINN_PHONG> {
 				cl_float3{{0.99, 0.99, 0.99}},
-				cl_float3{{0.3, 0.3, 0.31}},
-				cl_float3{{0.3, 0.3, 0.3}},
-				1000.0});
+				cl_float3{{0.3, 0.0, 0.0}},
+				cl_float3{{0.1, 0.1, 0.1}},
+				100.0});
 
 	mats.push_back(
-			Material<BLINN_PHONG>{
+			Material<BLINN_PHONG> {
 				cl_float3{{0.99, 0.99, 0.99}},
-				cl_float3{{0.3, 0.31, 0.3}},
-				cl_float3{{0.5, 0.5, 0.5}},
-				1000.0});
+				cl_float3{{0.0, 0.0, 0.3}},
+				cl_float3{{0.1, 0.1, 0.1}},
+				100.0});
+
+	mats.push_back(
+			Material<BLINN_PHONG> {
+				cl_float3{{0.99, 0.99, 0.99}},
+				cl_float3{{0.0, 0.3, 0.3}},
+				cl_float3{{0.1, 0.1, 0.1}},
+				100.0});
 
 	auto devCtx = std::make_shared<ClDeviceContext<CL_DEVICE_TYPE_GPU>>();
 	return std::make_shared<Scene<CL_DEVICE_TYPE_GPU, BLINN_PHONG>>(
@@ -214,7 +262,7 @@ void render(int delta, Renderer& rndr) {
 void update(int delta) {}
 
 int main(int argc, char* argv[]) {
-	auto rndr = SinglePassRenderer<CL_DEVICE_TYPE_GPU, BLINN_PHONG>(initScene(), kWidth, kHeight, numReflectivePasses, maxViewDistance);
+	auto rndr = MultiPassRenderer<CL_DEVICE_TYPE_GPU, BLINN_PHONG>(initScene(), kWidth, kHeight, numReflectivePasses, maxViewDistance);
 
 	SDL_Init(SDL_INIT_EVERYTHING);
 

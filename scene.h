@@ -85,21 +85,29 @@ private:
 	cl::Buffer clTriangles, clSpheres, clPointlights, clMaterials;
 
 	inline void packCLBuffers() {
-		size_t sphereByteSize = sizeof(Sphere) * cpuSpheres.size();
-		clSpheres = cl::Buffer(clDeviceContext->context, CL_MEM_READ_ONLY, sphereByteSize);
-		clDeviceContext->commandQueue.enqueueWriteBuffer(clSpheres, true, 0, sphereByteSize, cpuSpheres.data());
+		if(!cpuSpheres.empty()) {
+			size_t sphereByteSize = sizeof(Sphere) * cpuSpheres.size();
+			clSpheres = cl::Buffer(clDeviceContext->context, CL_MEM_READ_ONLY, sphereByteSize);
+			clDeviceContext->commandQueue.enqueueWriteBuffer(clSpheres, true, 0, sphereByteSize, cpuSpheres.data());
+		}
 
-		size_t trisByteSize = sizeof(Triangle) * cpuTriangles.size();
-		clTriangles = cl::Buffer(clDeviceContext->context, CL_MEM_READ_ONLY, trisByteSize);
-		clDeviceContext->commandQueue.enqueueWriteBuffer(clTriangles, true, 0, trisByteSize, cpuTriangles.data());
+		if(!cpuTriangles.empty()) {
+			size_t trisByteSize = sizeof(Triangle) * cpuTriangles.size();
+			clTriangles = cl::Buffer(clDeviceContext->context, CL_MEM_READ_ONLY, trisByteSize);
+			clDeviceContext->commandQueue.enqueueWriteBuffer(clTriangles, true, 0, trisByteSize, cpuTriangles.data());
+		}
 
-		size_t lightByteSize = sizeof(PointLight) * cpuPointLights.size();
-		clPointlights = cl::Buffer(clDeviceContext->context, CL_MEM_READ_ONLY, lightByteSize);
-		clDeviceContext->commandQueue.enqueueWriteBuffer(clPointlights, true, 0, lightByteSize, cpuPointLights.data());
+		if(!cpuPointLights.empty()) {
+			size_t lightByteSize = sizeof(PointLight) * cpuPointLights.size();
+			clPointlights = cl::Buffer(clDeviceContext->context, CL_MEM_READ_ONLY, lightByteSize);
+			clDeviceContext->commandQueue.enqueueWriteBuffer(clPointlights, true, 0, lightByteSize, cpuPointLights.data());
+		}
 
-		size_t materialByteSize = sizeof(Material<LIGHT_MODEL>) * cpuMaterials.size();
-		clMaterials = cl::Buffer(clDeviceContext->context, CL_MEM_READ_ONLY, materialByteSize);
-		clDeviceContext->commandQueue.enqueueWriteBuffer(clMaterials, true, 0, materialByteSize, cpuMaterials.data());
+		if(!cpuMaterials.empty()) {
+			size_t materialByteSize = sizeof(Material<LIGHT_MODEL>) * cpuMaterials.size();
+			clMaterials = cl::Buffer(clDeviceContext->context, CL_MEM_READ_ONLY, materialByteSize);
+			clDeviceContext->commandQueue.enqueueWriteBuffer(clMaterials, true, 0, materialByteSize, cpuMaterials.data());
+		}
 	}
 };
 
