@@ -1,12 +1,169 @@
 #include "opencl_ide_fix.h"
 
 #define BLINN_PHONG_BRDF
-#include "cl_data_structures.h"
-#include "cl_geometry.h"
 
-#define MAX_REFLECTIONS 3
+// TODO: Move all of these somewhere better
+#define NULL_TYPE_ID 0
+#define SPHERE_TYPE_ID 1
+#define TRIANGLE_TYPE_ID 2
 
+#define MAX_REFLECTIONS 5
+#define RAY_SURFACE_EPSILON 0.0001
 #define RAY_TRI_EPSILON 0.000001
+
+struct Material {
+	float3 reflectivity;
+
+#if defined CONST_BRDF				// All surfaces lambertian
+	float3 color;
+	
+#elif defined BLINN_PHONG_BRDF or defined PHONG_BRDF	// Phong lighting (physically implausible)
+	float3 kd;
+	float3 ks;
+	float exp;
+	
+#elif defined COOK_TORRANCE_BRDF	// Physically plausible lighting model (to be used with global illumination)
+	float3 kd;
+	float3 ks;
+	float2 rougness;
+
+#endif
+};
+
+struct Sphere {
+	float radius;
+	float3 position;
+	uint materialId;
+};
+
+struct Triangle {
+	float3 v1, v2, v3;
+	uint materialId;
+};
+
+struct PointLight {
+	float3 position;
+	float3 power;
+};
+
+struct Ray {
+	float3 origin;
+	float3 direction;
+};
+
+bool rayTriangle(struct Ray* ray, global struct Triangle* tri, float* outT) {
+	float3 e1, e2;
+	float3 P, Q, T;
+	float det, invDet, u, v;
+	float t;
+
+	//Find vectors for two edges sharing v1
+	e1 = tri->v2 - tri->v1;
+	e2 = tri->v3 - tri->v1;
+
+	//Begin calculating determinant - also used to calculate u parameter
+	P = cross(ray->direction, e2);
+	det = dot(e1, P);
+
+	//if determinant is near zero, ray lies in plane of triangle
+	if(det > -RAY_TRI_EPSILON && det < RAY_TRI_EPSILON) {
+		return false;
+	}
+
+	invDet = 1.0f / det;
+
+	//calculate distance from V1 to ray origin
+	T = ray->origin - tri->v1;
+
+	//Calculate u parameter and test bound
+	u = dot(T, P) * invDet;
+	if(u < 0.0f || u > 1.0f) {
+		//The intersection lies outside of the triangle
+		return false;
+	}
+
+	//Prepare to test v parameter
+	Q = cross(T, e1);
+
+	//Calculate v parameter and test bound
+	v = dot(ray->direction, Q) * invDet;
+	if(v < 0.0f || u + v  > 1.0f) {
+		//The intersection lies outside of the triangle
+		return false;
+	}
+
+	t = dot(e2, Q) * invDet;
+
+	if(t > RAY_TRI_EPSILON) {
+		*outT = t;
+		return true;
+	}
+
+	return false;
+}
+
+bool raySphere(struct Ray* r, global struct Sphere* s, float* t) {
+	float3 rayToCenter = s->position - r->origin ;
+	float dotProduct = dot(r->direction, rayToCenter);
+	float d = dotProduct*dotProduct - dot(rayToCenter,rayToCenter)+s->radius*s->radius;
+	float sqrtd = sqrt(d);
+
+	if(d < 0) {
+		return false;
+	}
+
+	*t = dotProduct - sqrtd;
+
+	if(*t < 0) {
+		*t = dotProduct + sqrtd;
+		if(*t < 0) {
+			return false;
+		}
+	}
+
+	return true;
+}
+
+float intersect(
+		struct Ray* ray,
+		global struct Sphere* spheres,
+		global struct Triangle* tris,
+		int* index, uint* type) {
+	float minT = MAX_RENDER_DISTANCE;
+
+	for(int i = 0; i < NUM_SPHERES; i++) {
+		float t;
+		if(raySphere(ray, &spheres[i], &t)) {
+			if(t < minT){
+				minT = t;
+				*type = SPHERE_TYPE_ID;
+				*index = i;
+			}
+		}
+	}
+
+	for(int i = 0; i < NUM_TRIANGLES; i++) {
+		float t;
+		if(rayTriangle(ray, &tris[i], &t)) {
+			if(t < minT){
+				minT = t;
+				*type = TRIANGLE_TYPE_ID;
+				*index = i;
+			}
+		}
+	}
+
+	return minT;
+}
+
+float dt(float3 v1, float3 v2) {
+	return v1.x*v2.x + v1.y*v2.y + v1.z*v2.z;
+}
+
+
+float3 reflect(float3 v, float3 n) {
+	return v - 2.0f * dot(v, n) * n;
+}
 
 inline float3 computeRadiance(
 		float3* position, float3* normal, 
@@ -24,7 +181,7 @@ inline float3 computeRadiance(
 		L = normalize(L);
 
 		struct Ray shadowRay;
-		shadowRay.origin = *position + L*0.001;
+		shadowRay.origin = *position + L*RAY_SURFACE_EPSILON;
 		shadowRay.direction = L;
 		
 		int index;
@@ -86,7 +243,7 @@ float3 doRaytrace(
 			reflectionFactor *= reflectMat->reflectivity;
 			
 			reflectRay.direction = reflect(normalize(reflectRay.direction), reflectNormal);
-			
+			reflectRay.origin += reflectRay.direction * RAY_SURFACE_EPSILON;
 			float rt = intersect(&reflectRay, spheres, tris, &intersectObjIndex, &intersectObjType);
 
 			reflectRay.origin = reflectRay.origin + rt * reflectRay.direction;
@@ -129,13 +286,13 @@ kernel void raytrace(
 		global write_only image2d_t res) {
 
 	struct Ray ray;
-	ray.origin = (float3){0.0, 0.0, 0.0};//matrixVectorMultiply(viewMatrix, &((float3) {0.0f, 0.0f, 0.0f}));
+	ray.origin = matrixVectorMultiply(viewMatrix, &((float3) {0.0f, 0.0f, 0.0f}));
 	ray.direction = normalize((float3) {
 		min(((float)get_global_id(0))/(float)get_global_size(0) - 0.5f, 1.0),
 		min(-((float)get_global_id(1))/(float)get_global_size(1) + 0.5f, 1.0),
 										-0.5});
-	float3 color = doRaytrace(&ray, spheres, triangles, lights, materials, 0);
 	
+	float3 color = doRaytrace(&ray, spheres, triangles, lights, materials, 0);
 	
 	write_imagef(res, (int2) {get_global_id(0), get_global_id(1)},
 				 (float4){color.x, color.y, color.z, 1.0});
