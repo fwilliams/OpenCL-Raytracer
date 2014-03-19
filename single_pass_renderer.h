@@ -41,13 +41,13 @@ struct SinglePassRenderer {
 		};
 
 		cl::Program program = scene->getCLDeviceContext()->createProgramFromFile(KERNEL_FILE_NAME, defines, OPENCL_BASE_DIR);
-		kernelFunc = cl::KernelFunctor(cl::Kernel(program, "raytrace"), deviceContext->commandQueue,
+		kernelFunc = cl::KernelFunctor(cl::Kernel(program, "single_pass"), deviceContext->commandQueue,
 				cl::NullRange, cl::NDRange(viewportWidth, viewportHeight),
 				cl::NullRange);
 	}
 
 private:
-	const std::string KERNEL_FILE_NAME = "reflectracer.cl";
+	const std::string KERNEL_FILE_NAME = "single_pass.cl";
 	const std::string OPENCL_BASE_DIR = "opencl";
 
 	std::shared_ptr<Scene<CL_DEVICE_TYPE_GPU>> scene;
