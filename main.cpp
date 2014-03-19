@@ -4,6 +4,7 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <unistd.h>
 
 #include <SDL/SDL.h>
 #include <SDL/SDL_opengl.h>
@@ -14,12 +15,12 @@
 #include "multi_pass_renderer.h"
 #include "scene.h"
 
-#define RENDER_LIGHTS
+//#define RENDER_LIGHTS
 
 using namespace std;
 
-const int kWidth = 512;
-const int kHeight = 512;
+const int kWidth = 640;
+const int kHeight = 480;
 const int numReflectivePasses = 100;
 const double maxViewDistance = 15.0;
 const bool kFullscreen = false;

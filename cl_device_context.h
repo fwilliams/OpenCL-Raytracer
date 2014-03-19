@@ -39,7 +39,7 @@ struct ClDeviceContext {
 	cl::Program createProgramFromFile(const std::string& filename, std::map<std::string, std::string>& defines ) {
 		std::string programString;
 		std::ifstream file;
-		file.exceptions(std::ifstream::badbit);
+		file.exceptions(std::ifstream::badbit | std::ifstream::failbit);
 		file.open(filename.c_str());
 
 		while (!file.eof()) {
