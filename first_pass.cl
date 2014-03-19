@@ -1,6 +1,6 @@
 #define BLINN_PHONG_BRDF
 #include "cl_data_structures.h"
-#include "cl_geometry.h"
+#include "cl_helper_functions.h"
 
 kernel void first_pass(global struct Ray* rayBuffer,
 					   global float3* reflectivityBuffer,

@@ -1,6 +1,6 @@
 #define BLINN_PHONG_BRDF
 #include "cl_data_structures.h"
-#include "cl_geometry.h"
+#include "cl_helper_functions.h"
 
 kernel void reflect_pass(global struct Ray* rayBuffer,
 					   global float3* reflectivityBuffer,
@@ -12,7 +12,7 @@ kernel void reflect_pass(global struct Ray* rayBuffer,
 
 	uint i = get_global_size(0)*get_global_id(1) + get_global_id(0);
 	
-	struct Ray ray = rayBuffer[i];
+	struct Ray ray = rayBuf fer[i];
 	rayBuffer[i].direction = (float3){0.0, 0.0, 0.0};
 	
 	if(dot(ray.direction, ray.direction) != 0.0) {
