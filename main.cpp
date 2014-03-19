@@ -136,17 +136,10 @@ std::shared_ptr<Scene<CL_DEVICE_TYPE_GPU>> initScene() {
 
 	mats.push_back(
 			Material{
-<<<<<<< HEAD
 				cl_float3{{0.05, 0.05, 0.05}},
-				cl_float3{{0.3, 0.3, 0.5}},
-				cl_float3{{0.5, 0.5, 0.3}},
-				1000.0});
-=======
-				cl_float3{{0.99, 0.99, 0.99}},
-				cl_float3{{0.6, 0.1, 0.1}},
+				cl_float3{{0.6, 0.4, 0.4}},
 				cl_float3{{0.5, 0.5, 0.5}},
 				100.0});
->>>>>>> merge_dis_shiz
 
 	mats.push_back(
 			Material{
