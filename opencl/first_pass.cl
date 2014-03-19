@@ -1,4 +1,3 @@
-#define BLINN_PHONG_BRDF
 #include "helper_functions.h"
 
 kernel void first_pass(global struct Ray* rayBuffer,

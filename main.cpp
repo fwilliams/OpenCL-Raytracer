@@ -1,9 +1,9 @@
-#define BLINN_PHONG
 
 #include <CL/cl.h>
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <vector>
 #include <unistd.h>
 
 #include <SDL/SDL.h>
@@ -31,7 +31,7 @@ GLuint renderTex;
 vector<Sphere> spheres;
 vector<Triangle> tris;
 vector<PointLight> lights;
-vector<Material> mats;
+vector<Material<BLINN_PHONG>> mats;
 
 void initOpenGL() {
 	glEnable(GL_TEXTURE_2D);
@@ -50,7 +50,7 @@ void initOpenGL() {
 	glFinish();	// Texture needs to exist for openCL
 }
 
-std::shared_ptr<Scene<CL_DEVICE_TYPE_GPU>> initScene() {
+std::shared_ptr<Scene<CL_DEVICE_TYPE_GPU, BLINN_PHONG>> initScene() {
 	float planeWidth = 100.0;
 	float planeHeight = 100.0;
 	float planeSeparation = 5.0;
@@ -125,10 +125,9 @@ std::shared_ptr<Scene<CL_DEVICE_TYPE_GPU>> initScene() {
 				cl_float3{{0.0, 0.1, 1.0}},
 				cl_float3{{0.6, 0.6, 0.6}}});
 
-#ifdef BLINN_PHONG
 	// Materials
 	mats.push_back(
-			Material{
+			Material<BLINN_PHONG>{
 				cl_float3{{0.005, 0.005, 0.005}},
 				cl_float3{{0.6, 0.6, 0.6}},
 				cl_float3{{0.5, 0.5, 0.5}},
@@ -136,50 +135,28 @@ std::shared_ptr<Scene<CL_DEVICE_TYPE_GPU>> initScene() {
 	});
 
 	mats.push_back(
-			Material{
+			Material<BLINN_PHONG>{
 				cl_float3{{0.05, 0.05, 0.05}},
 				cl_float3{{0.6, 0.4, 0.4}},
 				cl_float3{{0.5, 0.5, 0.5}},
 				100.0});
 
 	mats.push_back(
-			Material{
+			Material<BLINN_PHONG>{
 				cl_float3{{0.99, 0.99, 0.99}},
 				cl_float3{{0.3, 0.3, 0.31}},
 				cl_float3{{0.3, 0.3, 0.3}},
 				1000.0});
 
 	mats.push_back(
-			Material{
+			Material<BLINN_PHONG>{
 				cl_float3{{0.99, 0.99, 0.99}},
 				cl_float3{{0.3, 0.31, 0.3}},
 				cl_float3{{0.5, 0.5, 0.5}},
 				1000.0});
-#else
-	// Materials
-	mats.push_back(
-			Material{
-				cl_float3{{0.2, 0.2, 0.2}},
-				cl_float3{{0.1, 0.1, 0.6}}});
-
-	mats.push_back(
-			Material{
-				cl_float3{{0.2, 0.2, 0.2}},
-				cl_float3{{0.6, 0.1, 0.1}}});
-
-	mats.push_back(
-			Material{
-				cl_float3{{0.99, 0.99, 0.99}},
-				cl_float3{{0.3, 0.3, 0.3}}});
-
-	mats.push_back(
-			Material{
-				cl_float3{{0.99, 0.99, 0.99}},
-				cl_float3{{0.3, 0.3, 0.3}}});
-#endif
 
 	auto devCtx = std::make_shared<ClDeviceContext<CL_DEVICE_TYPE_GPU>>();
-	return std::make_shared<Scene<CL_DEVICE_TYPE_GPU>>(
+	return std::make_shared<Scene<CL_DEVICE_TYPE_GPU, BLINN_PHONG>>(
 					devCtx, spheres.begin(), spheres.end(),
 					tris.begin(), tris.end(),
 					lights.begin(), lights.end(),
@@ -237,7 +214,7 @@ void render(int delta, Renderer& rndr) {
 void update(int delta) {}
 
 int main(int argc, char* argv[]) {
-	auto rndr = SinglePassRenderer<CL_DEVICE_TYPE_GPU>(initScene(), kWidth, kHeight, numReflectivePasses, maxViewDistance);
+	auto rndr = SinglePassRenderer<CL_DEVICE_TYPE_GPU, BLINN_PHONG>(initScene(), kWidth, kHeight, numReflectivePasses, maxViewDistance);
 
 	SDL_Init(SDL_INIT_EVERYTHING);
 

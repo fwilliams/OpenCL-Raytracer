@@ -18,16 +18,16 @@
 #ifndef SINGLE_PASS_RENDERER_H_
 #define SINGLE_PASS_RENDERER_H_
 
-template <cl_device_type DEVICE_TYPE>
+template <cl_device_type DEVICE_TYPE, LightModel LIGHT_MODEL>
 struct SinglePassRenderer {
-	SinglePassRenderer(std::shared_ptr<Scene<DEVICE_TYPE>> scene,
+	SinglePassRenderer(std::shared_ptr<Scene<DEVICE_TYPE, LIGHT_MODEL>> scene,
 					  size_t vpWidth, size_t vpHeight,
 					  unsigned reflectivePasses, double maxRenderDistance);
 
 
 	void renderToTexture(GLuint tex, cl_float viewMat[16]);
 
-	void setScene(std::shared_ptr<Scene<DEVICE_TYPE>> newScene) {
+	void setScene(std::shared_ptr<Scene<DEVICE_TYPE, LIGHT_MODEL>> newScene) {
 		scene = newScene;
 
 		// Create the program
@@ -37,7 +37,8 @@ struct SinglePassRenderer {
 			{"NUM_LIGHTS", std::to_string(scene->getNumPointLights())},
 			{"NUM_MATERIALS", std::to_string(scene->getNumMaterials())},
 			{"NUM_REFLECTIVE_PASSES", std::to_string(numReflectivePasses)},
-			{"MAX_RENDER_DISTANCE", std::to_string(100.0)}
+			{"MAX_RENDER_DISTANCE", std::to_string(100.0)},
+			{std::string(Material<LIGHT_MODEL>::name()), std::string()}
 		};
 
 		cl::Program program = scene->getCLDeviceContext()->createProgramFromFile(KERNEL_FILE_NAME, defines, OPENCL_BASE_DIR);
@@ -50,7 +51,7 @@ private:
 	const std::string KERNEL_FILE_NAME = "single_pass.cl";
 	const std::string OPENCL_BASE_DIR = "opencl";
 
-	std::shared_ptr<Scene<CL_DEVICE_TYPE_GPU>> scene;
+	std::shared_ptr<Scene<DEVICE_TYPE, LIGHT_MODEL>> scene;
 	std::shared_ptr<ClDeviceContext<DEVICE_TYPE>> deviceContext;
 	unsigned numReflectivePasses;
 	double maxRenderDistance;
@@ -60,8 +61,8 @@ private:
 	cl::Buffer resImg;
 };
 
-template <cl_device_type DEVICE_TYPE>
-SinglePassRenderer<DEVICE_TYPE>::SinglePassRenderer(std::shared_ptr<Scene<DEVICE_TYPE>> scene,
+template <cl_device_type DEVICE_TYPE, LightModel LIGHT_MODEL>
+SinglePassRenderer<DEVICE_TYPE, LIGHT_MODEL>::SinglePassRenderer(std::shared_ptr<Scene<DEVICE_TYPE, LIGHT_MODEL>> scene,
 		size_t vpWidth, size_t vpHeight, unsigned numReflectivePasses, double maxRenderDistance) :
 				deviceContext(scene->getCLDeviceContext()), numReflectivePasses(numReflectivePasses),
 				maxRenderDistance(maxRenderDistance), viewportWidth(vpWidth), viewportHeight(vpHeight) {
@@ -69,8 +70,8 @@ SinglePassRenderer<DEVICE_TYPE>::SinglePassRenderer(std::shared_ptr<Scene<DEVICE
 	this->resImg = cl::Buffer(deviceContext->context, CL_MEM_READ_WRITE, sizeof(cl_float4)*viewportWidth*viewportHeight);
 }
 
-template <cl_device_type DEVICE_TYPE>
-void SinglePassRenderer<DEVICE_TYPE>::renderToTexture(GLuint tex, cl_float viewMat[16]) {
+template <cl_device_type DEVICE_TYPE, LightModel LIGHT_MODEL>
+void SinglePassRenderer<DEVICE_TYPE, LIGHT_MODEL>::renderToTexture(GLuint tex, cl_float viewMat[16]) {
 	kernelFunc(
 			scene->getTriangleBuffer(),
 			scene->getSphereBuffer(),

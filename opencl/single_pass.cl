@@ -1,4 +1,3 @@
-#define BLINN_PHONG_BRDF
 #include "helper_functions.h"
 
 float3 doRaytrace(

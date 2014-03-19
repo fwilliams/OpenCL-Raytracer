@@ -5,10 +5,10 @@
  *      Author: francis
  */
 
+#include <string>
+
 #ifndef GEOMETRY_TYPES_H_
 #define GEOMETRY_TYPES_H_
-
-#define BLINN_PHONG
 
 struct Sphere {
 	cl_float radius;
@@ -26,17 +26,50 @@ struct PointLight {
 	cl_float3 power;
 };
 
-struct Material {
-	cl_float3 reflectivity;
+enum LightModel {
+	DIFFUSE,
+	PHONG,
+	BLINN_PHONG,
+	COOK_TORRANCE
+};
 
-#ifdef BLINN_PHONG
+template <LightModel Model>
+struct Material { };
+
+template <>
+struct Material<DIFFUSE> {
+	cl_float3 reflectivity;
+	cl_float3 color;
+
+	static constexpr const char* name() {
+		return "DIFFUSE_BRDF";
+	}
+};
+
+template <>
+struct Material<PHONG> {
+	cl_float3 reflectivity;
 	cl_float3 kd;
 	cl_float3 ks;
 	cl_float exp;
-#else
-	cl_float3 color;
-#endif
+
+	static constexpr const char* name() {
+		return "PHONG_BRDF";
+	}
 };
+
+template <>
+struct Material<BLINN_PHONG> {
+	cl_float3 reflectivity;
+	cl_float3 kd;
+	cl_float3 ks;
+	cl_float exp;
+
+	static constexpr const char* name() {
+		return "BLINN_PHONG_BRDF";
+	}
+};
+
 
 struct Ray {
 	cl_float3 origin;

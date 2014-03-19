@@ -158,7 +158,7 @@ inline float3 computeRadiance(
 		float st = intersect(&shadowRay, spheres, tris, &index, &type);
 
 		if(st > distanceToLight) {
-			#if defined CONST_BRDF
+			#if defined DIFFUSE_BRDF
 			color += material->color*lights[j].power*max(0.0f, dot(*normal, L));
 
 			#elif defined BLINN_PHONG_BRDF

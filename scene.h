@@ -16,7 +16,7 @@
 #ifndef SCENE_H_
 #define SCENE_H_
 
-template <cl_device_type DEVICE_TYPE,
+template <cl_device_type DEVICE_TYPE, LightModel LIGHT_MODEL,
 		  template<class ...> class StorageContainerType = std::vector>
 struct Scene {
 	template <typename SphereIter, typename TriIter, typename LightIter, typename MatIter>
@@ -79,7 +79,7 @@ private:
 	StorageContainerType<Triangle> cpuTriangles;
 	StorageContainerType<Sphere> cpuSpheres;
 	StorageContainerType<PointLight> cpuPointLights;
-	StorageContainerType<Material> cpuMaterials;
+	StorageContainerType<Material<LIGHT_MODEL>> cpuMaterials;
 
 	std::shared_ptr<ClDeviceContext<DEVICE_TYPE>> clDeviceContext;
 	cl::Buffer clTriangles, clSpheres, clPointlights, clMaterials;
@@ -97,7 +97,7 @@ private:
 		clPointlights = cl::Buffer(clDeviceContext->context, CL_MEM_READ_ONLY, lightByteSize);
 		clDeviceContext->commandQueue.enqueueWriteBuffer(clPointlights, true, 0, lightByteSize, cpuPointLights.data());
 
-		size_t materialByteSize = sizeof(Material) * cpuMaterials.size();
+		size_t materialByteSize = sizeof(Material<LIGHT_MODEL>) * cpuMaterials.size();
 		clMaterials = cl::Buffer(clDeviceContext->context, CL_MEM_READ_ONLY, materialByteSize);
 		clDeviceContext->commandQueue.enqueueWriteBuffer(clMaterials, true, 0, materialByteSize, cpuMaterials.data());
 	}
