@@ -40,7 +40,7 @@ struct SinglePassRenderer {
 			{"MAX_RENDER_DISTANCE", std::to_string(100.0)}
 		};
 
-		cl::Program program = scene->getCLDeviceContext()->createProgramFromFile(KERNEL_FILE_NAME, defines);
+		cl::Program program = scene->getCLDeviceContext()->createProgramFromFile(KERNEL_FILE_NAME, defines, OPENCL_BASE_DIR);
 		kernelFunc = cl::KernelFunctor(cl::Kernel(program, "raytrace"), deviceContext->commandQueue,
 				cl::NullRange, cl::NDRange(viewportWidth, viewportHeight),
 				cl::NullRange);
@@ -48,6 +48,7 @@ struct SinglePassRenderer {
 
 private:
 	const std::string KERNEL_FILE_NAME = "reflectracer.cl";
+	const std::string OPENCL_BASE_DIR = "opencl";
 
 	std::shared_ptr<Scene<CL_DEVICE_TYPE_GPU>> scene;
 	std::shared_ptr<ClDeviceContext<DEVICE_TYPE>> deviceContext;

@@ -36,11 +36,11 @@ struct ClDeviceContext {
 	cl::Device device;
 	cl::CommandQueue commandQueue;
 
-	cl::Program createProgramFromFile(const std::string& filename, std::map<std::string, std::string>& defines ) {
+	cl::Program createProgramFromFile(const std::string& filename, const std::map<std::string, std::string>& defines, const std::string& baseDir = ".") const {
 		std::string programString;
 		std::ifstream file;
 		file.exceptions(std::ifstream::badbit | std::ifstream::failbit);
-		file.open(filename.c_str());
+		file.open(std::string(baseDir + std::string("/") + filename).c_str());
 
 		while (!file.eof()) {
 			std::string str;
@@ -59,6 +59,7 @@ struct ClDeviceContext {
 			defineString.append(
 					std::string("-D")+i->first+std::string("=")+i->second+std::string(" "));
 		}
+		defineString.append(std::string("-I") + baseDir);
 
 		cl::Program program(context, sources);
 

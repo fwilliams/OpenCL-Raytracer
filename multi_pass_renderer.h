@@ -39,12 +39,12 @@ struct MultiPassRenderer {
 			{"MAX_RENDER_DISTANCE", std::to_string(100.0)}
 		};
 
-		cl::Program firstPassProg = scene->getCLDeviceContext()->createProgramFromFile(FIRST_PASS_FILE_NAME, defines);
+		cl::Program firstPassProg = scene->getCLDeviceContext()->createProgramFromFile(FIRST_PASS_FILE_NAME, defines, OPENCL_BASE_DIR);
 		firstPass = cl::KernelFunctor(cl::Kernel(firstPassProg, "first_pass"), deviceContext->commandQueue,
 				cl::NullRange, cl::NDRange(viewportWidth, viewportHeight),
 				cl::NullRange);
 
-		cl::Program reflectPassProg = scene->getCLDeviceContext()->createProgramFromFile(RFLCT_PASS_FILE_NAME, defines);
+		cl::Program reflectPassProg = scene->getCLDeviceContext()->createProgramFromFile(RFLCT_PASS_FILE_NAME, defines, OPENCL_BASE_DIR);
 		reflectPass = cl::KernelFunctor(cl::Kernel(reflectPassProg, "reflect_pass"), deviceContext->commandQueue,
 				cl::NullRange, cl::NDRange(viewportWidth, viewportHeight),
 				cl::NullRange);
@@ -53,6 +53,7 @@ struct MultiPassRenderer {
 private:
 	const std::string FIRST_PASS_FILE_NAME = "first_pass.cl";
 	const std::string RFLCT_PASS_FILE_NAME = "reflect_pass.cl";
+	const std::string OPENCL_BASE_DIR = "opencl";
 
 	std::shared_ptr<Scene<CL_DEVICE_TYPE_GPU>> scene;
 	std::shared_ptr<ClDeviceContext<DEVICE_TYPE>> deviceContext;
