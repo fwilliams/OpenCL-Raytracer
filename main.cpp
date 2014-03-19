@@ -13,6 +13,7 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include "multi_pass_renderer.h"
+#include "single_pass_renderer.h"
 #include "scene.h"
 
 //#define RENDER_LIGHTS
@@ -236,7 +237,7 @@ void render(int delta, Renderer& rndr) {
 void update(int delta) {}
 
 int main(int argc, char* argv[]) {
-	auto rndr = MultiPassRenderer<CL_DEVICE_TYPE_GPU>(initScene(), kWidth, kHeight, numReflectivePasses, maxViewDistance);
+	auto rndr = SinglePassRenderer<CL_DEVICE_TYPE_GPU>(initScene(), kWidth, kHeight, numReflectivePasses, maxViewDistance);
 
 	SDL_Init(SDL_INIT_EVERYTHING);
 

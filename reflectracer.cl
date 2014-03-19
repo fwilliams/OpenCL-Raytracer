@@ -7,7 +7,6 @@
 #define SPHERE_TYPE_ID 1
 #define TRIANGLE_TYPE_ID 2
 
-#define MAX_REFLECTIONS 5
 #define RAY_SURFACE_EPSILON 0.0001
 #define RAY_TRI_EPSILON 0.000001
 
@@ -239,7 +238,7 @@ float3 doRaytrace(
 		float3 reflectNormal = normal;
 		float3 reflectionFactor = 1.0f;
 		
-		for(int i = 0; i < MAX_REFLECTIONS; i++) {
+		for(int i = 0; i < NUM_REFLECTIVE_PASSES; i++) {
 			reflectionFactor *= reflectMat->reflectivity;
 			
 			reflectRay.direction = reflect(normalize(reflectRay.direction), reflectNormal);
@@ -282,11 +281,10 @@ kernel void raytrace(
 		global const struct Sphere* spheres,
 		global const struct PointLight* lights,
 		global const struct Material* materials,
-		global float* viewMatrix,
-		global write_only image2d_t res) {
+		global float4* res) {
 
 	struct Ray ray;
-	ray.origin = matrixVectorMultiply(viewMatrix, &((float3) {0.0f, 0.0f, 0.0f}));
+	ray.origin = (float3){0.0, 0.0, 0.0};//matrixVectorMultiply(viewMatrix, &((float3) {0.0f, 0.0f, 0.0f}));
 	ray.direction = normalize((float3) {
 		min(((float)get_global_id(0))/(float)get_global_size(0) - 0.5f, 1.0),
 		min(-((float)get_global_id(1))/(float)get_global_size(1) + 0.5f, 1.0),
@@ -294,6 +292,5 @@ kernel void raytrace(
 	
 	float3 color = doRaytrace(&ray, spheres, triangles, lights, materials, 0);
 	
-	write_imagef(res, (int2) {get_global_id(0), get_global_id(1)},
-				 (float4){color.x, color.y, color.z, 1.0});
+	res[get_global_id(1) * get_global_size(0) + get_global_id(0)] = (float4){color.x, color.y, color.z, 1.0};
 }
