@@ -11,7 +11,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#include "renderer2.h"
+#include "multi_pass_renderer.h"
 #include "scene.h"
 
 #define RENDER_LIGHTS
@@ -178,7 +178,7 @@ std::shared_ptr<Scene<CL_DEVICE_TYPE_GPU>> initScene() {
 
 	auto devCtx = std::make_shared<ClDeviceContext<CL_DEVICE_TYPE_GPU>>();
 	return std::make_shared<Scene<CL_DEVICE_TYPE_GPU>>(
-			devCtx, spheres.begin(), spheres.end(),
+					devCtx, spheres.begin(), spheres.end(),
 					tris.begin(), tris.end(),
 					lights.begin(), lights.end(),
 					mats.begin(), mats.end());
@@ -188,24 +188,24 @@ template <typename Renderer>
 void render(int delta, Renderer& rndr) {
 	glm::mat4 viewMatrix;
 	viewMatrix = glm::lookAt(glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 0.0, 1.0), glm::vec3(0.0, 1.0, 0.0));
-	rndr.renderToTexture(renderTex, glm::value_ptr(viewMatrix));
+//	rndr.renderToTexture(renderTex, glm::value_ptr(viewMatrix));
 
 	glClearColor(1, 1, 1, 1);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	glBindTexture(GL_TEXTURE_2D, renderTex);
-	glLoadIdentity();
-	glBegin(GL_QUADS);
-	glTexCoord2f(0, 1);
-	glVertex3f(-1, -1, -1);
-	glTexCoord2f(0, 0);
-	glVertex3f(-1, 1, -1);
-	glTexCoord2f(1, 0);
-	glVertex3f(1, 1, -1);
-	glTexCoord2f(1, 1);
-	glVertex3f(1, -1, -1);
-	glEnd();
-	glBindTexture(GL_TEXTURE_2D, 0);
+//
+//	glBindTexture(GL_TEXTURE_2D, renderTex);
+//	glLoadIdentity();
+//	glBegin(GL_QUADS);
+//	glTexCoord2f(0, 1);
+//	glVertex3f(-1, -1, -1);
+//	glTexCoord2f(0, 0);
+//	glVertex3f(-1, 1, -1);
+//	glTexCoord2f(1, 0);
+//	glVertex3f(1, 1, -1);
+//	glTexCoord2f(1, 1);
+//	glVertex3f(1, -1, -1);
+//	glEnd();
+//	glBindTexture(GL_TEXTURE_2D, 0);
 
 
 #ifdef RENDER_LIGHTS
@@ -232,52 +232,16 @@ void render(int delta, Renderer& rndr) {
 	SDL_GL_SwapBuffers();
 }
 
-void update(int delta) {
-//	int count;
-//	Uint8* keys = SDL_GetKeyState(&count);
-//
-//	float translate[3] = { 0, 0, 0 };
-//	if (keys[SDLK_DOWN]) {
-//		translate[2] = -0.01 * delta;
-//	}
-//	if (keys[SDLK_UP]) {
-//		translate[2] = 0.01 * delta;	}
-//	if (keys[SDLK_LEFT]) {
-//		translate[0] = -0.01 * delta;
-//	}
-//	if (keys[SDLK_RIGHT]) {
-//		translate[0] = 0.01 * delta;
-//	}
-//
-//	int x, y;
-//	SDL_GetMouseState(&x, &y);
-//	int relX = (kWidth / 2.0f - x) * delta;
-//	int relY = (kHeight / 2.0f - y) * delta;
-//	SDL_WarpMouse(kWidth / 2.0f, kHeight / 2.0f);
-//
-//	glMatrixMode(GL_MODELVIEW);
-//
-//	glLoadIdentity();
-//	glTranslatef(translate[0], translate[1], translate[2]);
-//
-//	if (relX != 0) {
-//		glRotatef(-relX / 200.0f, 0, 1, 0);
-//	}
-//	if (relY != 0) {
-//		glRotatef(-relY / 200.0f, 1, 0, 0);
-//	}
-}
+void update(int delta) {}
 
 int main(int argc, char* argv[]) {
-	MultiPassRenderer<CL_DEVICE_TYPE_GPU> rndr =
-			MultiPassRenderer<CL_DEVICE_TYPE_GPU>(initScene(), kWidth, kHeight, numReflectivePasses, maxViewDistance);
+	auto rndr = MultiPassRenderer<CL_DEVICE_TYPE_GPU>(initScene(), kWidth, kHeight, numReflectivePasses, maxViewDistance);
 
 	SDL_Init(SDL_INIT_EVERYTHING);
 
 	Uint32 flags = SDL_OPENGL;
-	if (kFullscreen) {
+	if(kFullscreen) {
 		flags |= SDL_FULLSCREEN;
-
 		SDL_ShowCursor(0);
 	}
 
@@ -287,15 +251,14 @@ int main(int argc, char* argv[]) {
 
 	bool loop = true;
 	int lastTicks = SDL_GetTicks();
-	while (loop) {
+	while(loop) {
 		int delta = SDL_GetTicks() - lastTicks;
 		lastTicks = SDL_GetTicks();
 		SDL_Event e;
-		while (SDL_PollEvent(&e)) {
-			if (e.type == SDL_QUIT) {
+		while(SDL_PollEvent(&e)) {
+			if(e.type == SDL_QUIT) {
 				loop = false;
-			} else if (e.type == SDL_KEYDOWN
-					&& e.key.keysym.sym == SDLK_ESCAPE) {
+			} else if(e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_ESCAPE) {
 				loop = false;
 			}
 		}
