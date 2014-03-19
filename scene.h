@@ -10,7 +10,7 @@
 #include <algorithm>
 #include <iterator>
 
-#include "geometry_types.h"
+#include "data_types.h"
 #include "cl_device_context.h"
 
 #ifndef SCENE_H_
