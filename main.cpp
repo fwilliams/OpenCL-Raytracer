@@ -21,7 +21,7 @@ using namespace std;
 
 const int kWidth = 640;
 const int kHeight = 480;
-const int numReflectivePasses = 100;
+const int numReflectivePasses = 3;
 const double maxViewDistance = 15.0;
 const bool kFullscreen = false;
 
@@ -52,7 +52,7 @@ void initOpenGL() {
 std::shared_ptr<Scene<CL_DEVICE_TYPE_GPU>> initScene() {
 	float planeWidth = 100.0;
 	float planeHeight = 100.0;
-	float planeSeparation = 2.4;
+	float planeSeparation = 5.0;
 	unsigned trisX = 1;
 	unsigned trisY = 1;
 
@@ -189,24 +189,24 @@ template <typename Renderer>
 void render(int delta, Renderer& rndr) {
 	glm::mat4 viewMatrix;
 	viewMatrix = glm::lookAt(glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 0.0, 1.0), glm::vec3(0.0, 1.0, 0.0));
-//	rndr.renderToTexture(renderTex, glm::value_ptr(viewMatrix));
+	rndr.renderToTexture(renderTex, glm::value_ptr(viewMatrix));
 
 	glClearColor(1, 1, 1, 1);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-//
-//	glBindTexture(GL_TEXTURE_2D, renderTex);
-//	glLoadIdentity();
-//	glBegin(GL_QUADS);
-//	glTexCoord2f(0, 1);
-//	glVertex3f(-1, -1, -1);
-//	glTexCoord2f(0, 0);
-//	glVertex3f(-1, 1, -1);
-//	glTexCoord2f(1, 0);
-//	glVertex3f(1, 1, -1);
-//	glTexCoord2f(1, 1);
-//	glVertex3f(1, -1, -1);
-//	glEnd();
-//	glBindTexture(GL_TEXTURE_2D, 0);
+
+	glBindTexture(GL_TEXTURE_2D, renderTex);
+	glLoadIdentity();
+	glBegin(GL_QUADS);
+	glTexCoord2f(0, 1);
+	glVertex3f(-1, -1, -1);
+	glTexCoord2f(0, 0);
+	glVertex3f(-1, 1, -1);
+	glTexCoord2f(1, 0);
+	glVertex3f(1, 1, -1);
+	glTexCoord2f(1, 1);
+	glVertex3f(1, -1, -1);
+	glEnd();
+	glBindTexture(GL_TEXTURE_2D, 0);
 
 
 #ifdef RENDER_LIGHTS
