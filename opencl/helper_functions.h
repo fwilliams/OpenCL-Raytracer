@@ -145,7 +145,6 @@ inline float3 computeRadiance(
 
 	for(int j = 0; j < NUM_LIGHTS; j++) {
 		float3 L = lights[j].position - *position;
-		float3 pos = *position;
 		float distanceToLight = length(L);
 		L = normalize(L);
 
@@ -162,7 +161,7 @@ inline float3 computeRadiance(
 			color += material->color*lights[j].power*max(0.0f, dot(*normal, L));
 
 			#elif defined BLINN_PHONG_BRDF
-			float3 H = normalize(L + -pos);
+			float3 H = normalize(L + -*position);
 			color += lights[j].power * (material->kd*max(0.0f, dot(*normal, L)) + material->ks*pow(max(0.0f, dot(*normal, H)), material->exp));
 			#elif defined PHONG_BRDF
 			color += lights[j].power * (material->kd*max(0.0f, dot(*normal, L)) + material->ks*pow(max(0.0f, dot(*normal, normalize(reflect(L,*normal)))), material->exp));

@@ -20,9 +20,9 @@
 
 using namespace std;
 
-const int kWidth = 640;
-const int kHeight = 480;
-const int numReflectivePasses = 10;
+const int kWidth = 800;
+const int kHeight = 600;
+const int numReflectivePasses = 1;
 const double maxViewDistance = 1000.0;
 const bool kFullscreen = false;
 
@@ -53,9 +53,9 @@ void initOpenGL() {
 #define FRAND 0.0f
 //static_cast <float> (rand()) / static_cast <float> (RAND_MAX)
 std::shared_ptr<Scene<CL_DEVICE_TYPE_GPU, BLINN_PHONG>> initScene() {
-	float planeWidth = 100.0;
-	float planeHeight = 100.0;
-	float planeSeparation = 10.0;
+	float planeWidth = 19.0;
+	float planeHeight = 19.0;
+	float planeSeparation = 20.0;
 	unsigned trisX = 1;
 	unsigned trisY = 1;
 
@@ -73,13 +73,13 @@ std::shared_ptr<Scene<CL_DEVICE_TYPE_GPU, BLINN_PHONG>> initScene() {
 					cl_float3{{-halfWidth+i*dX,     halfSeperation+FRAND, -halfHeight+j*dY}},
 					cl_float3{{-halfWidth+i*dX,     halfSeperation+FRAND, -halfHeight+(j+1)*dY}},
 					cl_float3{{-halfWidth+(i+1)*dX, halfSeperation+FRAND, -halfHeight+(j+1)*dY}},
-					2});
+					6});
 			tris.push_back(
 				Triangle{
 					cl_float3{{-halfWidth+i*dX,     halfSeperation+FRAND, -halfHeight+j*dY}},
 					cl_float3{{-halfWidth+(i+1)*dX, halfSeperation+FRAND, -halfHeight+(j+1)*dY}},
 					cl_float3{{-halfWidth+(i+1)*dX, halfSeperation+FRAND, -halfHeight+j*dY}},
-					2});
+					6});
 
 			// Bottom plane
 			tris.push_back(
@@ -87,13 +87,13 @@ std::shared_ptr<Scene<CL_DEVICE_TYPE_GPU, BLINN_PHONG>> initScene() {
 					cl_float3{{-halfWidth+i*dX,     -halfSeperation-FRAND, -halfHeight+j*dY}},
 					cl_float3{{-halfWidth+(i+1)*dX, -halfSeperation-FRAND, -halfHeight+(j+1)*dY}},
 					cl_float3{{-halfWidth+i*dX,     -halfSeperation-FRAND, -halfHeight+(j+1)*dY}},
-					3});
+					6});
 			tris.push_back(
 				Triangle{
 					cl_float3{{-halfWidth+i*dX,     -halfSeperation-FRAND, -halfHeight+j*dY}},
 					cl_float3{{-halfWidth+(i+1)*dX, -halfSeperation-FRAND, -halfHeight+j*dY}},
 					cl_float3{{-halfWidth+(i+1)*dX, -halfSeperation-FRAND, -halfHeight+(j+1)*dY}},
-					3});
+					6});
 
 			// Front Plane
 			tris.push_back(
@@ -101,13 +101,13 @@ std::shared_ptr<Scene<CL_DEVICE_TYPE_GPU, BLINN_PHONG>> initScene() {
 					cl_float3{{-halfWidth+i*dX,     -halfHeight+j*dY, 	  -halfSeperation+FRAND}},
 					cl_float3{{-halfWidth+i*dX,     -halfHeight+(j+1)*dY, -halfSeperation+FRAND}},
 					cl_float3{{-halfWidth+(i+1)*dX, -halfHeight+(j+1)*dY, -halfSeperation+FRAND}},
-					4});
+					6});
 			tris.push_back(
 				Triangle{
 					cl_float3{{-halfWidth+i*dX,     -halfHeight+j*dY,    -halfSeperation+FRAND}},
 					cl_float3{{-halfWidth+(i+1)*dX, -halfHeight+(j+1)*dY,-halfSeperation+FRAND}},
 					cl_float3{{-halfWidth+(i+1)*dX, -halfHeight+j*dY,    -halfSeperation+FRAND}},
-					4});
+					6});
 
 			// Back Plane
 			tris.push_back(
@@ -121,87 +121,75 @@ std::shared_ptr<Scene<CL_DEVICE_TYPE_GPU, BLINN_PHONG>> initScene() {
 					cl_float3{{-halfWidth+i*dX,     -halfHeight+j*dY,    halfSeperation+FRAND}},
 					cl_float3{{-halfWidth+(i+1)*dX, -halfHeight+(j+1)*dY,halfSeperation+FRAND}},
 					cl_float3{{-halfWidth+(i+1)*dX, -halfHeight+j*dY,    halfSeperation+FRAND}},
-					5});
+					6});
+
+			// Right Plane
+			tris.push_back(
+				Triangle{
+					cl_float3{{halfSeperation+FRAND, -halfWidth+i*dX,     -halfHeight+j*dY}},
+					cl_float3{{halfSeperation+FRAND, -halfWidth+(i+1)*dX, -halfHeight+(j+1)*dY}},
+					cl_float3{{halfSeperation+FRAND, -halfWidth+i*dX,     -halfHeight+(j+1)*dY}},
+					6});
+			tris.push_back(
+				Triangle{
+					cl_float3{{halfSeperation+FRAND, -halfWidth+i*dX,     -halfHeight+j*dY}},
+					cl_float3{{halfSeperation+FRAND, -halfWidth+(i+1)*dX, -halfHeight+j*dY}},
+					cl_float3{{halfSeperation+FRAND, -halfWidth+(i+1)*dX, -halfHeight+(j+1)*dY}},
+					6});
+
+			// Left Plane
+			tris.push_back(
+				Triangle{
+					cl_float3{{-halfSeperation+FRAND, -halfWidth+i*dX,     -halfHeight+j*dY}},
+					cl_float3{{-halfSeperation+FRAND, -halfWidth+i*dX,     -halfHeight+(j+1)*dY}},
+					cl_float3{{-halfSeperation+FRAND, -halfWidth+(i+1)*dX, -halfHeight+(j+1)*dY}},
+					6});
+			tris.push_back(
+				Triangle{
+					cl_float3{{-halfSeperation+FRAND, -halfWidth+i*dX,     -halfHeight+j*dY}},
+					cl_float3{{-halfSeperation+FRAND, -halfWidth+(i+1)*dX, -halfHeight+(j+1)*dY}},
+					cl_float3{{-halfSeperation+FRAND, -halfWidth+(i+1)*dX, -halfHeight+j*dY}},
+					6});
 		}
 	}
 
 	// Spheres
-	spheres.push_back(Sphere{1.0, cl_float3{{-2.5, FRAND, -3.0}}, 0});
-	spheres.push_back(Sphere{1.0, cl_float3{{ 2.5, FRAND, -3.0}}, 1});
-
-//	spheres.push_back(Sphere{1.0, cl_float3{{-2.4, FRAND, -5.0}}, 1});
-//	spheres.push_back(Sphere{1.0, cl_float3{{ 2.4, FRAND, -5.0}}, 0});
-//
-//	spheres.push_back(Sphere{1.0, cl_float3{{-2.3, FRAND, -7.0}}, 0});
-//	spheres.push_back(Sphere{1.0, cl_float3{{ 2.3, FRAND, -7.0}}, 1});
-//
-//	spheres.push_back(Sphere{1.0, cl_float3{{-2.2, FRAND, -9.0}}, 1});
-//	spheres.push_back(Sphere{1.0, cl_float3{{ 2.2, FRAND, -9.0}}, 0});
-//
-//	spheres.push_back(Sphere{1.0, cl_float3{{-2.1, FRAND, -11.0}}, 0});
-//	spheres.push_back(Sphere{1.0, cl_float3{{ 2.1, FRAND, -11.0}}, 1});
+	spheres.push_back(Sphere{1.0, cl_float3{{-2.5, FRAND, -5.0}}, 0});
+	spheres.push_back(Sphere{1.0, cl_float3{{ 2.5, FRAND, -5.0}}, 1});
+	spheres.push_back(Sphere{1.0, cl_float3{{-2.5, FRAND, -10.0}}, 1});
+	spheres.push_back(Sphere{1.0, cl_float3{{ 2.5, FRAND, -10.0}}, 0});
 
 	// Lights
 	lights.push_back(
 			PointLight{
-				cl_float3{{-0.0, 0.1, -4.0}},
-				cl_float3{{0.7, 0.7, 0.7}}});
-//	lights.push_back(
-//			PointLight{
-//				cl_float3{{1.0, 0.1, -1.0}},
-//				cl_float3{{0.7, 0.7, 0.7}}});
-//	lights.push_back(
-//			PointLight{
-//				cl_float3{{0.0, 0.1, 1.0}},
-//				cl_float3{{0.6, 0.6, 0.6}}});
-//	lights.push_back(
-//			PointLight{
-//				cl_float3{{0.0, 0.0, -5.0}},
-//				cl_float3{{0.2, 0.2, 0.8}}});
+				cl_float3{{0.0, 0.0, 0.0}},
+				cl_float3{{0.5, 0.5, 0.5}}});
+	lights.push_back(
+			PointLight{
+				cl_float3{{0.0, 0.0, -4.0}},
+				cl_float3{{0.5, 0.5, 0.5}}});
 
 	// Materials
 	mats.push_back(
 			Material<BLINN_PHONG> {
-				cl_float3{{0.005, 0.005, 0.005}},
-				cl_float3{{0.6, 0.6, 0.6}},
+				cl_float3{{0.05, 0.05, 0.05}},
+				cl_float3{{0.4, 0.4, 0.6}},
 				cl_float3{{0.5, 0.5, 0.5}},
-				10000.0
+				1000.0
 	});
-
 	mats.push_back(
 			Material<BLINN_PHONG> {
 				cl_float3{{0.05, 0.05, 0.05}},
 				cl_float3{{0.6, 0.4, 0.4}},
 				cl_float3{{0.5, 0.5, 0.5}},
 				1000.0});
-
 	mats.push_back(
 			Material<BLINN_PHONG> {
-				cl_float3{{0.99, 0.99, 0.99}},
-				cl_float3{{0.0, 0.0, 0.3}},
-				cl_float3{{0.1, 0.1, 0.1}},
-				100.0});
+				cl_float3{{0.9, 0.9, 0.9}},
+				cl_float3{{0.3, 0.3, 0.3}},
+				cl_float3{{0.5, 0.5, 0.5}},
+				10000.0});
 
-	mats.push_back(
-			Material<BLINN_PHONG> {
-				cl_float3{{0.99, 0.99, 0.99}},
-				cl_float3{{0.3, 0.0, 0.0}},
-				cl_float3{{0.1, 0.1, 0.1}},
-				100.0});
-
-	mats.push_back(
-			Material<BLINN_PHONG> {
-				cl_float3{{0.99, 0.99, 0.99}},
-				cl_float3{{0.0, 0.0, 0.3}},
-				cl_float3{{0.1, 0.1, 0.1}},
-				100.0});
-
-	mats.push_back(
-			Material<BLINN_PHONG> {
-				cl_float3{{0.99, 0.99, 0.99}},
-				cl_float3{{0.0, 0.3, 0.3}},
-				cl_float3{{0.1, 0.1, 0.1}},
-				100.0});
 
 	auto devCtx = std::make_shared<ClDeviceContext<CL_DEVICE_TYPE_GPU>>();
 	return std::make_shared<Scene<CL_DEVICE_TYPE_GPU, BLINN_PHONG>>(
