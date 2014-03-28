@@ -12,7 +12,7 @@
 struct Material {
 	float3 reflectivity;
 
-#if defined CONST_BRDF				// All surfaces lambertian
+#if defined DIFFUSE_BRDF								// All surfaces lambertian
 	float3 color;
 
 #elif defined BLINN_PHONG_BRDF or defined PHONG_BRDF	// Phong lighting (physically implausible)

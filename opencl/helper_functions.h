@@ -16,8 +16,8 @@
 #define SPHERE_TYPE_ID 1
 #define TRIANGLE_TYPE_ID 2
 
-#define RAY_SURFACE_EPSILON 0.0001
-#define RAY_TRI_EPSILON 0.000001
+#define RAY_SURFACE_EPSILON 0.001
+#define RAY_TRI_EPSILON 0.0001
 
 bool rayTriangle(struct Ray* ray, global struct Triangle* tri, float* outT) {
 	float3 e1, e2;
@@ -133,8 +133,7 @@ float3 reflect(float3 v, float3 n) {
 	return v - 2.0f * dot(v, n) * n;
 }
 
-
-inline float3 computeRadiance(
+float3 computeRadiance(
 		float3* position, float3* normal,
 		global struct Material* material,
 		global struct PointLight* lights,

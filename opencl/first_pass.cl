@@ -20,7 +20,7 @@ kernel void first_pass(global struct Ray* rayBuffer,
 	uint intersectObjType = NULL_TYPE_ID;
 	float t = intersect(&ray, spheres, triangles, &intersectObjIndex, &intersectObjType);
 
-	res[i] = (float4){0.0, 0.0, 0.0, 0.0};
+	res[i] = (float4){0.0, 0.0, 0.0, 1.0};
 	rayBuffer[i].direction = (float3){0.0, 0.0, 0.0};
 	
 	if(t < MAX_RENDER_DISTANCE) {
@@ -40,7 +40,7 @@ kernel void first_pass(global struct Ray* rayBuffer,
 		}
 		
 		float3 clr = computeRadiance(&intersectPos, &normal, m, lights, spheres, triangles);
-		res[i] += (float4) {clr.x, clr.y, clr.z, 1.0};
+		res[i] += (float4) {clr.x, clr.y, clr.z, 0.0};
 		
 		if(dot(m->reflectivity, m->reflectivity) != 0.0) {
 			reflectivityBuffer[i] = m->reflectivity;

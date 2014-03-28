@@ -13,7 +13,7 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include "multi_pass_renderer.h"
-#include "scenes/trippy_metal_box.h"
+#include "scenes/cornell_box.h"
 
 //#define RENDER_LIGHTS
 
@@ -100,8 +100,8 @@ void render(int delta, Renderer& rndr) {
 void update(int delta) {}
 
 int main(int argc, char* argv[]) {
-	auto rndr = MultiPassRenderer<CL_DEVICE_TYPE_GPU, BLINN_PHONG>(
-			TrippyMetalBox::buildTrippyBoxScene<CL_DEVICE_TYPE_GPU, BLINN_PHONG>(glm::vec2(10.0), 11.0), kWidth, kHeight, numReflectivePasses, maxViewDistance);
+	auto rndr = MultiPassRenderer<CL_DEVICE_TYPE_GPU, DIFFUSE>(
+			CornellBox::buildCornellBox<CL_DEVICE_TYPE_GPU, DIFFUSE>(glm::vec3(10.0, 10.0, 10.0)), kWidth, kHeight, numReflectivePasses, maxViewDistance);
 
 	SDL_Init(SDL_INIT_EVERYTHING);
 
