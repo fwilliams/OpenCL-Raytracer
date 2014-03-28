@@ -13,8 +13,7 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include "multi_pass_renderer.h"
-#include "single_pass_renderer.h"
-#include "scene.h"
+#include "scenes/trippy_metal_box.h"
 
 //#define RENDER_LIGHTS
 
@@ -48,156 +47,6 @@ void initOpenGL() {
 	glMatrixMode(GL_MODELVIEW);
 
 	glFinish();	// Texture needs to exist for openCL
-}
-
-#define FRAND 0.0f
-//static_cast <float> (rand()) / static_cast <float> (RAND_MAX)
-std::shared_ptr<Scene<CL_DEVICE_TYPE_GPU, BLINN_PHONG>> initScene() {
-	float planeWidth = 19.0;
-	float planeHeight = 19.0;
-	float planeSeparation = 20.0;
-	unsigned trisX = 1;
-	unsigned trisY = 1;
-
-	float halfSeperation = planeSeparation/2.0;
-	float halfWidth = planeWidth/2.0;
-	float halfHeight = planeHeight/2.0;
-	float dX = planeWidth/trisX;
-	float dY = planeWidth/trisY;
-
-	for(unsigned i = 0; i < trisX; i++) {
-		for(unsigned j = 0; j < trisY; j++) {
-			// Top plane
-			tris.push_back(
-				Triangle{
-					cl_float3{{-halfWidth+i*dX,     halfSeperation+FRAND, -halfHeight+j*dY}},
-					cl_float3{{-halfWidth+i*dX,     halfSeperation+FRAND, -halfHeight+(j+1)*dY}},
-					cl_float3{{-halfWidth+(i+1)*dX, halfSeperation+FRAND, -halfHeight+(j+1)*dY}},
-					2});
-			tris.push_back(
-				Triangle{
-					cl_float3{{-halfWidth+i*dX,     halfSeperation+FRAND, -halfHeight+j*dY}},
-					cl_float3{{-halfWidth+(i+1)*dX, halfSeperation+FRAND, -halfHeight+(j+1)*dY}},
-					cl_float3{{-halfWidth+(i+1)*dX, halfSeperation+FRAND, -halfHeight+j*dY}},
-					2});
-
-			// Bottom plane
-			tris.push_back(
-				Triangle{
-					cl_float3{{-halfWidth+i*dX,     -halfSeperation-FRAND, -halfHeight+j*dY}},
-					cl_float3{{-halfWidth+(i+1)*dX, -halfSeperation-FRAND, -halfHeight+(j+1)*dY}},
-					cl_float3{{-halfWidth+i*dX,     -halfSeperation-FRAND, -halfHeight+(j+1)*dY}},
-					2});
-			tris.push_back(
-				Triangle{
-					cl_float3{{-halfWidth+i*dX,     -halfSeperation-FRAND, -halfHeight+j*dY}},
-					cl_float3{{-halfWidth+(i+1)*dX, -halfSeperation-FRAND, -halfHeight+j*dY}},
-					cl_float3{{-halfWidth+(i+1)*dX, -halfSeperation-FRAND, -halfHeight+(j+1)*dY}},
-					2});
-
-			// Front Plane
-			tris.push_back(
-				Triangle{
-					cl_float3{{-halfWidth+i*dX,     -halfHeight+j*dY, 	  -halfSeperation+FRAND}},
-					cl_float3{{-halfWidth+i*dX,     -halfHeight+(j+1)*dY, -halfSeperation+FRAND}},
-					cl_float3{{-halfWidth+(i+1)*dX, -halfHeight+(j+1)*dY, -halfSeperation+FRAND}},
-					2});
-			tris.push_back(
-				Triangle{
-					cl_float3{{-halfWidth+i*dX,     -halfHeight+j*dY,    -halfSeperation+FRAND}},
-					cl_float3{{-halfWidth+(i+1)*dX, -halfHeight+(j+1)*dY,-halfSeperation+FRAND}},
-					cl_float3{{-halfWidth+(i+1)*dX, -halfHeight+j*dY,    -halfSeperation+FRAND}},
-					2});
-
-			// Back Plane
-			tris.push_back(
-				Triangle{
-					cl_float3{{-halfWidth+i*dX,     -halfHeight+j*dY, 	  halfSeperation+FRAND}},
-					cl_float3{{-halfWidth+i*dX,     -halfHeight+(j+1)*dY, halfSeperation+FRAND}},
-					cl_float3{{-halfWidth+(i+1)*dX, -halfHeight+(j+1)*dY, halfSeperation+FRAND}},
-					2});
-			tris.push_back(
-				Triangle{
-					cl_float3{{-halfWidth+i*dX,     -halfHeight+j*dY,    halfSeperation+FRAND}},
-					cl_float3{{-halfWidth+(i+1)*dX, -halfHeight+(j+1)*dY,halfSeperation+FRAND}},
-					cl_float3{{-halfWidth+(i+1)*dX, -halfHeight+j*dY,    halfSeperation+FRAND}},
-					2});
-
-			// Right Plane
-			tris.push_back(
-				Triangle{
-					cl_float3{{halfSeperation+FRAND, -halfWidth+i*dX,     -halfHeight+j*dY}},
-					cl_float3{{halfSeperation+FRAND, -halfWidth+(i+1)*dX, -halfHeight+(j+1)*dY}},
-					cl_float3{{halfSeperation+FRAND, -halfWidth+i*dX,     -halfHeight+(j+1)*dY}},
-					2});
-			tris.push_back(
-				Triangle{
-					cl_float3{{halfSeperation+FRAND, -halfWidth+i*dX,     -halfHeight+j*dY}},
-					cl_float3{{halfSeperation+FRAND, -halfWidth+(i+1)*dX, -halfHeight+j*dY}},
-					cl_float3{{halfSeperation+FRAND, -halfWidth+(i+1)*dX, -halfHeight+(j+1)*dY}},
-					2});
-
-			// Left Plane
-			tris.push_back(
-				Triangle{
-					cl_float3{{-halfSeperation+FRAND, -halfWidth+i*dX,     -halfHeight+j*dY}},
-					cl_float3{{-halfSeperation+FRAND, -halfWidth+i*dX,     -halfHeight+(j+1)*dY}},
-					cl_float3{{-halfSeperation+FRAND, -halfWidth+(i+1)*dX, -halfHeight+(j+1)*dY}},
-					2});
-			tris.push_back(
-				Triangle{
-					cl_float3{{-halfSeperation+FRAND, -halfWidth+i*dX,     -halfHeight+j*dY}},
-					cl_float3{{-halfSeperation+FRAND, -halfWidth+(i+1)*dX, -halfHeight+(j+1)*dY}},
-					cl_float3{{-halfSeperation+FRAND, -halfWidth+(i+1)*dX, -halfHeight+j*dY}},
-					2});
-		}
-	}
-
-	// Spheres
-	spheres.push_back(Sphere{1.0, cl_float3{{-2.5, FRAND, -5.0}}, 0});
-	spheres.push_back(Sphere{1.0, cl_float3{{ 2.5, FRAND, -5.0}}, 1});
-	spheres.push_back(Sphere{1.0, cl_float3{{-2.5, FRAND, -10.0}}, 1});
-	spheres.push_back(Sphere{1.0, cl_float3{{ 2.5, FRAND, -10.0}}, 0});
-
-	// Lights
-	lights.push_back(
-			PointLight{
-				cl_float3{{0.0, 0.0, 0.0}},
-				cl_float3{{0.5, 0.5, 0.5}}});
-	lights.push_back(
-			PointLight{
-				cl_float3{{0.0, 0.0, -4.0}},
-				cl_float3{{0.5, 0.5, 0.5}}});
-
-	// Materials
-	mats.push_back(
-			Material<BLINN_PHONG> {
-				cl_float3{{0.05, 0.05, 0.05}},
-				cl_float3{{0.4, 0.4, 0.6}},
-				cl_float3{{0.5, 0.5, 0.5}},
-				1000.0
-	});
-	mats.push_back(
-			Material<BLINN_PHONG> {
-				cl_float3{{0.05, 0.05, 0.05}},
-				cl_float3{{0.6, 0.4, 0.4}},
-				cl_float3{{0.5, 0.5, 0.5}},
-				1000.0});
-
-	mats.push_back(
-			Material<BLINN_PHONG> {
-				cl_float3{{0.9, 0.9, 0.9}},
-				cl_float3{{0.1, 0.1, 0.1}},
-				cl_float3{{0.5, 0.5, 0.5}},
-				10000.0});
-
-
-	auto devCtx = std::make_shared<ClDeviceContext<CL_DEVICE_TYPE_GPU>>();
-	return std::make_shared<Scene<CL_DEVICE_TYPE_GPU, BLINN_PHONG>>(
-					devCtx, spheres.begin(), spheres.end(),
-					tris.begin(), tris.end(),
-					lights.begin(), lights.end(),
-					mats.begin(), mats.end());
 }
 
 template <typename Renderer>
@@ -251,7 +100,8 @@ void render(int delta, Renderer& rndr) {
 void update(int delta) {}
 
 int main(int argc, char* argv[]) {
-	auto rndr = MultiPassRenderer<CL_DEVICE_TYPE_GPU, BLINN_PHONG>(initScene(), kWidth, kHeight, numReflectivePasses, maxViewDistance);
+	auto rndr = MultiPassRenderer<CL_DEVICE_TYPE_GPU, BLINN_PHONG>(
+			TrippyMetalBox::buildTrippyBoxScene<CL_DEVICE_TYPE_GPU, BLINN_PHONG>(glm::vec2(10.0), 11.0), kWidth, kHeight, numReflectivePasses, maxViewDistance);
 
 	SDL_Init(SDL_INIT_EVERYTHING);
 
