@@ -19,7 +19,7 @@ constexpr std::array<Material<LIGHT_MODEL>, 6>  DefaultMaterials();
 
 template <>
 constexpr std::array<Material<BLINN_PHONG>, 6>  DefaultMaterials<BLINN_PHONG>() {
-	return std::array<Material<BLINN_PHONG>, 6>{
+	return std::array<Material<BLINN_PHONG>, 6>{{
 		Material<BLINN_PHONG> {
 			cl_float3{{0.0, 0.0, 0.0}},
 			cl_float3{{0.5, 0.1, 0.1}},
@@ -50,12 +50,12 @@ constexpr std::array<Material<BLINN_PHONG>, 6>  DefaultMaterials<BLINN_PHONG>() 
 			cl_float3{{0.1, 0.5, 0.5}},
 			cl_float3{{0.0, 0.0, 0.0}},
 			1.0}
-		};
+		}};
 }
 
 template <>
 constexpr std::array<Material<PHONG>, 6>  DefaultMaterials<PHONG>() {
-	return std::array<Material<PHONG>, 6>{
+	return std::array<Material<PHONG>, 6>{{
 		Material<PHONG> {
 			cl_float3{{0.0, 0.0, 0.0}},
 			cl_float3{{0.5, 0.1, 0.1}},
@@ -86,12 +86,12 @@ constexpr std::array<Material<PHONG>, 6>  DefaultMaterials<PHONG>() {
 			cl_float3{{0.1, 0.5, 0.5}},
 			cl_float3{{0.0, 0.0, 0.0}},
 			1.0}
-		};
+		}};
 }
 
 template <>
 constexpr std::array<Material<DIFFUSE>, 6>  DefaultMaterials<DIFFUSE>() {
-	return std::array<Material<DIFFUSE>, 6>{
+	return std::array<Material<DIFFUSE>, 6>{{
 		Material<DIFFUSE> {
 			cl_float3{{0.0, 0.0, 0.0}},
 			cl_float3{{0.5, 0.1, 0.1}}},
@@ -110,7 +110,7 @@ constexpr std::array<Material<DIFFUSE>, 6>  DefaultMaterials<DIFFUSE>() {
 		Material<DIFFUSE> {
 			cl_float3{{0.0, 0.0, 0.0}},
 			cl_float3{{0.1, 0.5, 0.5}}}
-		};
+		}};
 }
 
 template<cl_device_type DEVICE_TYPE, LightModel LIGHT_MODEL>
