@@ -82,7 +82,7 @@ std::shared_ptr<Scene<DEVICE_TYPE, LIGHT_MODEL>> buildTrippyBoxScene(
 	std::vector<PointLight> lights;
 
 	// Tweak these for fun!
-	const float breakOffset  = 0.0f; //static_cast <float> (rand()) / static_cast <float> (RAND_MAX)
+	const float breakOffset  = 0.0f; //static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
 	const unsigned trisX = 1;
 	const unsigned trisY = 1;
 
@@ -195,7 +195,7 @@ std::shared_ptr<Scene<DEVICE_TYPE, LIGHT_MODEL>> buildTrippyBoxScene(
 				cl_float3{{0.5, 0.5, 0.5}}});
 	lights.push_back(
 			PointLight{
-				cl_float3{{0.0, wallSize.y / 2.0f, 0.0}},
+				cl_float3{{0.0, wallSize.y / 4.0f, 0.0}},
 				cl_float3{{0.5, 0.5, 0.5}}});
 
 	auto devCtx = std::make_shared<ClDeviceContext<DEVICE_TYPE>>();
