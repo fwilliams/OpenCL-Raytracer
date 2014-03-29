@@ -25,7 +25,7 @@ struct SinglePassRenderer {
 					  unsigned reflectivePasses, double maxRenderDistance);
 
 
-	void renderToTexture(GLuint tex, cl_float viewMat[16]);
+	void renderToTexture(GLuint tex, cl_float16 viewMatrix);
 
 	void setScene(std::shared_ptr<Scene<DEVICE_TYPE, LIGHT_MODEL>> newScene) {
 		scene = newScene;
@@ -71,7 +71,7 @@ SinglePassRenderer<DEVICE_TYPE, LIGHT_MODEL>::SinglePassRenderer(std::shared_ptr
 }
 
 template <cl_device_type DEVICE_TYPE, LightModel LIGHT_MODEL>
-void SinglePassRenderer<DEVICE_TYPE, LIGHT_MODEL>::renderToTexture(GLuint tex, cl_float viewMat[16]) {
+void SinglePassRenderer<DEVICE_TYPE, LIGHT_MODEL>::renderToTexture(GLuint tex, cl_float16 viewMatrix) {
 	kernelFunc(
 			scene->getTriangleBuffer(),
 			scene->getSphereBuffer(),

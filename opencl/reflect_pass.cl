@@ -24,7 +24,7 @@ kernel void reflect_pass(global struct Ray* rayBuffer,
 			float3 intersectPos = ray.origin + ray.direction*t;
 			float3 normal;
 	
-			global struct Material* m = &materials[0];
+			global const struct Material* m = &materials[0];
 	
 			if(intersectObjType == SPHERE_TYPE_ID) {
 				normal = normalize(intersectPos - spheres[intersectObjIndex].position);

@@ -6,7 +6,8 @@ kernel void first_pass(global struct Ray* rayBuffer,
 					   global const struct Sphere* spheres,
 					   global const struct PointLight* lights,
 					   global const struct Material* materials,
-					   global float4* res) {
+					   global float4* res,
+					   float16 viewMatrix) {
 	struct Ray ray;
 	ray.origin = (float3) {0.0, 0.0, 0.0};
 	ray.direction = normalize((float3) {
@@ -27,7 +28,7 @@ kernel void first_pass(global struct Ray* rayBuffer,
 		float3 intersectPos = ray.origin + ray.direction*t;
 		float3 normal;
 
-		global struct Material* m = &materials[0];
+		global const struct Material* m = &materials[0];
 
 		if(intersectObjType == SPHERE_TYPE_ID) {
 			normal = normalize(intersectPos - spheres[intersectObjIndex].position);

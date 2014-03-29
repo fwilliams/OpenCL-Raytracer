@@ -19,7 +19,7 @@
 #define RAY_SURFACE_EPSILON 0.001
 #define RAY_TRI_EPSILON 0.0001
 
-bool rayTriangle(struct Ray* ray, global struct Triangle* tri, float* outT) {
+bool rayTriangle(struct Ray* ray, global const struct Triangle* tri, float* outT) {
 	float3 e1, e2;
 	float3 P, Q, T;
 	float det, invDet, u, v;
@@ -70,7 +70,7 @@ bool rayTriangle(struct Ray* ray, global struct Triangle* tri, float* outT) {
 	return false;
 }
 
-bool raySphere(struct Ray* r, global struct Sphere* s, float* t) {
+bool raySphere(struct Ray* r, global const struct Sphere* s, float* t) {
 	float3 rayToCenter = s->position - r->origin ;
 	float dotProduct = dot(r->direction, rayToCenter);
 	float d = dotProduct*dotProduct - dot(rayToCenter,rayToCenter)+s->radius*s->radius;
@@ -94,8 +94,8 @@ bool raySphere(struct Ray* r, global struct Sphere* s, float* t) {
 
 float intersect(
 		struct Ray* ray,
-		global struct Sphere* spheres,
-		global struct Triangle* tris,
+		global const struct Sphere* spheres,
+		global const struct Triangle* tris,
 		int* index, uint* type) {
 	float minT = MAX_RENDER_DISTANCE;
 
@@ -135,10 +135,10 @@ float3 reflect(float3 v, float3 n) {
 
 float3 computeRadiance(
 		float3* position, float3* normal,
-		global struct Material* material,
-		global struct PointLight* lights,
-		global struct Sphere* spheres,
-		global struct Triangle* tris) {
+		global const struct Material* material,
+		global const struct PointLight* lights,
+		global const struct Sphere* spheres,
+		global const struct Triangle* tris) {
 
 	float3 color = (float3){0.0, 0.0, 0.0};
 

@@ -25,7 +25,7 @@ struct MultiPassRenderer {
 					  unsigned reflectivePasses, double maxRenderDistance);
 
 
-	void renderToTexture(GLuint tex, cl_float viewMat[16]);
+	void renderToTexture(GLuint tex, cl_float16 viewMatrix);
 
 	void setScene(std::shared_ptr<Scene<DEVICE_TYPE, LIGHT_MODEL>> newScene) {
 		scene = newScene;
@@ -79,14 +79,15 @@ MultiPassRenderer<DEVICE_TYPE, LIGHT_MODEL>::MultiPassRenderer(std::shared_ptr<S
 }
 
 template <cl_device_type DEVICE_TYPE, LightModel LIGHT_MODEL>
-void MultiPassRenderer<DEVICE_TYPE, LIGHT_MODEL>::renderToTexture(GLuint tex, cl_float viewMat[16]) {
+void MultiPassRenderer<DEVICE_TYPE, LIGHT_MODEL>::renderToTexture(GLuint tex, cl_float16 viewMatrix) {
 	firstPass(rayBuffer,
 			reflectivityBuffer,
 			scene->getTriangleBuffer(),
 			scene->getSphereBuffer(),
 			scene->getPointLightBuffer(),
 			scene->getMaterialBuffer(),
-			resImg);
+			resImg,
+			viewMatrix);
 
 	for(int i = 0; i < numReflectivePasses; ++i) {
 		reflectPass(rayBuffer,
