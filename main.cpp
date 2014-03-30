@@ -55,7 +55,7 @@ template <typename Renderer>
 void render(int delta, Renderer& rndr) {
 	glm::mat4 viewMatrix;
 	viewMatrix = glm::lookAt(glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 0.0, 1.0), glm::vec3(0.0, 1.0, 0.0));
-	rndr.renderToTexture(renderTex, cl_float16{{0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f}});
+	rndr.renderToTexture(renderTex, mat4ToFloat16(viewMatrix));
 
 	glClearColor(1, 1, 1, 1);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

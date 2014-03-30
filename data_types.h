@@ -6,9 +6,19 @@
  */
 
 #include <string>
+#include <glm/glm.hpp>
 
-#ifndef GEOMETRY_TYPES_H_
-#define GEOMETRY_TYPES_H_
+#ifndef DATA_TYPES_H_
+#define DATA_TYPES_H_
+
+constexpr cl_float16 mat4ToFloat16(const glm::mat4& mat) {
+	return {{
+		mat[0][0], mat[0][1], mat[0][2], mat[0][3],
+		mat[1][0], mat[1][1], mat[1][2], mat[1][3],
+		mat[2][0], mat[2][1], mat[2][2], mat[2][3],
+		mat[3][0], mat[3][1], mat[3][2], mat[3][3]
+	}};
+}
 
 struct Sphere {
 	cl_float radius;
@@ -76,4 +86,34 @@ struct Ray {
 	cl_float3 direction;
 };
 
-#endif /* GEOMETRY_TYPES_H_ */
+
+template <typename T>
+void transform(T& object, const glm::mat4& tx);
+
+template <>
+void transform<Sphere>(Sphere& sphere, const glm::mat4& tx) {
+	glm::vec4 pos = tx * glm::vec4(sphere.position.s[0], sphere.position.s[1], sphere.position.s[2], 1.0);
+	sphere.position = {{pos.x, pos.y, pos.z}};
+}
+
+template <>
+void transform<Triangle>(Triangle& tri, const glm::mat4& tx) {
+	glm::vec4 v;
+
+	v = tx * glm::vec4(tri.v1.s[0], tri.v1.s[1], tri.v1.s[2], 1.0);
+	tri.v1 = {{v.x, v.y, v.z}};
+
+	v = tx * glm::vec4(tri.v2.s[0], tri.v2.s[1], tri.v2.s[2], 1.0);
+	tri.v2 = {{v.x, v.y, v.z}};
+
+	v = tx * glm::vec4(tri.v3.s[0], tri.v3.s[1], tri.v3.s[2], 1.0);
+	tri.v3 = {{v.x, v.y, v.z}};
+}
+
+template <>
+void transform<PointLight>(PointLight& light, const glm::mat4& tx) {
+	glm::vec4 pos = tx * glm::vec4(light.position.s[0], light.position.s[1], light.position.s[2], 1.0);
+	light.position = {{pos.x, pos.y, pos.z}};
+}
+
+#endif /* DATA_TYPES_H_ */
