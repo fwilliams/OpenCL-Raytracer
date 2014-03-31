@@ -11,15 +11,11 @@
 #ifndef CL_GEOMETRY_H_
 #define CL_GEOMETRY_H_
 
-// TODO: Move all of these somewhere better
-#define NULL_TYPE_ID 0
-#define SPHERE_TYPE_ID 1
-#define TRIANGLE_TYPE_ID 2
-
 #define RAY_SURFACE_EPSILON 0.001
 #define RAY_TRI_EPSILON 0.0001
+#define BACKFACE_CULL
 
-bool rayTriangle(struct Ray* ray, global const struct Triangle* tri, float* outT) {
+bool rayTriangle(struct Ray* ray, global const struct Triangle* tri, float* outT, float3* outN) {
 	float3 e1, e2;
 	float3 P, Q, T;
 	float det, invDet, u, v;
@@ -33,11 +29,16 @@ bool rayTriangle(struct Ray* ray, global const struct Triangle* tri, float* outT
 	P = cross(ray->direction, e2);
 	det = dot(e1, P);
 
+#ifdef BACKFACE_CULL
+	if(det < 0.0) {
+		return false;
+	}
+#else
 	//if determinant is near zero, ray lies in plane of triangle
 	if(det > -RAY_TRI_EPSILON && det < RAY_TRI_EPSILON) {
 		return false;
 	}
-
+#endif
 	invDet = 1.0f / det;
 
 	//calculate distance from V1 to ray origin
@@ -64,13 +65,14 @@ bool rayTriangle(struct Ray* ray, global const struct Triangle* tri, float* outT
 
 	if(t > RAY_TRI_EPSILON) {
 		*outT = t;
+		*outN = normalize(cross(e1, e2));
 		return true;
 	}
 
 	return false;
 }
 
-bool raySphere(struct Ray* r, global const struct Sphere* s, float* t) {
+bool raySphere(struct Ray* r, global const struct Sphere* s, float* outT, float3* outN) {
 	float3 rayToCenter = s->position - r->origin ;
 	float dotProduct = dot(r->direction, rayToCenter);
 	float d = dotProduct*dotProduct - dot(rayToCenter,rayToCenter)+s->radius*s->radius;
@@ -80,15 +82,16 @@ bool raySphere(struct Ray* r, global const struct Sphere* s, float* t) {
 		return false;
 	}
 
-	*t = dotProduct - sqrtd;
+	*outT = dotProduct - sqrtd;
 
-	if(*t < 0) {
-		*t = dotProduct + sqrtd;
-		if(*t < 0) {
+	if(*outT < 0) {
+		*outT = dotProduct + sqrtd;
+		if(*outT < 0) {
 			return false;
 		}
 	}
 
+	*outN = normalize((r->origin+*outT*r->direction) - s->position);
 	return true;
 }
 
@@ -96,27 +99,29 @@ float intersect(
 		struct Ray* ray,
 		global const struct Sphere* spheres,
 		global const struct Triangle* tris,
-		int* index, uint* type) {
+		global const struct Material* mats,
+		float3* outN, global const struct Material** outMat) {
 	float minT = MAX_RENDER_DISTANCE;
+	float3 n;
 
 	for(int i = 0; i < NUM_SPHERES; i++) {
 		float t;
-		if(raySphere(ray, &spheres[i], &t)) {
+		if(raySphere(ray, &spheres[i], &t, &n)) {
 			if(t < minT){
 				minT = t;
-				*type = SPHERE_TYPE_ID;
-				*index = i;
+				*outMat = &mats[spheres[i].materialId];
+				*outN = n;
 			}
 		}
 	}
 
 	for(int i = 0; i < NUM_TRIANGLES; i++) {
 		float t;
-		if(rayTriangle(ray, &tris[i], &t)) {
+		if(rayTriangle(ray, &tris[i], &t, &n)) {
 			if(t < minT){
 				minT = t;
-				*type = TRIANGLE_TYPE_ID;
-				*index = i;
+				*outMat = &mats[tris[i].materialId];
+				*outN = n;
 			}
 		}
 	}
@@ -153,7 +158,10 @@ float3 computeRadiance(
 
 		int index;
 		uint type;
-		float st = intersect(&shadowRay, spheres, tris, &index, &type);
+		float3 n;
+		global const struct Material* mat;
+
+		float st = intersect(&shadowRay, spheres, tris, 0, &n, &mat);
 
 		if(st > distanceToLight) {
 			#if defined DIFFUSE_BRDF
