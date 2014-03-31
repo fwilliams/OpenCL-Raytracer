@@ -5,8 +5,8 @@
  *      Author: francis
  */
 
-#include <glm/glm.hpp>
 #include <array>
+#include <glm/glm.hpp>
 #include "scene.h"
 
 #ifndef CORNELL_BOX_SCENE_H_

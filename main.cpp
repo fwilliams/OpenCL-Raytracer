@@ -12,10 +12,8 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#include "single_pass_renderer.h"
 #include "multi_pass_renderer.h"
-#include "scenes/cornell_box.h"
-#include "scenes/trippy_metal_box.h"
+#include "scenes/tiled_mirror_box.h"
 
 //#define RENDER_LIGHTS
 
@@ -103,7 +101,7 @@ void update(int delta) {}
 
 int main(int argc, char* argv[]) {
 	auto rndr = MultiPassRenderer<CL_DEVICE_TYPE_GPU, BLINN_PHONG>(
-			CornellBox::buildCornellBox<CL_DEVICE_TYPE_GPU, BLINN_PHONG>(glm::vec3(10.0, 10.0, 15.0)), kWidth, kHeight, numReflectivePasses, maxViewDistance);
+			TiledMirrorBox::buildTiledMirrorBox<CL_DEVICE_TYPE_GPU, BLINN_PHONG>(glm::vec3(10.0, 10.0, 15.0)), kWidth, kHeight, numReflectivePasses, maxViewDistance);
 
 //	auto rndr = MultiPassRenderer<CL_DEVICE_TYPE_GPU, BLINN_PHONG>(
 //			TrippyMetalBox::buildTrippyBoxScene<CL_DEVICE_TYPE_GPU, BLINN_PHONG>(glm::vec2(10.0, 10.0), 10.1f), kWidth, kHeight, numReflectivePasses, maxViewDistance);
