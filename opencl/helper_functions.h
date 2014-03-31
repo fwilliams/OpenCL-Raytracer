@@ -164,14 +164,20 @@ float3 computeRadiance(
 		float st = intersect(&shadowRay, spheres, tris, 0, &n, &mat);
 
 		if(st > distanceToLight) {
+			float attenuation = (1.0/(0.0 + 0.5*distanceToLight + 0.0*(distanceToLight*distanceToLight)));
+
 			#if defined DIFFUSE_BRDF
-			color += material->color*lights[j].power*max(0.0f, dot(*normal, L));
+			color += attenuation*material->color*lights[j].power*max(0.0f, dot(*normal, L));
 
 			#elif defined BLINN_PHONG_BRDF
 			float3 H = normalize(L + -*position);
-			color += lights[j].power * (material->kd*max(0.0f, dot(*normal, L)) + material->ks*pow(max(0.0f, dot(*normal, H)), material->exp));
+			color += attenuation *
+					 (lights[j].power * (material->kd*max(0.0f, dot(*normal, L)) +
+					  material->ks*pow(max(0.0f, dot(*normal, H)), material->exp)));
 			#elif defined PHONG_BRDF
-			color += lights[j].power * (material->kd*max(0.0f, dot(*normal, L)) + material->ks*pow(max(0.0f, dot(*normal, normalize(reflect(L,*normal)))), material->exp));
+			color += attenuation *
+					 (lights[j].power * (material->kd*max(0.0f, dot(*normal, L)) +
+					  material->ks*pow(max(0.0f, dot(*normal, normalize(reflect(L,*normal)))), material->exp)));
 			#elif defined COOK_TORRANCE_BRDF
 
 			#endif
