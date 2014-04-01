@@ -37,17 +37,15 @@ struct Box {
 			const std::array<Face, N>& disabledFaces, const unsigned matBase = 0) {
 
 		std::array<cl_float3, 6 - N> normals;
-		std::array<cl_uint, 6> allMatInds = offsettedIndices<6>(matBase);
-		std::array<cl_uint, 6 - N> matInds;
 		for(unsigned i = 0, j = 0; i < 6; i++) {
 			if(!isWallDisabled<N>(disabledFaces, static_cast<Face>(i))) {
 				normals[j] = exteriorNormals()[i];
-				matInds[j] = allMatInds[i];
 				j += 1;
 			}
 		}
 
-		makeBox<N>(tris, wallSize, normals, matInds, disabledFaces, glm::ivec3(1));
+		makeBox<N>(tris, wallSize, normals,
+				offsettedIndices<6-N>(matBase), disabledFaces, glm::ivec3(1));
 	}
 
 	template <unsigned N>
@@ -56,12 +54,26 @@ struct Box {
 			const std::array<Face, N>& disabledFaces, const unsigned matBase = 0) {
 
 		std::array<cl_float3, 6 - N> normals;
-		std::array<cl_uint, 6> allMatInds = offsettedIndices<6>(matBase);
-		std::array<cl_uint, 6 - N> matInds;
 		for(unsigned i = 0, j = 0; i < 6; i++) {
 			if(!isWallDisabled<N>(disabledFaces, static_cast<Face>(i))) {
 				normals[j] = interiorNormals()[i];
-				matInds[j] = allMatInds[i];
+				j += 1;
+			}
+		}
+
+		makeBox<N>(tris, wallSize, normals,
+				offsettedIndices<6-N>(matBase), disabledFaces, glm::ivec3(1));
+	}
+
+	template <unsigned N>
+	static void makePartialBoxInterior(
+			std::vector<Triangle>& tris, const glm::vec3& wallSize,
+			const std::array<Face, N>& disabledFaces, const std::array<cl_uint, 6-N>& matInds) {
+
+		std::array<cl_float3, 6 - N> normals;
+		for(unsigned i = 0, j = 0; i < 6; i++) {
+			if(!isWallDisabled<N>(disabledFaces, static_cast<Face>(i))) {
+				normals[j] = interiorNormals()[i];
 				j += 1;
 			}
 		}

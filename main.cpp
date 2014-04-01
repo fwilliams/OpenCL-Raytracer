@@ -100,7 +100,7 @@ void update(int delta) {}
 int main(int argc, char* argv[]) {
 	auto rndr = MultiPassRenderer<CL_DEVICE_TYPE_GPU, BLINN_PHONG>(
 			TiledMirrorBox::buildTiledMirrorBox<CL_DEVICE_TYPE_GPU, BLINN_PHONG>(
-					glm::vec3(10.0, 10.0, 10.0), glm::ivec2(0, 10)),
+					glm::vec3(10.0, 10.0, 10.0), glm::ivec2(10, 10)),
 			kWidth, kHeight, numReflectivePasses, maxViewDistance);
 
 //	auto rndr = MultiPassRenderer<CL_DEVICE_TYPE_GPU, BLINN_PHONG>(
