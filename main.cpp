@@ -16,7 +16,7 @@
 #include "scenes/cornell_box.h"
 #include "scenes/tiled_mirror_box.h"
 #include "scenes/trippy_metal_box.h"
-
+#include "scenes/box.h"
 
 //#define RENDER_LIGHTS
 
