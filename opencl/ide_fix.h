@@ -7,7 +7,7 @@
 #define write_only
 #define read_only
 
-#define MAX_RENDER_DISTANCE 100.0
+#define MAX_RENDER_DISTANCE 10000000.0
 #define NUM_TRIANGLES 1
 #define NUM_SPHERES 1
 #define NUM_MATERIALS 1

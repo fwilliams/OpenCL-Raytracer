@@ -36,7 +36,7 @@ struct MultiPassRenderer {
 			{"NUM_TRIANGLES", std::to_string(scene->getNumTriangles())},
 			{"NUM_LIGHTS", std::to_string(scene->getNumPointLights())},
 			{"NUM_MATERIALS", std::to_string(scene->getNumMaterials())},
-			{"MAX_RENDER_DISTANCE", std::to_string(100.0)},
+			{"MAX_RENDER_DISTANCE", std::to_string(maxRenderDistance)},
 			{std::string(Material<LIGHT_MODEL>::name()), std::string()}
 		};
 
