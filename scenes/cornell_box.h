@@ -7,6 +7,7 @@
 
 #include <array>
 #include <glm/glm.hpp>
+
 #include "scene.h"
 #include "box.h"
 

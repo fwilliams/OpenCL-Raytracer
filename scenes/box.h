@@ -13,7 +13,7 @@
 #define BOX_H_
 
 struct Box {
-	enum Face {FRONT, BACK, LEFT, RIGHT, TOP, BOTTOM};
+	enum Face {TOP, BOTTOM, FRONT, BACK, LEFT, RIGHT};
 
 	static void makeBoxInterior(std::vector<Triangle>& tris, const glm::vec3& wallSize, const unsigned matBase = 0) {
 		makeBox<0>(tris, wallSize,
@@ -56,13 +56,13 @@ struct Box {
 		std::array<cl_float3, 6 - N> normals;
 
 		for(unsigned i = 0, j = 0; i < 6; i++) {
-			if(!isWallDisabled(disabledFaces, static_cast<Face>(i))) {
+			if(!isWallDisabled<N>(disabledFaces, static_cast<Face>(i))) {
 				normals[j] = interiorNormals()[i];
 				j += 1;
 			}
 		}
 
-		makeBox(tris, wallSize, normals, offsettedIndices<6-N>(matBase), disabledFaces, glm::ivec3(1));
+		makeBox<N>(tris, wallSize, normals, offsettedIndices<6-N>(matBase), disabledFaces, glm::ivec3(1));
 	}
 
 private:
