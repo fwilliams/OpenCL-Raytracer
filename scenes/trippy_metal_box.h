@@ -20,16 +20,19 @@ constexpr std::array<Material<BLINN_PHONG>, 3>  DefaultMaterials<BLINN_PHONG>() 
 	return std::array<Material<BLINN_PHONG>, 3>{{
 		Material<BLINN_PHONG> {
 			cl_float3{{0.05, 0.05, 0.05}},
+			cl_float3{{0.0, 0.0, 0.0}},
 			cl_float3{{0.4, 0.4, 0.6}},
 			cl_float3{{0.5, 0.5, 0.5}},
 			1000.0},
 		Material<BLINN_PHONG> {
 			cl_float3{{0.05, 0.05, 0.05}},
+			cl_float3{{0.0, 0.0, 0.0}},
 			cl_float3{{0.6, 0.4, 0.4}},
 			cl_float3{{0.5, 0.5, 0.5}},
 			1000.0},
 		Material<BLINN_PHONG> {
 			cl_float3{{0.9, 0.9, 0.9}},
+			cl_float3{{0.0, 0.0, 0.0}},
 			cl_float3{{0.2, 0.2, 0.2}},
 			cl_float3{{0.0, 0.0, 0.0}},
 			10000.0}
@@ -41,16 +44,19 @@ constexpr std::array<Material<PHONG>, 3>  DefaultMaterials<PHONG>() {
 	return std::array<Material<PHONG>, 3>{{
 		Material<PHONG> {
 			cl_float3{{0.05, 0.05, 0.05}},
+			cl_float3{{0.0, 0.0, 0.0}},
 			cl_float3{{0.4, 0.4, 0.6}},
 			cl_float3{{0.5, 0.5, 0.5}},
 			1000.0},
 		Material<PHONG> {
 			cl_float3{{0.05, 0.05, 0.05}},
+			cl_float3{{0.0, 0.0, 0.0}},
 			cl_float3{{0.6, 0.4, 0.4}},
 			cl_float3{{0.5, 0.5, 0.5}},
 			1000.0},
 		Material<PHONG> {
 			cl_float3{{0.9, 0.9, 0.9}},
+			cl_float3{{0.0, 0.0, 0.0}},
 			cl_float3{{0.1, 0.1, 0.1}},
 			cl_float3{{0.5, 0.5, 0.5}},
 			10000.0}
@@ -62,12 +68,15 @@ constexpr std::array<Material<DIFFUSE>, 3>  DefaultMaterials<DIFFUSE>() {
 	return std::array<Material<DIFFUSE>, 3>{{
 		Material<DIFFUSE> {
 			cl_float3{{0.05, 0.05, 0.05}},
+			cl_float3{{0.0, 0.0, 0.0}},
 			cl_float3{{0.4, 0.4, 0.6}}},
 		Material<DIFFUSE> {
 			cl_float3{{0.05, 0.05, 0.05}},
+			cl_float3{{0.0, 0.0, 0.0}},
 			cl_float3{{0.6, 0.4, 0.4}}},
 		Material<DIFFUSE> {
 			cl_float3{{0.9, 0.9, 0.9}},
+			cl_float3{{0.0, 0.0, 0.0}},
 			cl_float3{{0.1, 0.1, 0.1}}}
 	}};
 }

@@ -22,10 +22,12 @@ constexpr std::array<Material<BLINN_PHONG>, 8>  DefaultMaterials<BLINN_PHONG>() 
 	return std::array<Material<BLINN_PHONG>, 8>{{
 		Material<BLINN_PHONG> {
 			cl_float3{{0.0, 0.0, 0.0}},
+			cl_float3{{0.0, 0.0, 0.0}},
 			cl_float3{{0.5, 0.1, 0.1}},
 			cl_float3{{0.0, 0.0, 0.0}},
 			1.0},
 		Material<BLINN_PHONG> {
+			cl_float3{{0.0, 0.0, 0.0}},
 			cl_float3{{0.0, 0.0, 0.0}},
 			cl_float3{{0.1, 0.5, 0.1}},
 			cl_float3{{0.0, 0.0, 0.0}},
@@ -34,28 +36,34 @@ constexpr std::array<Material<BLINN_PHONG>, 8>  DefaultMaterials<BLINN_PHONG>() 
 			cl_float3{{1.0, 1.0, 1.0}},
 			cl_float3{{0.0, 0.0, 0.0}},
 			cl_float3{{0.0, 0.0, 0.0}},
+			cl_float3{{0.0, 0.0, 0.0}},
 			1.0},
 		Material<BLINN_PHONG> {
-				cl_float3{{1.0, 1.0, 1.0}},
-				cl_float3{{0.0, 0.0, 0.0}},
-				cl_float3{{0.0, 0.0, 0.0}},
+			cl_float3{{1.0, 1.0, 1.0}},
+			cl_float3{{0.0, 0.0, 0.0}},
+			cl_float3{{0.0, 0.0, 0.0}},
+			cl_float3{{0.0, 0.0, 0.0}},
 			1.0},
 		Material<BLINN_PHONG> {
+			cl_float3{{0.0, 0.0, 0.0}},
 			cl_float3{{0.0, 0.0, 0.0}},
 			cl_float3{{0.5, 0.5, 0.1}},
 			cl_float3{{0.0, 0.0, 0.0}},
 			1.0},
 		Material<BLINN_PHONG> {
 			cl_float3{{0.0, 0.0, 0.0}},
+			cl_float3{{0.0, 0.0, 0.0}},
 			cl_float3{{0.1, 0.5, 0.5}},
 			cl_float3{{0.0, 0.0, 0.0}},
 			1.0},
 		Material<BLINN_PHONG> {
 			cl_float3{{0.0, 0.0, 0.0}},
+			cl_float3{{0.0, 0.0, 0.0}},
 			cl_float3{{0.2, 0.2, 0.6}},
 			cl_float3{{0.5, 0.5, 0.5}},
 			100.0},
 		Material<BLINN_PHONG> {
+			cl_float3{{0.0, 0.0, 0.0}},
 			cl_float3{{0.0, 0.0, 0.0}},
 			cl_float3{{0.6, 0.2, 0.2}},
 			cl_float3{{0.5, 0.5, 0.5}},
@@ -68,40 +76,48 @@ constexpr std::array<Material<PHONG>, 8>  DefaultMaterials<PHONG>() {
 	return std::array<Material<PHONG>, 8>{{
 		Material<PHONG> {
 			cl_float3{{0.0, 0.0, 0.0}},
+			cl_float3{{0.0, 0.0, 0.0}},
 			cl_float3{{0.5, 0.1, 0.1}},
 			cl_float3{{0.0, 0.0, 0.0}},
 			1.0},
 		Material<PHONG> {
+			cl_float3{{0.0, 0.0, 0.0}},
 			cl_float3{{0.0, 0.0, 0.0}},
 			cl_float3{{0.1, 0.5, 0.1}},
 			cl_float3{{0.0, 0.0, 0.0}},
 			1.0},
 		Material<PHONG> {
 			cl_float3{{0.0, 0.0, 0.0}},
+			cl_float3{{0.0, 0.0, 0.0}},
 			cl_float3{{0.1, 0.1, 0.5}},
 			cl_float3{{0.0, 0.0, 0.0}},
 			1.0},
 		Material<PHONG> {
+			cl_float3{{0.0, 0.0, 0.0}},
 			cl_float3{{0.0, 0.0, 0.0}},
 			cl_float3{{0.5, 0.1, 0.5}},
 			cl_float3{{0.0, 0.0, 0.0}},
 			1.0},
 		Material<PHONG> {
 			cl_float3{{0.0, 0.0, 0.0}},
+			cl_float3{{0.0, 0.0, 0.0}},
 			cl_float3{{0.5, 0.5, 0.1}},
 			cl_float3{{0.0, 0.0, 0.0}},
 			1.0},
 		Material<PHONG> {
+			cl_float3{{0.0, 0.0, 0.0}},
 			cl_float3{{0.0, 0.0, 0.0}},
 			cl_float3{{0.1, 0.5, 0.5}},
 			cl_float3{{0.0, 0.0, 0.0}},
 			1.0},
 		Material<PHONG> {
 			cl_float3{{0.0, 0.0, 0.0}},
+			cl_float3{{0.0, 0.0, 0.0}},
 			cl_float3{{0.2, 0.2, 0.6}},
 			cl_float3{{0.5, 0.5, 0.5}},
 			100.0},
 		Material<PHONG> {
+			cl_float3{{0.0, 0.0, 0.0}},
 			cl_float3{{0.0, 0.0, 0.0}},
 			cl_float3{{0.6, 0.2, 0.2}},
 			cl_float3{{0.5, 0.5, 0.5}},
@@ -114,26 +130,34 @@ constexpr std::array<Material<DIFFUSE>, 8>  DefaultMaterials<DIFFUSE>() {
 	return std::array<Material<DIFFUSE>, 8>{{
 		Material<DIFFUSE> {
 			cl_float3{{0.0, 0.0, 0.0}},
+			cl_float3{{0.0, 0.0, 0.0}},
 			cl_float3{{0.5, 0.1, 0.1}}},
 		Material<DIFFUSE> {
+			cl_float3{{0.0, 0.0, 0.0}},
 			cl_float3{{0.0, 0.0, 0.0}},
 			cl_float3{{0.1, 0.5, 0.1}}},
 		Material<DIFFUSE> {
 			cl_float3{{0.0, 0.0, 0.0}},
+			cl_float3{{0.0, 0.0, 0.0}},
 			cl_float3{{0.1, 0.1, 0.5}}},
 		Material<DIFFUSE> {
+			cl_float3{{0.0, 0.0, 0.0}},
 			cl_float3{{0.0, 0.0, 0.0}},
 			cl_float3{{0.5, 0.1, 0.5}}},
 		Material<DIFFUSE> {
 			cl_float3{{0.0, 0.0, 0.0}},
+			cl_float3{{0.0, 0.0, 0.0}},
 			cl_float3{{0.5, 0.5, 0.1}}},
 		Material<DIFFUSE> {
+			cl_float3{{0.0, 0.0, 0.0}},
 			cl_float3{{0.0, 0.0, 0.0}},
 			cl_float3{{0.1, 0.5, 0.5}}},
 		Material<DIFFUSE> {
 			cl_float3{{0.0, 0.0, 0.0}},
+			cl_float3{{0.0, 0.0, 0.0}},
 			cl_float3{{0.2, 0.2, 0.6}}},
 		Material<DIFFUSE> {
+			cl_float3{{0.0, 0.0, 0.0}},
 			cl_float3{{0.0, 0.0, 0.0}},
 			cl_float3{{0.6, 0.2, 0.2}}}
 		}};

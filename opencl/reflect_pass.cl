@@ -6,7 +6,7 @@ kernel void reflect_pass(global struct Ray* rayBuffer,
 					   global const struct Sphere* spheres,
 					   global const struct PointLight* lights,
 					   global const struct Material* materials,
-					   global float4* res) {	
+					   global float4* res) {
 
 	uint i = get_global_size(0)*get_global_id(1) + get_global_id(0);
 	

@@ -50,6 +50,7 @@ struct Material { };
 template <>
 struct Material<DIFFUSE> {
 	cl_float3 reflectivity;
+	cl_float3 transmissivity;
 	cl_float3 color;
 
 	static constexpr const char* name() {
@@ -60,6 +61,7 @@ struct Material<DIFFUSE> {
 template <>
 struct Material<PHONG> {
 	cl_float3 reflectivity;
+	cl_float3 transmissivity;
 	cl_float3 kd;
 	cl_float3 ks;
 	cl_float exp;
@@ -72,6 +74,7 @@ struct Material<PHONG> {
 template <>
 struct Material<BLINN_PHONG> {
 	cl_float3 reflectivity;
+	cl_float3 transmissivity;
 	cl_float3 kd;
 	cl_float3 ks;
 	cl_float exp;

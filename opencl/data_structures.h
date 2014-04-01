@@ -11,7 +11,7 @@
 
 struct Material {
 	float3 reflectivity;
-
+	float3 transmissivity;
 #if defined DIFFUSE_BRDF								// All surfaces lambertian
 	float3 color;
 
@@ -24,7 +24,6 @@ struct Material {
 	float3 kd;
 	float3 ks;
 	float2 rougness;
-
 #endif
 };
 

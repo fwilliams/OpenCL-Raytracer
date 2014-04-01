@@ -168,7 +168,7 @@ float3 computeRadiance(
 		float st = intersect(&shadowRay, spheres, tris, 0, &n, &mat);
 
 		if(st > distanceToLight) {
-			float attenuation = (1.0/(0.0 + 0.3*distanceToLight + 0.0*(distanceToLight*distanceToLight)));
+			float attenuation = (1.0/(0.0 + 0.01*distanceToLight + 0.0*(distanceToLight*distanceToLight)));
 
 			#if defined DIFFUSE_BRDF
 			color += attenuation*material->color*lights[j].power*max(0.0f, dot(*normal, L));

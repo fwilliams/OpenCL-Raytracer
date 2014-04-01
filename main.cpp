@@ -99,8 +99,8 @@ void render(int delta, Renderer& rndr) {
 void update(int delta) {}
 
 int main(int argc, char* argv[]) {
-	auto rndr = MultiPassRenderer<CL_DEVICE_TYPE_GPU, BLINN_PHONG>(
-			TiledMirrorBox::buildTiledMirrorBox<CL_DEVICE_TYPE_GPU, BLINN_PHONG>(glm::vec3(10.0, 10.0, 10.0), glm::ivec2(80, 0)),
+	auto rndr = MultiPassRenderer<CL_DEVICE_TYPE_GPU, PHONG>(
+			TiledMirrorBox::buildTiledMirrorBox<CL_DEVICE_TYPE_GPU, PHONG>(glm::vec3(10.0, 10.0, 10.0), glm::ivec2(10, 0)),
 			kWidth, kHeight, numReflectivePasses, maxViewDistance);
 
 //	auto rndr = MultiPassRenderer<CL_DEVICE_TYPE_GPU, BLINN_PHONG>(
