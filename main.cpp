@@ -16,7 +16,6 @@
 #include "scenes/cornell_box.h"
 #include "scenes/tiled_mirror_box.h"
 #include "scenes/trippy_metal_box.h"
-#include "scenes/box.h"
 
 //#define RENDER_LIGHTS
 
@@ -24,7 +23,7 @@ using namespace std;
 
 const int kWidth = 800;
 const int kHeight = 600;
-const int numReflectivePasses = 0;
+const int numReflectivePasses = 10;
 const double maxViewDistance = 1000000.0;
 const bool kFullscreen = false;
 
@@ -99,13 +98,13 @@ void render(int delta, Renderer& rndr) {
 void update(int delta) {}
 
 int main(int argc, char* argv[]) {
-	auto rndr = MultiPassRenderer<CL_DEVICE_TYPE_GPU, PHONG>(
-			TiledMirrorBox::buildTiledMirrorBox<CL_DEVICE_TYPE_GPU, PHONG>(glm::vec3(10.0, 10.0, 10.0), glm::ivec2(10, 0)),
-			kWidth, kHeight, numReflectivePasses, maxViewDistance);
-
-//	auto rndr = MultiPassRenderer<CL_DEVICE_TYPE_GPU, BLINN_PHONG>(
-//			CornellBox::buildCornellBox<CL_DEVICE_TYPE_GPU, BLINN_PHONG>(glm::vec3(10.0, 10.0, 10.0)),
+//	auto rndr = MultiPassRenderer<CL_DEVICE_TYPE_GPU, PHONG>(
+//			TiledMirrorBox::buildTiledMirrorBox<CL_DEVICE_TYPE_GPU, PHONG>(glm::vec3(10.0, 10.0, 10.0), glm::ivec2(10, 0)),
 //			kWidth, kHeight, numReflectivePasses, maxViewDistance);
+
+	auto rndr = MultiPassRenderer<CL_DEVICE_TYPE_GPU, BLINN_PHONG>(
+			CornellBox::buildCornellBox<CL_DEVICE_TYPE_GPU, BLINN_PHONG>(glm::vec3(10.0, 10.0, 10.0)),
+			kWidth, kHeight, numReflectivePasses, maxViewDistance);
 
 
 //	auto rndr = MultiPassRenderer<CL_DEVICE_TYPE_GPU, BLINN_PHONG>(

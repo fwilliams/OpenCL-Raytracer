@@ -123,8 +123,8 @@ private:
 		for(unsigned i = 0; i < numTris.x; i++) {
 			for(unsigned j = 0; j < numTris.y; j++) {
 				for(unsigned k = 0; k < numTris.z; k++) {
+					// Top plane
 					if(!isWallDisabled<N>(disabledFaces, Face::TOP)) {
-						// Top plane
 						tris.push_back(
 							Triangle{
 								cl_float3{{-halfSize.x+i*d.x,     halfSize.y, -halfSize.z+k*d.z}},

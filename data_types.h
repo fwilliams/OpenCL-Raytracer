@@ -135,4 +135,16 @@ struct TransformFunctor {
 private:
 	glm::mat4 tx;
 };
+
+template <typename T>
+struct MutateTransformFunctor {
+	MutateTransformFunctor(const glm::mat4& tx) : tx(tx) {}
+
+	void operator()(T& val) {
+		transform<T>(val, tx);
+	}
+
+private:
+	glm::mat4 tx;
+};
 #endif /* DATA_TYPES_H_ */
