@@ -31,14 +31,14 @@ constexpr std::array<Material<BLINN_PHONG>, 8>  DefaultMaterials<BLINN_PHONG>() 
 			cl_float3{{0.0, 0.0, 0.0}},
 			1.0},
 		Material<BLINN_PHONG> {
+			cl_float3{{1.0, 1.0, 1.0}},
 			cl_float3{{0.0, 0.0, 0.0}},
-			cl_float3{{0.1, 0.1, 0.5}},
 			cl_float3{{0.0, 0.0, 0.0}},
 			1.0},
 		Material<BLINN_PHONG> {
-			cl_float3{{0.0, 0.0, 0.0}},
-			cl_float3{{0.5, 0.1, 0.5}},
-			cl_float3{{0.0, 0.0, 0.0}},
+				cl_float3{{1.0, 1.0, 1.0}},
+				cl_float3{{0.0, 0.0, 0.0}},
+				cl_float3{{0.0, 0.0, 0.0}},
 			1.0},
 		Material<BLINN_PHONG> {
 			cl_float3{{0.0, 0.0, 0.0}},
@@ -169,12 +169,14 @@ std::shared_ptr<Scene<DEVICE_TYPE, LIGHT_MODEL>> buildCornellBox(
 						cl_float3{{-halfSize.x+i*dX,     halfSize.y+breakOffset, -halfSize.z+k*dZ}},
 						cl_float3{{-halfSize.x+(i+1)*dX, halfSize.y+breakOffset, -halfSize.z+(k+1)*dZ}},
 						cl_float3{{-halfSize.x+i*dX,     halfSize.y+breakOffset, -halfSize.z+(k+1)*dZ}},
+						cl_float3{{0.0, 0.0, 0.0}},
 						0});
 				tris.push_back(
 					Triangle{
 						cl_float3{{-halfSize.x+i*dX,     halfSize.y+breakOffset, -halfSize.z+k*dZ}},
 						cl_float3{{-halfSize.x+(i+1)*dX, halfSize.y+breakOffset, -halfSize.z+k*dZ}},
 						cl_float3{{-halfSize.x+(i+1)*dX, halfSize.y+breakOffset, -halfSize.z+(k+1)*dZ}},
+						cl_float3{{0.0, 0.0, 0.0}},
 						0});
 
 				// Bottom plane
@@ -183,12 +185,14 @@ std::shared_ptr<Scene<DEVICE_TYPE, LIGHT_MODEL>> buildCornellBox(
 						cl_float3{{-halfSize.x+i*dX,     -halfSize.y-breakOffset, -halfSize.z+k*dZ}},
 						cl_float3{{-halfSize.x+i*dX,     -halfSize.y-breakOffset, -halfSize.z+(k+1)*dZ}},
 						cl_float3{{-halfSize.x+(i+1)*dX, -halfSize.y-breakOffset, -halfSize.z+(k+1)*dZ}},
+						cl_float3{{0.0, 0.0, 0.0}},
 						1});
 				tris.push_back(
 					Triangle{
 						cl_float3{{-halfSize.x+i*dX,     -halfSize.y-breakOffset, -halfSize.z+k*dZ}},
 						cl_float3{{-halfSize.x+(i+1)*dX, -halfSize.y-breakOffset, -halfSize.z+(k+1)*dZ}},
 						cl_float3{{-halfSize.x+(i+1)*dX, -halfSize.y-breakOffset, -halfSize.z+k*dZ}},
+						cl_float3{{0.0, 0.0, 0.0}},
 						1});
 
 				// Front Plane
@@ -197,12 +201,14 @@ std::shared_ptr<Scene<DEVICE_TYPE, LIGHT_MODEL>> buildCornellBox(
 						cl_float3{{-halfSize.x+i*dX,     -halfSize.y+j*dY, 	   -halfSize.z+breakOffset}},
 						cl_float3{{-halfSize.x+(i+1)*dX, -halfSize.y+(j+1)*dY, -halfSize.z+breakOffset}},
 						cl_float3{{-halfSize.x+i*dX,     -halfSize.y+(j+1)*dY, -halfSize.z+breakOffset}},
+						cl_float3{{0.0, 0.0, 0.0}},
 						2});
 				tris.push_back(
 					Triangle{
 						cl_float3{{-halfSize.x+i*dX,     -halfSize.y+j*dY,    -halfSize.z+breakOffset}},
 						cl_float3{{-halfSize.x+(i+1)*dX, -halfSize.y+j*dY,    -halfSize.z+breakOffset}},
 						cl_float3{{-halfSize.x+(i+1)*dX, -halfSize.y+(j+1)*dY,-halfSize.z+breakOffset}},
+						cl_float3{{0.0, 0.0, 0.0}},
 						2});
 
 				// Back Plane
@@ -211,12 +217,14 @@ std::shared_ptr<Scene<DEVICE_TYPE, LIGHT_MODEL>> buildCornellBox(
 						cl_float3{{-halfSize.x+i*dX,     -halfSize.y+j*dY, 	   halfSize.z+breakOffset}},
 						cl_float3{{-halfSize.x+i*dX,     -halfSize.y+(j+1)*dY, halfSize.z+breakOffset}},
 						cl_float3{{-halfSize.x+(i+1)*dX, -halfSize.y+(j+1)*dY, halfSize.z+breakOffset}},
+						cl_float3{{0.0, 0.0, 0.0}},
 						3});
 				tris.push_back(
 					Triangle{
 						cl_float3{{-halfSize.x+i*dX,     -halfSize.y+j*dY,     halfSize.z+breakOffset}},
 						cl_float3{{-halfSize.x+(i+1)*dX, -halfSize.y+(j+1)*dY, halfSize.z+breakOffset}},
 						cl_float3{{-halfSize.x+(i+1)*dX, -halfSize.y+j*dY,     halfSize.z+breakOffset}},
+						cl_float3{{0.0, 0.0, 0.0}},
 						3});
 
 				// Right Plane
@@ -225,12 +233,14 @@ std::shared_ptr<Scene<DEVICE_TYPE, LIGHT_MODEL>> buildCornellBox(
 						cl_float3{{halfSize.x+breakOffset, -halfSize.y+j*dY,     -halfSize.z+k*dZ}},
 						cl_float3{{halfSize.x+breakOffset, -halfSize.y+j*dY,     -halfSize.z+(k+1)*dZ}},
 						cl_float3{{halfSize.x+breakOffset, -halfSize.y+(j+1)*dY, -halfSize.z+(k+1)*dZ}},
+						cl_float3{{0.0, 0.0, 0.0}},
 						4});
 				tris.push_back(
 					Triangle{
 						cl_float3{{halfSize.x+breakOffset, -halfSize.y+j*dY,     -halfSize.z+k*dZ}},
 						cl_float3{{halfSize.x+breakOffset, -halfSize.y+(j+1)*dY, -halfSize.z+(k+1)*dZ}},
 						cl_float3{{halfSize.x+breakOffset, -halfSize.y+(j+1)*dY, -halfSize.z+k*dZ}},
+						cl_float3{{0.0, 0.0, 0.0}},
 						4});
 
 				// Left Plane
@@ -239,12 +249,14 @@ std::shared_ptr<Scene<DEVICE_TYPE, LIGHT_MODEL>> buildCornellBox(
 						cl_float3{{-halfSize.x+breakOffset, -halfSize.y+j*dY,     -halfSize.z+k*dZ}},
 						cl_float3{{-halfSize.x+breakOffset, -halfSize.y+(j+1)*dY, -halfSize.z+(k+1)*dZ}},
 						cl_float3{{-halfSize.x+breakOffset, -halfSize.y+j*dY,     -halfSize.z+(k+1)*dZ}},
+						cl_float3{{0.0, 0.0, 0.0}},
 						5});
 				tris.push_back(
 					Triangle{
 						cl_float3{{-halfSize.x+breakOffset, -halfSize.y+j*dY,     -halfSize.z+k*dZ}},
 						cl_float3{{-halfSize.x+breakOffset, -halfSize.y+(j+1)*dY, -halfSize.z+k*dZ}},
 						cl_float3{{-halfSize.x+breakOffset, -halfSize.y+(j+1)*dY, -halfSize.z+(k+1)*dZ}},
+						cl_float3{{0.0, 0.0, 0.0}},
 						5});
 			}
 		}

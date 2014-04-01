@@ -15,6 +15,8 @@
 #include "multi_pass_renderer.h"
 #include "scenes/cornell_box.h"
 #include "scenes/tiled_mirror_box.h"
+#include "scenes/trippy_metal_box.h"
+
 
 //#define RENDER_LIGHTS
 
@@ -97,11 +99,18 @@ void render(int delta, Renderer& rndr) {
 void update(int delta) {}
 
 int main(int argc, char* argv[]) {
+//	auto rndr = MultiPassRenderer<CL_DEVICE_TYPE_GPU, BLINN_PHONG>(
+//			TiledMirrorBox::buildTiledMirrorBox<CL_DEVICE_TYPE_GPU, BLINN_PHONG>(glm::vec3(10.0, 10.0, 10.0)),
+//			kWidth, kHeight, numReflectivePasses, maxViewDistance);
+
 	auto rndr = MultiPassRenderer<CL_DEVICE_TYPE_GPU, BLINN_PHONG>(
-			CornellBox::buildCornellBox<CL_DEVICE_TYPE_GPU, BLINN_PHONG>(glm::vec3(10.0, 10.0, 10.0)), kWidth, kHeight, numReflectivePasses, maxViewDistance);
+			CornellBox::buildCornellBox<CL_DEVICE_TYPE_GPU, BLINN_PHONG>(glm::vec3(10.0, 10.0, 10.0)),
+			kWidth, kHeight, numReflectivePasses, maxViewDistance);
+
 
 //	auto rndr = MultiPassRenderer<CL_DEVICE_TYPE_GPU, BLINN_PHONG>(
-//			TrippyMetalBox::buildTrippyBoxScene<CL_DEVICE_TYPE_GPU, BLINN_PHONG>(glm::vec2(10.0, 10.0), 10.1f), kWidth, kHeight, numReflectivePasses, maxViewDistance);
+//			TrippyMetalBox::buildTrippyBoxScene<CL_DEVICE_TYPE_GPU, BLINN_PHONG>(glm::vec2(10.0, 10.0), 10.0f),
+//			kWidth, kHeight, numReflectivePasses, maxViewDistance);
 
 	SDL_Init(SDL_INIT_EVERYTHING);
 
@@ -117,6 +126,7 @@ int main(int argc, char* argv[]) {
 
 	bool loop = true;
 	int lastTicks = SDL_GetTicks();
+	bool first = true;
 	while(loop) {
 		int delta = SDL_GetTicks() - lastTicks;
 		lastTicks = SDL_GetTicks();
@@ -127,10 +137,14 @@ int main(int argc, char* argv[]) {
 			} else if(e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_ESCAPE) {
 				loop = false;
 			}
+			usleep(1000);
 		}
-
+		if(first) {
+			render(1.0, rndr);
+			first = false;
+		}
 		update(delta);
-		render(delta, rndr);
+		usleep(30000);
 
 		std::stringstream ss;
 		ss << 1000.0f / delta;

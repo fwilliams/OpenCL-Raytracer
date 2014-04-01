@@ -13,7 +13,7 @@
 
 #define RAY_SURFACE_EPSILON 0.001
 #define RAY_TRI_EPSILON 0.0001
-#define BACKFACE_CULL
+//#define BACKFACE_CULL
 
 bool rayTriangle(struct Ray* ray, global const struct Triangle* tri, float* outT, float3* outN) {
 	float3 e1, e2;
@@ -65,7 +65,11 @@ bool rayTriangle(struct Ray* ray, global const struct Triangle* tri, float* outT
 
 	if(t > RAY_TRI_EPSILON) {
 		*outT = t;
-		*outN = normalize(cross(e1, e2));
+		if(dot(tri->normal, tri->normal) == 0.0) {
+			*outN = normalize(cross(e1, e2));
+		} else {
+			*outN = normalize(tri->normal);
+		}
 		return true;
 	}
 
@@ -164,7 +168,7 @@ float3 computeRadiance(
 		float st = intersect(&shadowRay, spheres, tris, 0, &n, &mat);
 
 		if(st > distanceToLight) {
-			float attenuation = (1.0/(0.0 + 0.5*distanceToLight + 0.0*(distanceToLight*distanceToLight)));
+			float attenuation = (1.0/(0.0 + 0.3*distanceToLight + 0.0*(distanceToLight*distanceToLight)));
 
 			#if defined DIFFUSE_BRDF
 			color += attenuation*material->color*lights[j].power*max(0.0f, dot(*normal, L));

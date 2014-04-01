@@ -28,6 +28,7 @@ struct Sphere {
 
 struct Triangle {
 	cl_float3 v1, v2, v3;
+	cl_float3 normal;
 	cl_uint materialId;
 };
 
@@ -108,6 +109,9 @@ void transform<Triangle>(Triangle& tri, const glm::mat4& tx) {
 
 	v = tx * glm::vec4(tri.v3.s[0], tri.v3.s[1], tri.v3.s[2], 1.0);
 	tri.v3 = {{v.x, v.y, v.z}};
+
+	v = tx * glm::vec4(tri.normal.s[0], tri.normal.s[1], tri.normal.s[2], 0.0);
+	tri.normal = {{v.x, v.y, v.z}};
 }
 
 template <>

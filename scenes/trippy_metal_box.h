@@ -30,8 +30,8 @@ constexpr std::array<Material<BLINN_PHONG>, 3>  DefaultMaterials<BLINN_PHONG>() 
 			1000.0},
 		Material<BLINN_PHONG> {
 			cl_float3{{0.9, 0.9, 0.9}},
-			cl_float3{{0.1, 0.1, 0.1}},
-			cl_float3{{0.5, 0.5, 0.5}},
+			cl_float3{{0.2, 0.2, 0.2}},
+			cl_float3{{0.0, 0.0, 0.0}},
 			10000.0}
 	}};
 }
@@ -100,13 +100,15 @@ std::shared_ptr<Scene<DEVICE_TYPE, LIGHT_MODEL>> buildTrippyBoxScene(
 					cl_float3{{-halfSize.x+i*dX,     halfSeperation+breakOffset, -halfSize.y+j*dY}},
 					cl_float3{{-halfSize.x+i*dX,     halfSeperation+breakOffset, -halfSize.y+(j+1)*dY}},
 					cl_float3{{-halfSize.x+(i+1)*dX, halfSeperation+breakOffset, -halfSize.y+(j+1)*dY}},
-					2});
+					cl_float3{{0.0, 0.0, 0.0}},
+					0});
 			tris.push_back(
 				Triangle{
 					cl_float3{{-halfSize.x+i*dX,     halfSeperation+breakOffset, -halfSize.y+j*dY}},
 					cl_float3{{-halfSize.x+(i+1)*dX, halfSeperation+breakOffset, -halfSize.y+(j+1)*dY}},
 					cl_float3{{-halfSize.x+(i+1)*dX, halfSeperation+breakOffset, -halfSize.y+j*dY}},
-					2});
+					cl_float3{{0.0, 0.0, 0.0}},
+					0});
 
 			// Bottom plane
 			tris.push_back(
@@ -114,13 +116,15 @@ std::shared_ptr<Scene<DEVICE_TYPE, LIGHT_MODEL>> buildTrippyBoxScene(
 					cl_float3{{-halfSize.x+i*dX,     -halfSeperation-breakOffset, -halfSize.y+j*dY}},
 					cl_float3{{-halfSize.x+(i+1)*dX, -halfSeperation-breakOffset, -halfSize.y+(j+1)*dY}},
 					cl_float3{{-halfSize.x+i*dX,     -halfSeperation-breakOffset, -halfSize.y+(j+1)*dY}},
-					2});
+					cl_float3{{0.0, 0.0, 0.0}},
+					0});
 			tris.push_back(
 				Triangle{
 					cl_float3{{-halfSize.x+i*dX,     -halfSeperation-breakOffset, -halfSize.y+j*dY}},
 					cl_float3{{-halfSize.x+(i+1)*dX, -halfSeperation-breakOffset, -halfSize.y+j*dY}},
 					cl_float3{{-halfSize.x+(i+1)*dX, -halfSeperation-breakOffset, -halfSize.y+(j+1)*dY}},
-					2});
+					cl_float3{{0.0, 0.0, 0.0}},
+					0});
 
 			// Front Plane
 			tris.push_back(
@@ -128,12 +132,14 @@ std::shared_ptr<Scene<DEVICE_TYPE, LIGHT_MODEL>> buildTrippyBoxScene(
 					cl_float3{{-halfSize.x+i*dX,     -halfSize.y+j*dY, 	  -halfSeperation+breakOffset}},
 					cl_float3{{-halfSize.x+i*dX,     -halfSize.y+(j+1)*dY, -halfSeperation+breakOffset}},
 					cl_float3{{-halfSize.x+(i+1)*dX, -halfSize.y+(j+1)*dY, -halfSeperation+breakOffset}},
+					cl_float3{{0.0, 0.0, 0.0}},
 					2});
 			tris.push_back(
 				Triangle{
 					cl_float3{{-halfSize.x+i*dX,     -halfSize.y+j*dY,    -halfSeperation+breakOffset}},
 					cl_float3{{-halfSize.x+(i+1)*dX, -halfSize.y+(j+1)*dY,-halfSeperation+breakOffset}},
 					cl_float3{{-halfSize.x+(i+1)*dX, -halfSize.y+j*dY,    -halfSeperation+breakOffset}},
+					cl_float3{{0.0, 0.0, 0.0}},
 					2});
 
 			// Back Plane
@@ -142,12 +148,14 @@ std::shared_ptr<Scene<DEVICE_TYPE, LIGHT_MODEL>> buildTrippyBoxScene(
 					cl_float3{{-halfSize.x+i*dX,     -halfSize.y+j*dY, 	  halfSeperation+breakOffset}},
 					cl_float3{{-halfSize.x+i*dX,     -halfSize.y+(j+1)*dY, halfSeperation+breakOffset}},
 					cl_float3{{-halfSize.x+(i+1)*dX, -halfSize.y+(j+1)*dY, halfSeperation+breakOffset}},
+					cl_float3{{0.0, 0.0, 0.0}},
 					2});
 			tris.push_back(
 				Triangle{
 					cl_float3{{-halfSize.x+i*dX,     -halfSize.y+j*dY,    halfSeperation+breakOffset}},
 					cl_float3{{-halfSize.x+(i+1)*dX, -halfSize.y+(j+1)*dY,halfSeperation+breakOffset}},
 					cl_float3{{-halfSize.x+(i+1)*dX, -halfSize.y+j*dY,    halfSeperation+breakOffset}},
+					cl_float3{{0.0, 0.0, 0.0}},
 					2});
 
 			// Right Plane
@@ -156,12 +164,14 @@ std::shared_ptr<Scene<DEVICE_TYPE, LIGHT_MODEL>> buildTrippyBoxScene(
 					cl_float3{{halfSeperation+breakOffset, -halfSize.x+i*dX,     -halfSize.y+j*dY}},
 					cl_float3{{halfSeperation+breakOffset, -halfSize.x+(i+1)*dX, -halfSize.y+(j+1)*dY}},
 					cl_float3{{halfSeperation+breakOffset, -halfSize.x+i*dX,     -halfSize.y+(j+1)*dY}},
+					cl_float3{{0.0, 0.0, 0.0}},
 					2});
 			tris.push_back(
 				Triangle{
 					cl_float3{{halfSeperation+breakOffset, -halfSize.x+i*dX,     -halfSize.y+j*dY}},
 					cl_float3{{halfSeperation+breakOffset, -halfSize.x+(i+1)*dX, -halfSize.y+j*dY}},
 					cl_float3{{halfSeperation+breakOffset, -halfSize.x+(i+1)*dX, -halfSize.y+(j+1)*dY}},
+					cl_float3{{0.0, 0.0, 0.0}},
 					2});
 
 			// Left Plane
@@ -170,12 +180,14 @@ std::shared_ptr<Scene<DEVICE_TYPE, LIGHT_MODEL>> buildTrippyBoxScene(
 					cl_float3{{-halfSeperation+breakOffset, -halfSize.x+i*dX,     -halfSize.y+j*dY}},
 					cl_float3{{-halfSeperation+breakOffset, -halfSize.x+i*dX,     -halfSize.y+(j+1)*dY}},
 					cl_float3{{-halfSeperation+breakOffset, -halfSize.x+(i+1)*dX, -halfSize.y+(j+1)*dY}},
+					cl_float3{{0.0, 0.0, 0.0}},
 					2});
 			tris.push_back(
 				Triangle{
 					cl_float3{{-halfSeperation+breakOffset, -halfSize.x+i*dX,     -halfSize.y+j*dY}},
 					cl_float3{{-halfSeperation+breakOffset, -halfSize.x+(i+1)*dX, -halfSize.y+(j+1)*dY}},
 					cl_float3{{-halfSeperation+breakOffset, -halfSize.x+(i+1)*dX, -halfSize.y+j*dY}},
+					cl_float3{{0.0, 0.0, 0.0}},
 					2});
 		}
 	}
