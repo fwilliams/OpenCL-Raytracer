@@ -39,7 +39,7 @@ constexpr std::array<Material<LIGHT_MODEL>, 8>  DefaultMaterials() {
 		Material<LIGHT_MODEL> {
 			cl_float3{{0.0, 0.0, 0.0}},
 			cl_float3{{0.0, 0.0, 0.0}},
-			cl_float3{{0.1, 0.1, 0.5}},
+			cl_float3{{0.0, 0.0, 0.0}},
 			cl_float3{{0.0, 0.0, 0.0}},
 			1.0},
 		Material<LIGHT_MODEL> {
@@ -65,13 +65,13 @@ constexpr std::array<Material<LIGHT_MODEL>, 8>  DefaultMaterials() {
 			cl_float3{{0.0, 0.0, 0.0}},
 			cl_float3{{0.2, 0.2, 0.6}},
 			cl_float3{{0.5, 0.5, 0.5}},
-			100000.0},
+			1000.0},
 		Material<LIGHT_MODEL> {
 			cl_float3{{0.0, 0.0, 0.0}},
 			cl_float3{{0.0, 0.0, 0.0}},
 			cl_float3{{0.6, 0.2, 0.2}},
 			cl_float3{{0.5, 0.5, 0.5}},
-			100000.0}
+			500.0}
 	}};
 }
 
