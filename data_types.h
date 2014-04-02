@@ -21,20 +21,21 @@ constexpr cl_float16 mat4ToFloat16(const glm::mat4& mat) {
 }
 
 struct Sphere {
-	cl_float radius;
+	cl_float  radius;
 	cl_float3 position;
-	cl_uint materialId;
+	cl_uint   materialId;
 };
 
 struct Triangle {
 	cl_float3 v1, v2, v3;
 	cl_float3 normal;
-	cl_uint materialId;
+	cl_uint   materialId;
 };
 
 struct PointLight {
 	cl_float3 position;
 	cl_float3 power;
+	cl_float  attenuation;
 };
 
 enum LightModel {
@@ -64,7 +65,7 @@ struct Material<PHONG> {
 	cl_float3 transmissivity;
 	cl_float3 kd;
 	cl_float3 ks;
-	cl_float exp;
+	cl_float  exp;
 
 	static constexpr const char* name() {
 		return "PHONG_BRDF";
@@ -77,7 +78,7 @@ struct Material<BLINN_PHONG> {
 	cl_float3 transmissivity;
 	cl_float3 kd;
 	cl_float3 ks;
-	cl_float exp;
+	cl_float  exp;
 
 	static constexpr const char* name() {
 		return "BLINN_PHONG_BRDF";

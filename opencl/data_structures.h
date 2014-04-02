@@ -28,20 +28,21 @@ struct Material {
 };
 
 struct Sphere {
-	float radius;
+	float  radius;
 	float3 position;
-	uint materialId;
+	uint   materialId;
 };
 
 struct Triangle {
 	float3 v1, v2, v3;
 	float3 normal;
-	uint materialId;
+	uint   materialId;
 };
 
 struct PointLight {
 	float3 position;
 	float3 power;
+	float  attenuation;
 };
 
 struct Ray {
