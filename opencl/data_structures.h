@@ -35,6 +35,7 @@ struct Sphere {
 
 struct Triangle {
 	float3 v1, v2, v3;
+	float2 vt1, vt2, vt3;
 	float3 normal;
 	uint   materialId;
 };
@@ -48,12 +49,6 @@ struct PointLight {
 struct Ray {
 	float3 origin;
 	float3 direction;
-};
-
-struct Vertex {
-	float3 position;
-	float3 normal;
-	float2 texcoord;
 };
 
 #endif /* CL_DATA_STRUCTURES_H_ */

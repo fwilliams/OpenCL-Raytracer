@@ -28,6 +28,7 @@ struct Sphere {
 
 struct Triangle {
 	cl_float3 v1, v2, v3;
+	cl_float2 vt1, vt2, vt3;
 	cl_float3 normal;
 	cl_uint   materialId;
 };
@@ -36,12 +37,6 @@ struct PointLight {
 	cl_float3 position;
 	cl_float3 power;
 	cl_float  attenuation;
-};
-
-struct Vertex {
-	cl_float3 position;
-	cl_float3 normal;
-	cl_float2 texcoord;
 };
 
 enum LightModel {

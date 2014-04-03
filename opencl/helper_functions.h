@@ -65,7 +65,7 @@ bool rayTriangle(struct Ray* ray, global const struct Triangle* tri, float* outT
 
 	if(t > RAY_TRI_EPSILON) {
 		*outT = t;
-		*outTexCoord = (float2) {0.0, 0.0};//{u*tri->v1 + (1.0-u)*tri->v2, v*tri->v1 + (1.0-v)*tri->v3};
+		*outTexCoord = u*tri->vt1 + (1.0-u)*tri->vt2 + v*tri->vt1 + (1.0-v)*tri->vt3;
 
 		if(dot(tri->normal, tri->normal) == 0.0) {
 			*outN = normalize(cross(e1, e2));
