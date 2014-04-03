@@ -18,13 +18,14 @@ struct Material {
 #elif defined BLINN_PHONG_BRDF or defined PHONG_BRDF	// Phong lighting (physically implausible)
 	float3 kd;
 	float3 ks;
-	float exp;
+	float  exp;
 
 #elif defined COOK_TORRANCE_BRDF	// Physically plausible lighting model (to be used with global illumination)
 	float3 kd;
 	float3 ks;
 	float2 rougness;
 #endif
+	uint   textureId;
 };
 
 struct Sphere {

@@ -54,6 +54,7 @@ struct Material<DIFFUSE> {
 	cl_float3 reflectivity;
 	cl_float3 transmissivity;
 	cl_float3 color;
+	cl_uint   textureId;
 
 	static constexpr const char* name() {
 		return "DIFFUSE_BRDF";
@@ -67,6 +68,7 @@ struct Material<PHONG> {
 	cl_float3 kd;
 	cl_float3 ks;
 	cl_float  exp;
+	cl_uint   textureId;
 
 	static constexpr const char* name() {
 		return "PHONG_BRDF";
@@ -80,6 +82,7 @@ struct Material<BLINN_PHONG> {
 	cl_float3 kd;
 	cl_float3 ks;
 	cl_float  exp;
+	cl_uint   textureId;
 
 	static constexpr const char* name() {
 		return "BLINN_PHONG_BRDF";
