@@ -38,6 +38,12 @@ struct PointLight {
 	cl_float  attenuation;
 };
 
+struct Vertex {
+	cl_float3 position;
+	cl_float3 normal;
+	cl_float2 texcoord;
+};
+
 enum LightModel {
 	DIFFUSE,
 	PHONG,

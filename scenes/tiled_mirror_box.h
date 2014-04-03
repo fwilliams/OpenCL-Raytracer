@@ -13,7 +13,6 @@
 #include "scene.h"
 #include "box.h"
 
-
 #include <iostream>
 
 #ifndef TILED_MIRROR_BOX_H_

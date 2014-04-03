@@ -16,14 +16,15 @@ kernel void reflect_pass(global struct Ray* rayBuffer,
 	if(dot(ray.direction, ray.direction) != 0.0) {
 
 		float3 normal;
+		float2 texcoord;
 		global const struct Material* m = &materials[0];
 		
-		float t = intersect(&ray, spheres, triangles, materials, &normal, &m);
+		float t = intersect(&ray, spheres, triangles, materials, &normal, &texcoord, &m);
 		
 		if(t < MAX_RENDER_DISTANCE) {
 			float3 intersectPos = ray.origin + ray.direction*t;
 	
-			float3 clr = reflectivityBuffer[i] * computeRadiance(&intersectPos, &normal, m, lights, spheres, triangles);
+			float3 clr = reflectivityBuffer[i] * computeRadiance(&intersectPos, &normal, &texcoord, m, lights, spheres, triangles);
 			res[i] += (float4) {clr.x, clr.y, clr.z, 0.0};
 		
 			if(dot(m->reflectivity, m->reflectivity) != 0.0) {

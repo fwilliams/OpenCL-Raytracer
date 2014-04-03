@@ -50,4 +50,10 @@ struct Ray {
 	float3 direction;
 };
 
+struct Vertex {
+	float3 position;
+	float3 normal;
+	float2 texcoord;
+};
+
 #endif /* CL_DATA_STRUCTURES_H_ */
