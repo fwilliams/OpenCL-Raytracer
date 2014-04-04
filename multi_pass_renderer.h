@@ -68,7 +68,7 @@ private:
 	cl::KernelFunctor firstPass, reflectPass;
 	cl::Buffer params, rayBuffer, reflectivityBuffer;
 	cl::Buffer resImg;
-	cl::Image2D textures[10];
+	cl::Image2D textureAtlas;
 };
 
 template <cl_device_type DEVICE_TYPE, LightModel LIGHT_MODEL>
@@ -87,6 +87,7 @@ MultiPassRenderer<DEVICE_TYPE, LIGHT_MODEL>::MultiPassRenderer(std::shared_ptr<S
 			buf[i*512+j] = cl_float4{{0.5f+static_cast<float>(i)/1024.0f,0.5f+static_cast<float>(j)/1024.0f, 0.5f, 1.0f}};
 		}
 	}
+
 	cl::size_t<3> origin;
 	origin.push_back(0);
 	origin.push_back(0);
@@ -96,14 +97,11 @@ MultiPassRenderer<DEVICE_TYPE, LIGHT_MODEL>::MultiPassRenderer(std::shared_ptr<S
 	size.push_back(512);
 	size.push_back(1);
 
-
-	for(unsigned i = 0; i < 10; i++) {
-		textures[i] = cl::Image2D(
-				deviceContext->context, CL_MEM_READ_ONLY,
-				cl::ImageFormat(CL_RGBA, CL_UNORM_INT8), 512, 512);
-	}
+	textureAtlas= cl::Image2D(
+			deviceContext->context, CL_MEM_READ_ONLY,
+			cl::ImageFormat(CL_RGBA, CL_UNORM_INT8), 512, 512);
 	deviceContext->commandQueue.enqueueWriteImage(
-			textures[0], true, origin, size, 0, 0, gli::load_dds("tex2.dds").data());
+			textureAtlas, true, origin, size, 0, 0, gli::load_dds("textures/tex2.dds").data());
 }
 
 template <cl_device_type DEVICE_TYPE, LightModel LIGHT_MODEL>
@@ -114,7 +112,7 @@ void MultiPassRenderer<DEVICE_TYPE, LIGHT_MODEL>::renderToTexture(GLuint tex, cl
 			scene->getSphereBuffer(),
 			scene->getPointLightBuffer(),
 			scene->getMaterialBuffer(),
-			textures[0],
+			textureAtlas,
 			resImg,
 			viewMatrix);
 
@@ -125,7 +123,7 @@ void MultiPassRenderer<DEVICE_TYPE, LIGHT_MODEL>::renderToTexture(GLuint tex, cl
 				scene->getSphereBuffer(),
 				scene->getPointLightBuffer(),
 				scene->getMaterialBuffer(),
-				textures[0],
+				textureAtlas,
 				resImg);
 	}
 
