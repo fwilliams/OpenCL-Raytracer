@@ -12,6 +12,11 @@
 #define NUM_SPHERES 1
 #define NUM_MATERIALS 1
 #define NUM_LIGHTS 1
+#define CLK_NORMALIZED_COORDS_TRUE 0
+#define CLK_ADDRESS_REPEAT 0
+#define CLK_FILTER_LINEAR 0
+
+typedef uint sampler_t;
 
 typedef struct int2 {
 	int x, y;
@@ -65,5 +70,6 @@ float3 clamp(float3, float, float);
 float max(float, float);
 
 void write_imagef(image2d_t image, int2 coord, float4 color);
+float4 read_imagef(image2d_t image, sampler_t sampler, float2 coord);
 
 #endif

@@ -12,6 +12,9 @@
 #include <memory>
 #include <vector>
 #include <string>
+#include <gli/gli.hpp>
+
+#include <iostream>
 
 #include "scene.h"
 
@@ -65,6 +68,7 @@ private:
 	cl::KernelFunctor firstPass, reflectPass;
 	cl::Buffer params, rayBuffer, reflectivityBuffer;
 	cl::Buffer resImg;
+	cl::Image2D textures[10];
 };
 
 template <cl_device_type DEVICE_TYPE, LightModel LIGHT_MODEL>
@@ -76,6 +80,27 @@ MultiPassRenderer<DEVICE_TYPE, LIGHT_MODEL>::MultiPassRenderer(std::shared_ptr<S
 	this->rayBuffer = cl::Buffer(deviceContext->context, CL_MEM_READ_WRITE, sizeof(Ray)*viewportWidth*viewportHeight);
 	this->reflectivityBuffer = cl::Buffer(deviceContext->context, CL_MEM_READ_WRITE, sizeof(cl_float3)*viewportWidth*viewportHeight);
 	this->resImg = cl::Buffer(deviceContext->context, CL_MEM_READ_WRITE, sizeof(cl_float4)*viewportWidth*viewportHeight);
+
+	cl_float4 buf[512*512];
+	for(unsigned i = 0; i < 512; i++) {
+		for(unsigned j = 0; j < 512; j++) {
+			buf[i*512+j] = cl_float4{{0.5f+static_cast<float>(i)/1024.0f,0.5f+static_cast<float>(j)/1024.0f, 0.5f, 1.0f}};
+		}
+	}
+	cl::size_t<3> origin;
+	origin.push_back(0);
+	origin.push_back(0);
+	origin.push_back(0);
+	cl::size_t<3> size;
+	size.push_back(512);
+	size.push_back(512);
+	size.push_back(1);
+
+
+	textures[0] = cl::Image2D(
+			deviceContext->context, CL_MEM_READ_ONLY,
+			cl::ImageFormat(CL_RGBA, CL_FLOAT), 512, 512);
+	deviceContext->commandQueue.enqueueWriteImage(textures[0], true, origin, size, 0, 0, buf);
 }
 
 template <cl_device_type DEVICE_TYPE, LightModel LIGHT_MODEL>
@@ -86,6 +111,7 @@ void MultiPassRenderer<DEVICE_TYPE, LIGHT_MODEL>::renderToTexture(GLuint tex, cl
 			scene->getSphereBuffer(),
 			scene->getPointLightBuffer(),
 			scene->getMaterialBuffer(),
+			textures[0],
 			resImg,
 			viewMatrix);
 
@@ -96,19 +122,11 @@ void MultiPassRenderer<DEVICE_TYPE, LIGHT_MODEL>::renderToTexture(GLuint tex, cl
 				scene->getSphereBuffer(),
 				scene->getPointLightBuffer(),
 				scene->getMaterialBuffer(),
+				textures[0],
 				resImg);
 	}
 
 	glBindTexture(GL_TEXTURE_2D, tex);
-
-	cl::size_t<3> origin;
-	origin.push_back(0);
-	origin.push_back(0);
-	origin.push_back(0);
-	cl::size_t<3> size;
-	size.push_back(viewportWidth);
-	size.push_back(viewportHeight);
-	size.push_back(1);
 
 	cl_float4 pixels[viewportWidth*viewportHeight];
 

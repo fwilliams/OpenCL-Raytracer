@@ -21,7 +21,7 @@ using namespace std;
 
 const int kWidth = 800;
 const int kHeight = 600;
-const int numReflectivePasses = 20;
+const int numReflectivePasses = 0;
 const double maxViewDistance = 1000000.0;
 const bool kFullscreen = false;
 

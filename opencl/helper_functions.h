@@ -65,7 +65,7 @@ bool rayTriangle(struct Ray* ray, global const struct Triangle* tri, float* outT
 
 	if(t > RAY_TRI_EPSILON) {
 		*outT = t;
-		*outTexCoord = u*tri->vt1 + (1.0-u)*tri->vt2 + v*tri->vt1 + (1.0-v)*tri->vt3;
+		*outTexCoord = v*tri->vt3 + (1.0-v)*(u*tri->vt2 + (1.0-u)*tri->vt1);
 
 		if(dot(tri->normal, tri->normal) == 0.0) {
 			*outN = normalize(cross(e1, e2));
@@ -153,7 +153,8 @@ float3 computeRadiance(
 		global const struct Material* material,
 		global const struct PointLight* lights,
 		global const struct Sphere* spheres,
-		global const struct Triangle* tris) {
+		global const struct Triangle* tris,
+		global image2d_t texture) {
 
 	float3 color = (float3){0.0, 0.0, 0.0};
 
@@ -193,6 +194,11 @@ float3 computeRadiance(
 
 			#endif
 		}
+	}
+	if(material->textureId != 0) {
+		const sampler_t samp = CLK_NORMALIZED_COORDS_TRUE;
+		float4 texcolor = read_imagef(texture, samp, *texcoord);
+		color *= (float3){texcolor.x, texcolor.y, texcolor.z};
 	}
 	return color;
 }

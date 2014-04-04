@@ -6,6 +6,7 @@ kernel void reflect_pass(global struct Ray* rayBuffer,
 					   global const struct Sphere* spheres,
 					   global const struct PointLight* lights,
 					   global const struct Material* materials,
+					   global image2d_t texture,
 					   global float4* res) {
 
 	uint i = get_global_size(0)*get_global_id(1) + get_global_id(0);
@@ -24,7 +25,7 @@ kernel void reflect_pass(global struct Ray* rayBuffer,
 		if(t < MAX_RENDER_DISTANCE) {
 			float3 intersectPos = ray.origin + ray.direction*t;
 	
-			float3 clr = reflectivityBuffer[i] * computeRadiance(&intersectPos, &normal, &texcoord, m, lights, spheres, triangles);
+			float3 clr = reflectivityBuffer[i] * computeRadiance(&intersectPos, &normal, &texcoord, m, lights, spheres, triangles, texture);
 			res[i] += (float4) {clr.x, clr.y, clr.z, 0.0};
 		
 			if(dot(m->reflectivity, m->reflectivity) != 0.0) {
