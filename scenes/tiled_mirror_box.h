@@ -132,20 +132,21 @@ inline void makeTile(int i, int j,
 		std::vector<Sphere>& spheres,
 		std::vector<PointLight>& lights) {
 
+
 	glm::mat4 tx =
 			glm::translate(glm::mat4(1.0), glm::vec3(static_cast<float>(i)*wallSize.x, 0.0, static_cast<float>(j)*wallSize.z)) *
 			glm::scale(glm::mat4(1.0), glm::vec3(TOGGLE(i), 1.0, TOGGLE(j)));
 
 	std::transform(tris.begin(), tris.begin()+newTris.size(), newTris.begin(),
-			TransformFunctor<Triangle>(tx));
+			[&tx](Triangle val){transform<Triangle>(val, tx); return val;});
 	tris.insert(tris.end(), newTris.begin(), newTris.end());
 
 	std::transform(spheres.begin(), spheres.begin()+newSpheres.size(), newSpheres.begin(),
-			TransformFunctor<Sphere>(tx));
+			[&tx](Sphere val){transform<Sphere>(val, tx); return val;});
 	spheres.insert(spheres.end(), newSpheres.begin(), newSpheres.end());
 
 	std::transform(lights.begin(), lights.begin()+newLights.size(), newLights.begin(),
-			TransformFunctor<PointLight>(tx));
+			[&tx](PointLight val){transform<PointLight>(val, tx); return val;});
 	lights.insert(lights.end(), newLights.begin(), newLights.end());
 }
 

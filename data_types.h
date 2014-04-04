@@ -127,28 +127,4 @@ void transform<PointLight>(PointLight& light, const glm::mat4& tx) {
 	light.position = {{pos.x, pos.y, pos.z}};
 }
 
-template <typename T>
-struct TransformFunctor {
-	TransformFunctor(const glm::mat4& tx) : tx(tx) {}
-
-	T operator()(T val) {
-		transform<T>(val, tx);
-		return val;
-	}
-
-private:
-	glm::mat4 tx;
-};
-
-template <typename T>
-struct MutateTransformFunctor {
-	MutateTransformFunctor(const glm::mat4& tx) : tx(tx) {}
-
-	void operator()(T& val) {
-		transform<T>(val, tx);
-	}
-
-private:
-	glm::mat4 tx;
-};
 #endif /* DATA_TYPES_H_ */
