@@ -14,6 +14,7 @@
 
 #include "multi_pass_renderer.h"
 #include "scenes/tiled_mirror_box.h"
+#include "texture_atlas.h"
 
 //#define RENDER_LIGHTS
 

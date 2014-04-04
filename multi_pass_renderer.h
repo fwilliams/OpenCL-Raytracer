@@ -17,6 +17,7 @@
 #include <iostream>
 
 #include "scene.h"
+#include "texture_atlas.h"
 
 #ifndef MULTI_PASS_RENDERER_H_
 #define MULTI_PASS_RENDERER_H_
@@ -88,20 +89,20 @@ MultiPassRenderer<DEVICE_TYPE, LIGHT_MODEL>::MultiPassRenderer(std::shared_ptr<S
 		}
 	}
 
-	cl::size_t<3> origin;
-	origin.push_back(0);
-	origin.push_back(0);
-	origin.push_back(0);
-	cl::size_t<3> size;
-	size.push_back(512);
-	size.push_back(512);
-	size.push_back(1);
 
-	textureAtlas= cl::Image2D(
-			deviceContext->context, CL_MEM_READ_ONLY,
-			cl::ImageFormat(CL_RGBA, CL_UNORM_INT8), 512, 512);
-	deviceContext->commandQueue.enqueueWriteImage(
-			textureAtlas, true, origin, size, 0, 0, gli::load_dds("textures/tex2.dds").data());
+	TextureAtlas texAtlas;
+	texAtlas.createTexture(gli::load_dds("textures/tex1.dds"));
+	texAtlas.createTexture(gli::load_dds("textures/tex2.dds"));
+	texAtlas.createTexture(gli::load_dds("textures/tex3.dds"));
+	texAtlas.createTexture(gli::load_dds("textures/tex1.dds"));
+	texAtlas.createTexture(gli::load_dds("textures/tex2.dds"));
+	texAtlas.createTexture(gli::load_dds("textures/tex3.dds"));
+	texAtlas.createTexture(gli::load_dds("textures/tex1.dds"));
+	texAtlas.createTexture(gli::load_dds("textures/tex2.dds"));
+	texAtlas.createTexture(gli::load_dds("textures/tex3.dds"));
+	texAtlas.createTexture(gli::load_dds("textures/swasticock.dds"));
+
+	textureAtlas = texAtlas.packAtlas(*deviceContext);
 }
 
 template <cl_device_type DEVICE_TYPE, LightModel LIGHT_MODEL>
