@@ -97,10 +97,13 @@ MultiPassRenderer<DEVICE_TYPE, LIGHT_MODEL>::MultiPassRenderer(std::shared_ptr<S
 	size.push_back(1);
 
 
-	textures[0] = cl::Image2D(
-			deviceContext->context, CL_MEM_READ_ONLY,
-			cl::ImageFormat(CL_RGBA, CL_FLOAT), 512, 512);
-	deviceContext->commandQueue.enqueueWriteImage(textures[0], true, origin, size, 0, 0, buf);
+	for(unsigned i = 0; i < 10; i++) {
+		textures[i] = cl::Image2D(
+				deviceContext->context, CL_MEM_READ_ONLY,
+				cl::ImageFormat(CL_RGBA, CL_UNORM_INT8), 512, 512);
+	}
+	deviceContext->commandQueue.enqueueWriteImage(
+			textures[0], true, origin, size, 0, 0, gli::load_dds("tex2.dds").data());
 }
 
 template <cl_device_type DEVICE_TYPE, LightModel LIGHT_MODEL>

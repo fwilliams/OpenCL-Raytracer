@@ -6,11 +6,11 @@ kernel void first_pass(global struct Ray* rayBuffer,
 					   global const struct Sphere* spheres,
 					   global const struct PointLight* lights,
 					   global const struct Material* materials,
-					   global image2d_t texture,
+					   global const image2d_t texture,
 					   global float4* res,
 					   float16 viewMatrix) {
 	struct Ray ray;
-	ray.origin = (float3) {0.0, 0.0, 4.9};
+	ray.origin = (float3) {0.0, 0.0, 4.9999};
 	ray.direction = normalize((float3) {
 		min(((float)get_global_id(0))/(float)get_global_size(0) - 0.5f, 1.0),
 		min(-((float)get_global_id(1))/(float)get_global_size(1) + 0.5f, 1.0),

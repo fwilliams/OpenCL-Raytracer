@@ -26,37 +26,37 @@ constexpr std::array<Material<LIGHT_MODEL>, 8>  DefaultMaterials() {
 		Material<LIGHT_MODEL> {
 			cl_float3{{0.0, 0.0, 0.0}},
 			cl_float3{{0.0, 0.0, 0.0}},
-			cl_float3{{0.5, 0.1, 0.1}},
+			cl_float3{{1.0, 1.0, 1.0}},
 			cl_float3{{0.0, 0.0, 0.0}},
 			1.0, 1},
 		Material<LIGHT_MODEL> {
 			cl_float3{{0.0, 0.0, 0.0}},
 			cl_float3{{0.0, 0.0, 0.0}},
-			cl_float3{{0.1, 0.5, 0.1}},
+			cl_float3{{1.0, 1.0, 1.0}},
 			cl_float3{{0.0, 0.0, 0.0}},
 			1.0, 1},
 		Material<LIGHT_MODEL> {
 			cl_float3{{0.0, 0.0, 0.0}},
 			cl_float3{{0.0, 0.0, 0.0}},
-			cl_float3{{0.0, 0.0, 0.0}},
-			cl_float3{{0.0, 0.0, 0.0}},
-			1.0, 1},
-		Material<LIGHT_MODEL> {
-			cl_float3{{0.0, 0.0, 0.0}},
-			cl_float3{{0.0, 0.0, 0.0}},
-			cl_float3{{0.5, 0.1, 0.5}},
+			cl_float3{{1.0, 1.0, 1.0}},
 			cl_float3{{0.0, 0.0, 0.0}},
 			1.0, 1},
 		Material<LIGHT_MODEL> {
 			cl_float3{{0.0, 0.0, 0.0}},
 			cl_float3{{0.0, 0.0, 0.0}},
-			cl_float3{{0.5, 0.5, 0.1}},
+			cl_float3{{1.0, 1.0, 1.0}},
 			cl_float3{{0.0, 0.0, 0.0}},
 			1.0, 1},
 		Material<LIGHT_MODEL> {
 			cl_float3{{0.0, 0.0, 0.0}},
 			cl_float3{{0.0, 0.0, 0.0}},
-			cl_float3{{0.1, 0.5, 0.5}},
+			cl_float3{{1.0, 1.0, 1.0}},
+			cl_float3{{0.0, 0.0, 0.0}},
+			1.0, 1},
+		Material<LIGHT_MODEL> {
+			cl_float3{{0.0, 0.0, 0.0}},
+			cl_float3{{0.0, 0.0, 0.0}},
+			cl_float3{{1.0, 1.0, 1.0}},
 			cl_float3{{0.0, 0.0, 0.0}},
 			1.0, 1},
 		Material<LIGHT_MODEL> {

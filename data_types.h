@@ -68,7 +68,7 @@ struct Material<PHONG> {
 	cl_float3 kd;
 	cl_float3 ks;
 	cl_float  exp;
-	cl_uint   textureId;
+	cl_uint   texDiffuse;
 
 	static constexpr const char* name() {
 		return "PHONG_BRDF";
@@ -82,13 +82,12 @@ struct Material<BLINN_PHONG> {
 	cl_float3 kd;
 	cl_float3 ks;
 	cl_float  exp;
-	cl_uint   textureId;
+	cl_uint   texDiffuse;
 
 	static constexpr const char* name() {
 		return "BLINN_PHONG_BRDF";
 	}
 };
-
 
 struct Ray {
 	cl_float3 origin;

@@ -230,7 +230,7 @@ private:
 								cl_float3{{halfSize.x, -halfSize.y+j*d.y,     -halfSize.z+k*d.z}},
 								cl_float3{{halfSize.x, -halfSize.y+j*d.y,     -halfSize.z+(k+1)*d.z}},
 								cl_float3{{halfSize.x, -halfSize.y+(j+1)*d.y, -halfSize.z+(k+1)*d.z}},
-								cl_float2{{0.0, 0.0}}, cl_float2{{0.0, 1.0}}, cl_float2{{1.0, 1.0}},
+								cl_float2{{0.0, 0.0}}, cl_float2{{1.0, 0.0}}, cl_float2{{1.0, 1.0}},
 								normals[index],
 								materialIndices[index]});
 						tris.push_back(
@@ -238,7 +238,7 @@ private:
 								cl_float3{{halfSize.x, -halfSize.y+j*d.y,     -halfSize.z+k*d.z}},
 								cl_float3{{halfSize.x, -halfSize.y+(j+1)*d.y, -halfSize.z+(k+1)*d.z}},
 								cl_float3{{halfSize.x, -halfSize.y+(j+1)*d.y, -halfSize.z+k*d.z}},
-								cl_float2{{0.0, 0.0}}, cl_float2{{1.0, 1.0}}, cl_float2{{1.0, 0.0}},
+								cl_float2{{0.0, 0.0}}, cl_float2{{1.0, 1.0}}, cl_float2{{0.0, 1.0}},
 								normals[index],
 								materialIndices[index]});
 						index = (index + 1) % (6-N);
@@ -251,7 +251,7 @@ private:
 								cl_float3{{-halfSize.x, -halfSize.y+j*d.y,     -halfSize.z+k*d.z}},
 								cl_float3{{-halfSize.x, -halfSize.y+(j+1)*d.y, -halfSize.z+(k+1)*d.z}},
 								cl_float3{{-halfSize.x, -halfSize.y+j*d.y,     -halfSize.z+(k+1)*d.z}},
-								cl_float2{{0.0, 0.0}}, cl_float2{{1.0, 1.0}}, cl_float2{{0.0, 1.0}},
+								cl_float2{{0.0, 0.0}}, cl_float2{{1.0, 1.0}}, cl_float2{{1.0, 0.0}},
 								normals[index],
 								materialIndices[index]});
 						tris.push_back(
@@ -259,7 +259,7 @@ private:
 								cl_float3{{-halfSize.x, -halfSize.y+j*d.y,     -halfSize.z+k*d.z}},
 								cl_float3{{-halfSize.x, -halfSize.y+(j+1)*d.y, -halfSize.z+k*d.z}},
 								cl_float3{{-halfSize.x, -halfSize.y+(j+1)*d.y, -halfSize.z+(k+1)*d.z}},
-								cl_float2{{0.0, 0.0}}, cl_float2{{1.0, 0.0}}, cl_float2{{1.0, 1.0}},
+								cl_float2{{0.0, 0.0}}, cl_float2{{0.0, 1.0}}, cl_float2{{1.0, 1.0}},
 								normals[index],
 								materialIndices[index]});
 						index = (index + 1) % (6-N);

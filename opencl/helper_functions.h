@@ -65,7 +65,7 @@ bool rayTriangle(struct Ray* ray, global const struct Triangle* tri, float* outT
 
 	if(t > RAY_TRI_EPSILON) {
 		*outT = t;
-		*outTexCoord = v*tri->vt3 + (1.0-v)*(u*tri->vt2 + (1.0-u)*tri->vt1);
+		*outTexCoord = (1.0-u-v)*tri->vt1 + u*tri->vt2 + v*tri->vt3;
 
 		if(dot(tri->normal, tri->normal) == 0.0) {
 			*outN = normalize(cross(e1, e2));
@@ -182,9 +182,16 @@ float3 computeRadiance(
 			color += attenuation*material->color*lights[j].power*max(0.0f, dot(*normal, L));
 
 			#elif defined BLINN_PHONG_BRDF
+			float3 clr = (float3) {1.0, 1.0, 1.0};
+			if(material->textureId != 0) {
+				const sampler_t samp = CLK_NORMALIZED_COORDS_TRUE | CLK_FILTER_LINEAR;
+				float4 texcolor = read_imagef(texture, samp, *texcoord);
+				clr = (float3){texcolor.x, texcolor.y, texcolor.z};
+			}
+
 			float3 H = normalize(L + -*position);
 			color += attenuation *
-					 (lights[j].power * (material->kd*max(0.0f, dot(*normal, L)) +
+					 (lights[j].power * (clr*material->kd*max(0.0f, dot(*normal, L)) +
 					  material->ks*pow(max(0.0f, dot(*normal, H)), material->exp)));
 			#elif defined PHONG_BRDF
 			color += attenuation *
@@ -194,11 +201,6 @@ float3 computeRadiance(
 
 			#endif
 		}
-	}
-	if(material->textureId != 0) {
-		const sampler_t samp = CLK_NORMALIZED_COORDS_TRUE;
-		float4 texcolor = read_imagef(texture, samp, *texcoord);
-		color *= (float3){texcolor.x, texcolor.y, texcolor.z};
 	}
 	return color;
 }
