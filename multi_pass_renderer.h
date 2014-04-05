@@ -14,8 +14,6 @@
 #include <string>
 #include <gli/gli.hpp>
 
-#include <iostream>
-
 #include "scene.h"
 #include "texture_atlas.h"
 
@@ -67,7 +65,7 @@ private:
 
 	size_t viewportWidth, viewportHeight;
 	cl::KernelFunctor firstPass, reflectPass;
-	cl::Buffer params, rayBuffer, reflectivityBuffer;
+	cl::Buffer rayBuffer, reflectivityBuffer;
 	cl::Buffer resImg;
 	cl::Image2D textureAtlas;
 };
@@ -82,14 +80,6 @@ MultiPassRenderer<DEVICE_TYPE, LIGHT_MODEL>::MultiPassRenderer(std::shared_ptr<S
 	this->reflectivityBuffer = cl::Buffer(deviceContext->context, CL_MEM_READ_WRITE, sizeof(cl_float3)*viewportWidth*viewportHeight);
 	this->resImg = cl::Buffer(deviceContext->context, CL_MEM_READ_WRITE, sizeof(cl_float4)*viewportWidth*viewportHeight);
 
-	cl_float4 buf[512*512];
-	for(unsigned i = 0; i < 512; i++) {
-		for(unsigned j = 0; j < 512; j++) {
-			buf[i*512+j] = cl_float4{{0.5f+static_cast<float>(i)/1024.0f,0.5f+static_cast<float>(j)/1024.0f, 0.5f, 1.0f}};
-		}
-	}
-
-
 	TextureAtlas texAtlas;
 	texAtlas.createTexture(gli::load_dds("textures/tex1.dds"));
 	texAtlas.createTexture(gli::load_dds("textures/tex2.dds"));
@@ -100,9 +90,10 @@ MultiPassRenderer<DEVICE_TYPE, LIGHT_MODEL>::MultiPassRenderer(std::shared_ptr<S
 	texAtlas.createTexture(gli::load_dds("textures/tex1.dds"));
 	texAtlas.createTexture(gli::load_dds("textures/tex2.dds"));
 	texAtlas.createTexture(gli::load_dds("textures/tex3.dds"));
-	texAtlas.createTexture(gli::load_dds("textures/swasticock.dds"));
+	texAtlas.createTexture(gli::load_dds("textures/derp.dds"));
+	texAtlas.createTexture(gli::load_dds("textures/tits.dds"));
 
-	textureAtlas = texAtlas.packAtlas(*deviceContext);
+	textureAtlas = texAtlas.getTextureAtlas(*deviceContext);
 }
 
 template <cl_device_type DEVICE_TYPE, LightModel LIGHT_MODEL>
