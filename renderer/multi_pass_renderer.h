@@ -15,16 +15,18 @@
 #include <gli/gli.hpp>
 
 #include "scene.h"
-#include "texture_atlas.h"
+#include "texture_array.h"
+#include "detail/texture_atlas.h"
 
 #ifndef MULTI_PASS_RENDERER_H_
 #define MULTI_PASS_RENDERER_H_
 
 template <cl_device_type DEVICE_TYPE, LightModel LIGHT_MODEL>
-struct MultiPassRenderer {
-	MultiPassRenderer(std::shared_ptr<Scene<DEVICE_TYPE, LIGHT_MODEL>> scene,
-					  size_t vpWidth, size_t vpHeight,
-					  unsigned reflectivePasses, double maxRenderDistance);
+struct Renderer {
+	Renderer(std::shared_ptr<Scene<DEVICE_TYPE, LIGHT_MODEL>> scene,
+			 TextureArray& textureArray,
+			 size_t vpWidth, size_t vpHeight,
+			 unsigned reflectivePasses, double maxRenderDistance);
 
 
 	void renderToTexture(GLuint tex, cl_float16 viewMatrix);
@@ -65,46 +67,30 @@ private:
 
 	size_t viewportWidth, viewportHeight;
 	cl::KernelFunctor firstPass, reflectPass;
-	cl::Buffer rayBuffer, reflectivityBuffer;
-	cl::Buffer resImg;
-	cl::Image2D textureAtlas;
+	cl::Buffer rayBuffer, reflectivityBuffer, resImg;
+	TextureAtlas texAtlas;
 };
 
 template <cl_device_type DEVICE_TYPE, LightModel LIGHT_MODEL>
-MultiPassRenderer<DEVICE_TYPE, LIGHT_MODEL>::MultiPassRenderer(std::shared_ptr<Scene<DEVICE_TYPE, LIGHT_MODEL>> scene,
-		size_t vpWidth, size_t vpHeight, unsigned numReflectivePasses, double maxRenderDistance) :
+Renderer<DEVICE_TYPE, LIGHT_MODEL>::Renderer(std::shared_ptr<Scene<DEVICE_TYPE, LIGHT_MODEL>> scene,
+		TextureArray& textureArray, size_t vpWidth, size_t vpHeight, unsigned numReflectivePasses, double maxRenderDistance) :
 				deviceContext(scene->getCLDeviceContext()), numReflectivePasses(numReflectivePasses),
 				maxRenderDistance(maxRenderDistance), viewportWidth(vpWidth), viewportHeight(vpHeight) {
 	setScene(scene);
 	this->rayBuffer = cl::Buffer(deviceContext->context, CL_MEM_READ_WRITE, sizeof(Ray)*viewportWidth*viewportHeight);
 	this->reflectivityBuffer = cl::Buffer(deviceContext->context, CL_MEM_READ_WRITE, sizeof(cl_float3)*viewportWidth*viewportHeight);
 	this->resImg = cl::Buffer(deviceContext->context, CL_MEM_READ_WRITE, sizeof(cl_float4)*viewportWidth*viewportHeight);
-
-	TextureAtlas texAtlas;
-	texAtlas.createTexture(gli::load_dds("textures/tex1.dds"));
-	texAtlas.createTexture(gli::load_dds("textures/tex2.dds"));
-	texAtlas.createTexture(gli::load_dds("textures/tex3.dds"));
-	texAtlas.createTexture(gli::load_dds("textures/tex1.dds"));
-	texAtlas.createTexture(gli::load_dds("textures/tex2.dds"));
-	texAtlas.createTexture(gli::load_dds("textures/tex3.dds"));
-	texAtlas.createTexture(gli::load_dds("textures/tex1.dds"));
-	texAtlas.createTexture(gli::load_dds("textures/tex2.dds"));
-	texAtlas.createTexture(gli::load_dds("textures/tex3.dds"));
-	texAtlas.createTexture(gli::load_dds("textures/derp.dds"));
-	texAtlas.createTexture(gli::load_dds("textures/tits.dds"));
-
-	textureAtlas = texAtlas.getTextureAtlas(*deviceContext);
 }
 
 template <cl_device_type DEVICE_TYPE, LightModel LIGHT_MODEL>
-void MultiPassRenderer<DEVICE_TYPE, LIGHT_MODEL>::renderToTexture(GLuint tex, cl_float16 viewMatrix) {
+void Renderer<DEVICE_TYPE, LIGHT_MODEL>::renderToTexture(GLuint tex, cl_float16 viewMatrix) {
 	firstPass(rayBuffer,
 			reflectivityBuffer,
 			scene->getTriangleBuffer(),
 			scene->getSphereBuffer(),
 			scene->getPointLightBuffer(),
 			scene->getMaterialBuffer(),
-			textureAtlas,
+			texAtlas.data,
 			resImg,
 			viewMatrix);
 
@@ -115,7 +101,7 @@ void MultiPassRenderer<DEVICE_TYPE, LIGHT_MODEL>::renderToTexture(GLuint tex, cl
 				scene->getSphereBuffer(),
 				scene->getPointLightBuffer(),
 				scene->getMaterialBuffer(),
-				textureAtlas,
+				texAtlas.data,
 				resImg);
 	}
 

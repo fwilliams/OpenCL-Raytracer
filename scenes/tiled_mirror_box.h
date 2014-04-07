@@ -10,7 +10,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtx/string_cast.hpp>
 
-#include "scene.h"
+#include "renderer/scene.h"
 #include "box.h"
 
 #include <iostream>

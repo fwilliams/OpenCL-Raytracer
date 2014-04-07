@@ -12,9 +12,8 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#include "multi_pass_renderer.h"
+#include "renderer/multi_pass_renderer.h"
 #include "scenes/tiled_mirror_box.h"
-#include "texture_atlas.h"
 
 //#define RENDER_LIGHTS
 
@@ -97,9 +96,16 @@ void render(int delta, Renderer& rndr) {
 void update(int delta) {}
 
 int main(int argc, char* argv[]) {
-	auto rndr = MultiPassRenderer<CL_DEVICE_TYPE_GPU, BLINN_PHONG>(
+	TextureArray textures;
+	auto texIds = textures.createTextures<3>(
+			{gli::load_dds("textures/tex1.dds"),
+	  	  	 gli::load_dds("textures/tex2.dds"),
+	  	  	 gli::load_dds("textures/tex3.dds")});
+
+	auto rndr = Renderer<CL_DEVICE_TYPE_GPU, BLINN_PHONG>(
 			TiledMirrorBox::buildTiledMirrorBox<CL_DEVICE_TYPE_GPU, BLINN_PHONG>(
 					glm::vec3(10.0, 10.0, 10.0), glm::ivec2(0, 0)),
+			textures,
 			kWidth, kHeight, numReflectivePasses, maxViewDistance);
 	SDL_Init(SDL_INIT_EVERYTHING);
 
