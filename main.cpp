@@ -12,7 +12,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#include "renderer/multi_pass_renderer.h"
+#include "renderer/renderer.h"
 #include "scenes/tiled_mirror_box.h"
 
 //#define RENDER_LIGHTS
@@ -102,11 +102,15 @@ int main(int argc, char* argv[]) {
 	  	  	 gli::load_dds("textures/tex2.dds"),
 	  	  	 gli::load_dds("textures/tex3.dds")});
 
+	auto scene = TiledMirrorBox::buildTiledMirrorBox<CL_DEVICE_TYPE_GPU, BLINN_PHONG>(
+			glm::vec3(10.0, 10.0, 10.0), glm::ivec2(0, 0),
+			{{texIds[0], texIds[0], texIds[1],
+			  texIds[1], texIds[2], texIds[2]}});
+
 	auto rndr = Renderer<CL_DEVICE_TYPE_GPU, BLINN_PHONG>(
-			TiledMirrorBox::buildTiledMirrorBox<CL_DEVICE_TYPE_GPU, BLINN_PHONG>(
-					glm::vec3(10.0, 10.0, 10.0), glm::ivec2(0, 0)),
-			textures,
-			kWidth, kHeight, numReflectivePasses, maxViewDistance);
+			scene, textures, kWidth, kHeight,
+			numReflectivePasses, maxViewDistance);
+
 	SDL_Init(SDL_INIT_EVERYTHING);
 
 	Uint32 flags = SDL_OPENGL;

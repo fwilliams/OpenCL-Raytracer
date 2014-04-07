@@ -5,15 +5,14 @@
  *      Author: francis
  */
 
-#include <array>
-#include <algorithm>
 #include <glm/glm.hpp>
 #include <glm/gtx/string_cast.hpp>
 
+#include <array>
+#include <algorithm>
+
 #include "renderer/scene.h"
 #include "box.h"
-
-#include <iostream>
 
 #ifndef TILED_MIRROR_BOX_H_
 #define TILED_MIRROR_BOX_H_
@@ -21,105 +20,104 @@
 namespace TiledMirrorBox {
 
 template <LightModel LIGHT_MODEL>
-constexpr std::array<Material<LIGHT_MODEL>, 8>  DefaultMaterials() {
+constexpr std::array<Material<LIGHT_MODEL>, 8>  DefaultMaterials(const std::array<TextureHdl, 6>& faceTexs) {
 	return std::array<Material<LIGHT_MODEL>, 8>{{
 		Material<LIGHT_MODEL> {
 			cl_float3{{0.0, 0.0, 0.0}},
 			cl_float3{{0.0, 0.0, 0.0}},
 			cl_float3{{1.0, 1.0, 1.0}},
 			cl_float3{{0.0, 0.0, 0.0}},
-			1.0, 1},
+			1.0, faceTexs[0]},
 		Material<LIGHT_MODEL> {
 			cl_float3{{0.0, 0.0, 0.0}},
 			cl_float3{{0.0, 0.0, 0.0}},
 			cl_float3{{1.0, 1.0, 1.0}},
 			cl_float3{{0.0, 0.0, 0.0}},
-			1.0, 1},
+			1.0, faceTexs[1]},
 		Material<LIGHT_MODEL> {
 			cl_float3{{0.0, 0.0, 0.0}},
 			cl_float3{{0.0, 0.0, 0.0}},
 			cl_float3{{1.0, 1.0, 1.0}},
 			cl_float3{{0.0, 0.0, 0.0}},
-			1.0, 1},
+			1.0, faceTexs[2]},
 		Material<LIGHT_MODEL> {
 			cl_float3{{0.0, 0.0, 0.0}},
 			cl_float3{{0.0, 0.0, 0.0}},
 			cl_float3{{1.0, 1.0, 1.0}},
 			cl_float3{{0.0, 0.0, 0.0}},
-			1.0, 1},
+			1.0, faceTexs[3]},
 		Material<LIGHT_MODEL> {
 			cl_float3{{0.0, 0.0, 0.0}},
 			cl_float3{{0.0, 0.0, 0.0}},
 			cl_float3{{1.0, 1.0, 1.0}},
 			cl_float3{{0.0, 0.0, 0.0}},
-			1.0, 1},
+			1.0, faceTexs[4]},
 		Material<LIGHT_MODEL> {
 			cl_float3{{0.0, 0.0, 0.0}},
 			cl_float3{{0.0, 0.0, 0.0}},
 			cl_float3{{1.0, 1.0, 1.0}},
 			cl_float3{{0.0, 0.0, 0.0}},
-			1.0, 1},
+			1.0, faceTexs[5]},
 		Material<LIGHT_MODEL> {
 			cl_float3{{0.5, 0.5, 0.5}},
 			cl_float3{{0.0, 0.0, 0.0}},
 			cl_float3{{0.2, 0.2, 0.6}},
 			cl_float3{{0.5, 0.5, 0.5}},
-			1000.0, 0},
+			1000.0, no_texture},
 		Material<LIGHT_MODEL> {
 			cl_float3{{0.5, 0.5, 0.5}},
 			cl_float3{{0.0, 0.0, 0.0}},
 			cl_float3{{0.6, 0.2, 0.2}},
 			cl_float3{{0.5, 0.5, 0.5}},
-			500.0, 0}
+			500.0, no_texture}
 	}};
 }
 
 template <>
-constexpr std::array<Material<DIFFUSE>, 8>  DefaultMaterials<DIFFUSE>() {
+constexpr std::array<Material<DIFFUSE>, 8>  DefaultMaterials<DIFFUSE>(const std::array<TextureHdl, 6>& faceTexs) {
 	return std::array<Material<DIFFUSE>, 8>{{
 		Material<DIFFUSE> {
 			cl_float3{{0.0, 0.0, 0.0}},
 			cl_float3{{0.0, 0.0, 0.0}},
 			cl_float3{{0.5, 0.1, 0.1}},
-			0},
+			faceTexs[0]},
 		Material<DIFFUSE> {
 			cl_float3{{0.0, 0.0, 0.0}},
 			cl_float3{{0.0, 0.0, 0.0}},
 			cl_float3{{0.1, 0.5, 0.1}},
-			0},
+			faceTexs[1]},
 		Material<DIFFUSE> {
 			cl_float3{{0.0, 0.0, 0.0}},
 			cl_float3{{0.0, 0.0, 0.0}},
 			cl_float3{{0.1, 0.1, 0.5}},
-			0},
+			faceTexs[2]},
 		Material<DIFFUSE> {
 			cl_float3{{0.0, 0.0, 0.0}},
 			cl_float3{{0.0, 0.0, 0.0}},
 			cl_float3{{0.5, 0.1, 0.5}},
-			0},
+			faceTexs[3]},
 		Material<DIFFUSE> {
 			cl_float3{{0.0, 0.0, 0.0}},
 			cl_float3{{0.0, 0.0, 0.0}},
 			cl_float3{{0.5, 0.5, 0.1}},
-			0},
+			faceTexs[4]},
 		Material<DIFFUSE> {
 			cl_float3{{0.0, 0.0, 0.0}},
 			cl_float3{{0.0, 0.0, 0.0}},
 			cl_float3{{0.1, 0.5, 0.5}},
-			0},
+			faceTexs[5]},
 		Material<DIFFUSE> {
 			cl_float3{{0.0, 0.0, 0.0}},
 			cl_float3{{0.0, 0.0, 0.0}},
 			cl_float3{{0.2, 0.2, 0.6}},
-			0},
+			no_texture},
 		Material<DIFFUSE> {
 			cl_float3{{0.0, 0.0, 0.0}},
 			cl_float3{{0.0, 0.0, 0.0}},
 			cl_float3{{0.6, 0.2, 0.2}},
-			0}
+			no_texture}
 		}};
 }
-
 
 #define TOGGLE(i) glm::pow( -1.0f, static_cast<float>( (glm::abs(i)%2)) )
 
@@ -131,7 +129,6 @@ inline void makeTile(int i, int j,
 		std::vector<Triangle>& tris,
 		std::vector<Sphere>& spheres,
 		std::vector<PointLight>& lights) {
-
 
 	glm::mat4 tx =
 			glm::translate(glm::mat4(1.0), glm::vec3(static_cast<float>(i)*wallSize.x, 0.0, static_cast<float>(j)*wallSize.z)) *
@@ -153,7 +150,9 @@ inline void makeTile(int i, int j,
 template<cl_device_type DEVICE_TYPE, LightModel LIGHT_MODEL>
 std::shared_ptr<Scene<DEVICE_TYPE, LIGHT_MODEL>> buildTiledMirrorBox(
 		const glm::vec3& wallSize, const glm::ivec2& numTiles,
-		const std::array<Material<LIGHT_MODEL>, 8>& materials = DefaultMaterials<LIGHT_MODEL>()) {
+		const std::array<TextureHdl, 6>& faceTextures) {
+
+	std::array<Material<LIGHT_MODEL>, 8> materials = DefaultMaterials<LIGHT_MODEL>(faceTextures);
 
 	std::vector<Triangle> tris;
 	std::vector<Sphere> spheres;

@@ -5,8 +5,9 @@
  *      Author: francis
  */
 
-#include <string>
 #include <glm/glm.hpp>
+
+#include <string>
 
 #ifndef DATA_TYPES_H_
 #define DATA_TYPES_H_

@@ -16,8 +16,6 @@
 #ifndef TEXTURE_ATLAS_H_
 #define TEXTURE_ATLAS_H_
 
-typedef unsigned TextureHdl;
-
 class TextureAtlas {
 public:
 	cl::Image2D data;
