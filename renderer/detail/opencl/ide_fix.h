@@ -49,6 +49,14 @@ typedef struct float4 {
 	float3 xyz, xzy, xzw, xyw, yxz, yzx, zxy, zyx;
 } float4;
 
+typedef struct float16 {
+	float s0, s1, s2, s3, s4, s5, s6, s7,
+	s8, s9, sa, sA, sb, sB, sc, sC, sd, sD, se, sE, sf, sF;
+	float2 s01, s02, s03, s04, s05, s06, s07, s08, s09, s0a, s0b, s0c, s0d, s0e, s0f;
+	float3 s012, s013, s014;
+	float4 s0123, s4567, s89ab, s89AB, scdef, sCDEF;
+} float16;
+
 typedef float* image2d_t;
 
 int get_global_id(int);

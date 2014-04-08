@@ -11,11 +11,16 @@ kernel void first_pass(global struct Ray* rayBuffer,
 					   global float4* res,
 					   float16 viewMatrix) {
 	struct Ray ray;
-	ray.origin = (float3) {0.0, 0.0, 4.9999};
+
+	float4 origin = (float4) {0.0, 0.0, 0.0, 1.0};
+	ray.origin = mat16vec4(&viewMatrix, &origin).xyz;
+	
 	ray.direction = normalize((float3) {
 		min(((float)get_global_id(0))/(float)get_global_size(0) - 0.5f, 1.0),
 		min(-((float)get_global_id(1))/(float)get_global_size(1) + 0.5f, 1.0),
 										-0.5});
+	float4 direction = (float4) {ray.direction.x, ray.direction.y, ray.direction.z, 0.0};
+	ray.direction = mat16vec4(&viewMatrix, &direction).xyz;
 	
 	uint i = get_global_size(0)*get_global_id(1) + get_global_id(0);
 	
