@@ -32,7 +32,8 @@ public:
 				devCtx.context, CL_MEM_READ_ONLY,
 				cl::ImageFormat(CL_RGBA, CL_UNORM_INT8), texAtlas.size.x, texAtlas.size.y);
 
-		TextureHdl index = 0;
+		TextureHdl index = 1;
+
 		for(auto i : texAtlas.texPositions) {
 			cl::size_t<3> origin;
 			origin.push_back(i.x);
@@ -43,10 +44,8 @@ public:
 			size.push_back(i.w);
 			size.push_back(1);
 
-			std::cout << "writing texture " << index << " to atlas with first datum " << texArray[index].data()[0] << std::endl;
 			devCtx.commandQueue.enqueueWriteImage(
 					texAtlas.data, true, origin, size, 0, 0, texArray[index++].data());
-			std::cout << "wrote texture " << index << " to atlas" << std::endl;
 		}
 
 		return texAtlas;
@@ -64,7 +63,7 @@ private:
 	static inline glm::ivec2 computePositions(TextureArray& textures, std::vector<glm::ivec4>& texPosns) {
 		// Aggregate all the texture Handles into a vector
 		std::vector<TextureHdl> ids;
-		for(unsigned i = 0; i < textures.size(); i++) {
+		for(unsigned i = 1; i <= textures.size(); i++) {
 			ids.push_back(i);
 		}
 
@@ -89,12 +88,9 @@ private:
 		// Construct a KD tree with textures as leaf nodes
 		TextureAtlasKDTree tree(maxDims);
 
-		// Make sure we have enough space in the position
-		texPosns.resize(ids.size());
-
 		// Pack the texture positions
 		for(auto i : ids) {
-			texPosns[i] = tree.insert(i, dims(textures[i]));
+			texPosns.push_back(tree.insert(i, dims(textures[i])));
 		}
 
 		// Return the size of the texture atlas rounded to the next power of 2
