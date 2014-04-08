@@ -15,8 +15,9 @@
 #define CLK_NORMALIZED_COORDS_TRUE 0
 #define CLK_ADDRESS_REPEAT 0
 #define CLK_FILTER_LINEAR 0
+#define CLK_FILTER_NEAREST 0
 
-typedef uint sampler_t;
+typedef int sampler_t;
 
 typedef struct int2 {
 	int x, y;
@@ -44,8 +45,8 @@ typedef struct float3 {
 
 typedef struct float4 {
 	float x, y, z, w;
-	float2 xy, yx;
-	float3 xyz, xzy, yxz, yzx, zxy, zyx;
+	float2 xy, xz, xw, yx, yz, yw, zx, zy, zw, wx, wy, wz;
+	float3 xyz, xzy, xzw, xyw, yxz, yzx, zxy, zyx;
 } float4;
 
 typedef float* image2d_t;

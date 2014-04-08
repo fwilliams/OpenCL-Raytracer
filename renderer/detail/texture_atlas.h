@@ -20,15 +20,16 @@ class TextureAtlas {
 public:
 	cl::Image2D data;
 	std::vector<glm::ivec4> texPositions;
+	glm::ivec2 size;
 
 	template <cl_device_type DEV_TYPE>
 	static TextureAtlas makeTextureAtlas(ClDeviceContext<DEV_TYPE>& devCtx, TextureArray& texArray) {
 		TextureAtlas texAtlas;
-		glm::ivec2 size = computePositions(texArray, texAtlas.texPositions);
+		texAtlas.size = computePositions(texArray, texAtlas.texPositions);
 
 		texAtlas.data = cl::Image2D(
 				devCtx.context, CL_MEM_READ_ONLY,
-				cl::ImageFormat(CL_RGBA, CL_UNORM_INT8), size.x, size.y);
+				cl::ImageFormat(CL_RGBA, CL_UNORM_INT8), texAtlas.size.x, texAtlas.size.y);
 
 		TextureHdl index = 0;
 		for(auto i : texAtlas.texPositions) {

@@ -40,22 +40,22 @@ struct PointLight {
 	cl_float  attenuation;
 };
 
-enum LightModel {
+enum BRDFType {
 	DIFFUSE,
 	PHONG,
 	BLINN_PHONG,
 	COOK_TORRANCE
 };
 
-template <LightModel Model>
+template <BRDFType BRDF>
 struct Material { };
 
 template <>
 struct Material<DIFFUSE> {
-	cl_float3 reflectivity;
-	cl_float3 transmissivity;
-	cl_float3 color;
-	cl_uint   textureId;
+	cl_float3  reflectivity;
+	cl_float3  transmissivity;
+	cl_float3  color;
+	cl_uint textureId;
 
 	static constexpr const char* name() {
 		return "DIFFUSE_BRDF";
@@ -64,12 +64,12 @@ struct Material<DIFFUSE> {
 
 template <>
 struct Material<PHONG> {
-	cl_float3 reflectivity;
-	cl_float3 transmissivity;
-	cl_float3 kd;
-	cl_float3 ks;
-	cl_float  exp;
-	cl_uint   texDiffuse;
+	cl_float3  reflectivity;
+	cl_float3  transmissivity;
+	cl_float3  kd;
+	cl_float3  ks;
+	cl_float   exp;
+	cl_uint texDiffuse;
 
 	static constexpr const char* name() {
 		return "PHONG_BRDF";
@@ -78,12 +78,12 @@ struct Material<PHONG> {
 
 template <>
 struct Material<BLINN_PHONG> {
-	cl_float3 reflectivity;
-	cl_float3 transmissivity;
-	cl_float3 kd;
-	cl_float3 ks;
-	cl_float  exp;
-	cl_uint   texDiffuse;
+	cl_float3  reflectivity;
+	cl_float3  transmissivity;
+	cl_float3  kd;
+	cl_float3  ks;
+	cl_float   exp;
+	cl_uint texDiffuse;
 
 	static constexpr const char* name() {
 		return "BLINN_PHONG_BRDF";
@@ -95,6 +95,13 @@ struct Ray {
 	cl_float3 direction;
 };
 
+template <BRDFType BRDF>
+struct Scene {
+	std::vector<Triangle> tris;
+	std::vector<Sphere> spheres;
+	std::vector<PointLight> lights;
+	std::vector<Material<BRDF>> materials;
+};
 
 template <typename T>
 void transform(T& object, const glm::mat4& tx);

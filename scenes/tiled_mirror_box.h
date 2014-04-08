@@ -11,7 +11,7 @@
 #include <array>
 #include <algorithm>
 
-#include "renderer/scene.h"
+#include "data_types.h"
 #include "box.h"
 
 #ifndef TILED_MIRROR_BOX_H_
@@ -19,7 +19,7 @@
 
 namespace TiledMirrorBox {
 
-template <LightModel LIGHT_MODEL>
+template <BRDFType LIGHT_MODEL>
 constexpr std::array<Material<LIGHT_MODEL>, 8>  DefaultMaterials(const std::array<TextureHdl, 6>& faceTexs) {
 	return std::array<Material<LIGHT_MODEL>, 8>{{
 		Material<LIGHT_MODEL> {
@@ -147,45 +147,44 @@ inline void makeTile(int i, int j,
 	lights.insert(lights.end(), newLights.begin(), newLights.end());
 }
 
-template<cl_device_type DEVICE_TYPE, LightModel LIGHT_MODEL>
-std::shared_ptr<Scene<DEVICE_TYPE, LIGHT_MODEL>> buildTiledMirrorBox(
+template<BRDFType BRDF>
+Scene<BRDF> buildTiledMirrorBox(
 		const glm::vec3& wallSize, const glm::ivec2& numTiles,
 		const std::array<TextureHdl, 6>& faceTextures) {
 
-	std::array<Material<LIGHT_MODEL>, 8> materials = DefaultMaterials<LIGHT_MODEL>(faceTextures);
+	Scene<BRDF> scene;
 
-	std::vector<Triangle> tris;
-	std::vector<Sphere> spheres;
-	std::vector<PointLight> lights;
+	auto mats = DefaultMaterials<BRDF>(faceTextures);
+	scene.materials = std::vector<Material<BRDF>>(&mats[0], &mats[0]+8);
 
 	glm::vec3 halfSize = wallSize/2.0f;
 
 	// Spheres
 	float radius = std::min(std::min(wallSize.x, wallSize.y), wallSize.z) / 10.0f;
 
-	spheres.push_back(Sphere{radius, cl_float3{{-wallSize.x/8.0f, -halfSize.y+radius, -wallSize.z/8.0f}}, 6});
-	spheres.push_back(Sphere{radius, cl_float3{{ wallSize.x/8.0f, -halfSize.y+radius, -wallSize.z/8.0f}}, 7});
-	spheres.push_back(Sphere{radius, cl_float3{{-wallSize.x/8.0f, -halfSize.y+radius,  wallSize.z/8.0f}}, 7});
-	spheres.push_back(Sphere{radius, cl_float3{{ wallSize.x/8.0f, -halfSize.y+radius,  wallSize.z/8.0f}}, 6});
+	scene.spheres.push_back(Sphere{radius, cl_float3{{-wallSize.x/8.0f, -halfSize.y+radius, -wallSize.z/8.0f}}, 6});
+	scene.spheres.push_back(Sphere{radius, cl_float3{{ wallSize.x/8.0f, -halfSize.y+radius, -wallSize.z/8.0f}}, 7});
+	scene.spheres.push_back(Sphere{radius, cl_float3{{-wallSize.x/8.0f, -halfSize.y+radius,  wallSize.z/8.0f}}, 7});
+	scene.spheres.push_back(Sphere{radius, cl_float3{{ wallSize.x/8.0f, -halfSize.y+radius,  wallSize.z/8.0f}}, 6});
 
 	// Lights
 	glm::vec3 d = wallSize / 30.0f;
-	lights.push_back(
+	scene.lights.push_back(
 			PointLight{
 				cl_float3{{wallSize.x/4.0f, halfSize.y - d.y, wallSize.z/4.0f}},
 				cl_float3{{0.5, 0.5, 0.5}},
 				1.0f/halfSize.y});
-	lights.push_back(
+	scene.lights.push_back(
 			PointLight{
 				cl_float3{{-wallSize.x/4.0f, halfSize.y - d.y, wallSize.z/4.0f}},
 				cl_float3{{0.5, 0.5, 0.5}},
 				1.0f/halfSize.y});
-	lights.push_back(
+	scene.lights.push_back(
 			PointLight{
 				cl_float3{{wallSize.x/4.0f, halfSize.y - d.y, -wallSize.z/4.0f}},
 				cl_float3{{0.5, 0.5, 0.5}},
 				1.0f/halfSize.y});
-	lights.push_back(
+	scene.lights.push_back(
 			PointLight{
 				cl_float3{{-wallSize.x/4.0f, halfSize.y - d.y, -wallSize.z/4.0f}},
 				cl_float3{{0.5, 0.5, 0.5}},
@@ -193,54 +192,46 @@ std::shared_ptr<Scene<DEVICE_TYPE, LIGHT_MODEL>> buildTiledMirrorBox(
 
 	// Box
 	if(numTiles == glm::ivec2(0, 0)) {
-		Box::makeBoxInterior(tris, wallSize);
+		Box::makeBoxInterior(scene.tris, wallSize);
 	} else if(numTiles == glm::ivec2(0, 1)) {
 		Box::makePartialBoxInterior<1>(
-				tris, wallSize, {{Box::Face::FRONT}},
+				scene.tris, wallSize, {{Box::Face::FRONT}},
 				{{0, 1, 3, 4, 5}});
 	} else if(numTiles == glm::ivec2(1, 0)) {
 		Box::makePartialBoxInterior<1>(
-				tris, wallSize, {{Box::Face::RIGHT}},
+				scene.tris, wallSize, {{Box::Face::RIGHT}},
 				{{0, 1, 2, 3, 5}});
 	} else if(numTiles.x == 0) {
 		Box::makePartialBoxInterior<2>(
-				tris, wallSize, {{Box::Face::FRONT, Box::Face::BACK}},
+				scene.tris, wallSize, {{Box::Face::FRONT, Box::Face::BACK}},
 				{{0, 1, 4, 5}});
 	} else if(numTiles.y == 0) {
 		Box::makePartialBoxInterior<2>(
-				tris, wallSize, {{Box::Face::RIGHT, Box::Face::LEFT}});
+				scene.tris, wallSize, {{Box::Face::RIGHT, Box::Face::LEFT}});
 	} else {
 		Box::makePartialBoxInterior<4>(
-				tris, wallSize,
+				scene.tris, wallSize,
 				{{Box::Face::FRONT, Box::Face::BACK, Box::Face::RIGHT, Box::Face::LEFT}});
 	}
 
-	std::vector<Triangle> newTris(tris.size());
-	std::vector<Sphere> newSpheres(spheres.size());
-	std::vector<PointLight> newLights(lights.size());
+	std::vector<Triangle> newTris(scene.tris.size());
+	std::vector<Sphere> newSpheres(scene.spheres.size());
+	std::vector<PointLight> newLights(scene.lights.size());
 
 	for(int i = -numTiles.x; i <= numTiles.x; i++) {
 		for(int j = -numTiles.y; j <= numTiles.y; j++) {
 			if(i != 0 || j != 0) {
 				makeTile(i, j, wallSize,
 						 newTris, newSpheres, newLights,
-						 tris, spheres, lights);
+						 scene.tris, scene.spheres, scene.lights);
 
 			}
 		}
 	}
 
-
-	auto devCtx = std::make_shared<ClDeviceContext<DEVICE_TYPE>>();
-	return std::make_shared<Scene<DEVICE_TYPE, LIGHT_MODEL>>(
-					devCtx, spheres.begin(), spheres.end(),
-					tris.begin(), tris.end(),
-					lights.begin(), lights.end(),
-					materials.begin(), materials.end());
+	return scene;
 }
 
 }
-
-
 
 #endif /* TILED_MIRROR_BOX_H_ */

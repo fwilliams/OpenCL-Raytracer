@@ -6,7 +6,8 @@ kernel void first_pass(global struct Ray* rayBuffer,
 					   global const struct Sphere* spheres,
 					   global const struct PointLight* lights,
 					   global const struct Material* materials,
-					   global const image2d_t texture,
+					   global const float4* texOffsets,
+					   global const image2d_t texAtlas,
 					   global float4* res,
 					   float16 viewMatrix) {
 	struct Ray ray;
@@ -29,7 +30,7 @@ kernel void first_pass(global struct Ray* rayBuffer,
 	if(t < MAX_RENDER_DISTANCE) {
 		float3 intersectPos = ray.origin + ray.direction*t;
 		
-		float3 clr = computeRadiance(&intersectPos, &normal, &texcoord, m, lights, spheres, triangles, texture);
+		float3 clr = computeRadiance(&intersectPos, &normal, &texcoord, m, lights, spheres, triangles, texOffsets, texAtlas);
 		res[i] += (float4) {clr.x, clr.y, clr.z, 0.0};
 		
 		if(dot(m->reflectivity, m->reflectivity) != 0.0) {

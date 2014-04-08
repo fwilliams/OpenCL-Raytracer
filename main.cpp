@@ -102,7 +102,7 @@ int main(int argc, char* argv[]) {
 	  	  	 gli::load_dds("textures/tex2.dds"),
 	  	  	 gli::load_dds("textures/tex3.dds")});
 
-	auto scene = TiledMirrorBox::buildTiledMirrorBox<CL_DEVICE_TYPE_GPU, BLINN_PHONG>(
+	auto scene = TiledMirrorBox::buildTiledMirrorBox<BLINN_PHONG>(
 			glm::vec3(10.0, 10.0, 10.0), glm::ivec2(0, 0),
 			{{texIds[0], texIds[0], texIds[1],
 			  texIds[1], texIds[2], texIds[2]}});

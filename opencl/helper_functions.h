@@ -97,7 +97,7 @@ bool raySphere(struct Ray* r, global const struct Sphere* s, float* outT, float3
 		}
 	}
 
-	*outN = normalize((r->origin+*outT*r->direction) - s->position);
+	*outN = normalize((r->origin+*outT * r->direction) - s->position);
 	return true;
 }
 
@@ -154,9 +154,21 @@ float3 computeRadiance(
 		global const struct PointLight* lights,
 		global const struct Sphere* spheres,
 		global const struct Triangle* tris,
-		global image2d_t texture) {
+		global const float4* texOffsets,
+		global image2d_t texAtlas) {
 
 	float3 color = (float3){0.0, 0.0, 0.0};
+
+	float3 texColor = (float3) {1.0, 1.0, 1.0};
+
+	if(material->textureId != 0) {
+		const sampler_t samp = CLK_NORMALIZED_COORDS_TRUE | CLK_FILTER_NEAREST;
+		float4 texOffset = texOffsets[material->textureId];
+		*texcoord *= texOffset.zw;
+		*texcoord += texOffset.xy;
+		float4 texcolor = read_imagef(texAtlas, samp, *texcoord);
+		texColor = (float3){texcolor.x, texcolor.y, texcolor.z};
+	}
 
 	for(int j = 0; j < NUM_LIGHTS; j++) {
 		float3 L = lights[j].position - *position;
@@ -179,23 +191,17 @@ float3 computeRadiance(
 			float attenuation = (1.0/(1.0 + lights[j].attenuation*distanceToLight));
 
 			#if defined DIFFUSE_BRDF
-			color += attenuation*material->color*lights[j].power*max(0.0f, dot(*normal, L));
+			color += attenuation*texColor*material->color*lights[j].power*max(0.0f, dot(*normal, L));
 
 			#elif defined BLINN_PHONG_BRDF
-			float3 clr = (float3) {1.0, 1.0, 1.0};
-			if(material->textureId != 0) {
-				const sampler_t samp = CLK_NORMALIZED_COORDS_TRUE | CLK_FILTER_LINEAR;
-				float4 texcolor = read_imagef(texture, samp, *texcoord);
-				clr = (float3){texcolor.x, texcolor.y, texcolor.z};
-			}
 
 			float3 H = normalize(L + -*position);
 			color += attenuation *
-					 (lights[j].power * (clr*material->kd*max(0.0f, dot(*normal, L)) +
+					 (lights[j].power * (texColor*material->kd*max(0.0f, dot(*normal, L)) +
 					  material->ks*pow(max(0.0f, dot(*normal, H)), material->exp)));
 			#elif defined PHONG_BRDF
 			color += attenuation *
-					 (lights[j].power * (material->kd*max(0.0f, dot(*normal, L)) +
+					 (lights[j].power * (texColor*material->kd*max(0.0f, dot(*normal, L)) +
 					  material->ks*pow(max(0.0f, dot(*normal, normalize(reflect(L,*normal)))), material->exp)));
 			#elif defined COOK_TORRANCE_BRDF
 
