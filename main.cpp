@@ -107,9 +107,6 @@ int main(int argc, char* argv[]) {
 			{{texIds[0], texIds[0], texIds[1],
 			  texIds[1], texIds[2], texIds[2]}});
 
-	for(auto i : texIds) {
-		std::cout << "Tex: " << i << std::endl;
-	}
 	auto rndr = Renderer<CL_DEVICE_TYPE_GPU, BLINN_PHONG>(
 			scene, textures, kWidth, kHeight,
 			numReflectivePasses, maxViewDistance);
