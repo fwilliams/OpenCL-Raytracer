@@ -11,7 +11,7 @@
 #include <array>
 #include <algorithm>
 
-#include "data_types.h"
+#include "renderer/data_types.h"
 #include "box.h"
 
 #ifndef TILED_MIRROR_BOX_H_
@@ -19,52 +19,52 @@
 
 namespace TiledMirrorBox {
 
-template <BRDFType LIGHT_MODEL>
-constexpr std::array<Material<LIGHT_MODEL>, 8>  DefaultMaterials(const std::array<TextureHdl, 6>& faceTexs) {
-	return std::array<Material<LIGHT_MODEL>, 8>{{
-		Material<LIGHT_MODEL> {
+template <BRDFType BRDF>
+constexpr std::array<Material<BRDF>, 8>  DefaultMaterials(const std::array<TextureHdl, 6>& faceTexs) {
+	return std::array<Material<BRDF>, 8>{{
+		Material<BRDF> {
 			cl_float3{{0.0, 0.0, 0.0}},
 			cl_float3{{0.0, 0.0, 0.0}},
 			cl_float3{{1.0, 1.0, 1.0}},
 			cl_float3{{0.0, 0.0, 0.0}},
 			1.0, faceTexs[0]},
-		Material<LIGHT_MODEL> {
+		Material<BRDF> {
 			cl_float3{{0.0, 0.0, 0.0}},
 			cl_float3{{0.0, 0.0, 0.0}},
 			cl_float3{{1.0, 1.0, 1.0}},
 			cl_float3{{0.0, 0.0, 0.0}},
 			1.0, faceTexs[1]},
-		Material<LIGHT_MODEL> {
+		Material<BRDF> {
 			cl_float3{{0.0, 0.0, 0.0}},
 			cl_float3{{0.0, 0.0, 0.0}},
 			cl_float3{{1.0, 1.0, 1.0}},
 			cl_float3{{0.0, 0.0, 0.0}},
 			1.0, faceTexs[2]},
-		Material<LIGHT_MODEL> {
+		Material<BRDF> {
 			cl_float3{{0.0, 0.0, 0.0}},
 			cl_float3{{0.0, 0.0, 0.0}},
 			cl_float3{{1.0, 1.0, 1.0}},
 			cl_float3{{0.0, 0.0, 0.0}},
 			1.0, faceTexs[3]},
-		Material<LIGHT_MODEL> {
+		Material<BRDF> {
 			cl_float3{{0.0, 0.0, 0.0}},
 			cl_float3{{0.0, 0.0, 0.0}},
 			cl_float3{{1.0, 1.0, 1.0}},
 			cl_float3{{0.0, 0.0, 0.0}},
 			1.0, faceTexs[4]},
-		Material<LIGHT_MODEL> {
+		Material<BRDF> {
 			cl_float3{{0.0, 0.0, 0.0}},
 			cl_float3{{0.0, 0.0, 0.0}},
 			cl_float3{{1.0, 1.0, 1.0}},
 			cl_float3{{0.0, 0.0, 0.0}},
 			1.0, faceTexs[5]},
-		Material<LIGHT_MODEL> {
+		Material<BRDF> {
 			cl_float3{{0.5, 0.5, 0.5}},
 			cl_float3{{0.0, 0.0, 0.0}},
 			cl_float3{{0.2, 0.2, 0.6}},
 			cl_float3{{0.5, 0.5, 0.5}},
 			1000.0, no_texture},
-		Material<LIGHT_MODEL> {
+		Material<BRDF> {
 			cl_float3{{0.5, 0.5, 0.5}},
 			cl_float3{{0.0, 0.0, 0.0}},
 			cl_float3{{0.6, 0.2, 0.2}},

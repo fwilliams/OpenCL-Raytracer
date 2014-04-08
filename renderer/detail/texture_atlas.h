@@ -7,6 +7,7 @@
 
 #include <CL/cl.hpp>
 #include <gli/gli.hpp>
+
 #include <vector>
 #include <algorithm>
 
@@ -42,8 +43,10 @@ public:
 			size.push_back(i.w);
 			size.push_back(1);
 
+			std::cout << "writing texture " << index << " to atlas with first datum " << texArray[index].data()[0] << std::endl;
 			devCtx.commandQueue.enqueueWriteImage(
 					texAtlas.data, true, origin, size, 0, 0, texArray[index++].data());
+			std::cout << "wrote texture " << index << " to atlas" << std::endl;
 		}
 
 		return texAtlas;

@@ -143,7 +143,6 @@ inline float dt(float3 v1, float3 v2) {
 	return v1.x*v2.x + v1.y*v2.y + v1.z*v2.z;
 }
 
-
 float3 reflect(float3 v, float3 n) {
 	return v - 2.0f * dot(v, n) * n;
 }
@@ -161,12 +160,11 @@ float3 computeRadiance(
 
 	float3 texColor = (float3) {1.0, 1.0, 1.0};
 
-	if(material->textureId != 0) {
+	if(material->textureId >= 0) {
 		const sampler_t samp = CLK_NORMALIZED_COORDS_TRUE | CLK_FILTER_NEAREST;
 		float4 texOffset = texOffsets[material->textureId];
-		*texcoord *= texOffset.zw;
-		*texcoord += texOffset.xy;
-		float4 texcolor = read_imagef(texAtlas, samp, *texcoord);
+		float2 texcoordTx = *texcoord * texOffset.zw + texOffset.xy;
+		float4 texcolor = read_imagef(texAtlas, samp, texcoordTx);
 		texColor = (float3){texcolor.x, texcolor.y, texcolor.z};
 	}
 

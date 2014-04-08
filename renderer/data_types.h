@@ -69,7 +69,7 @@ struct Material<PHONG> {
 	cl_float3  kd;
 	cl_float3  ks;
 	cl_float   exp;
-	cl_uint texDiffuse;
+	cl_uint    texDiffuse;
 
 	static constexpr const char* name() {
 		return "PHONG_BRDF";

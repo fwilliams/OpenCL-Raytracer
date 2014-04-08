@@ -5,9 +5,10 @@
  *      Author: francis
  */
 
-#include "data_types.h"
 #include <array>
 #include <vector>
+
+#include "renderer/data_types.h"
 
 #ifndef BOX_H_
 #define BOX_H_
