@@ -15,6 +15,40 @@
 #define RAY_TRI_EPSILON 0.0001
 //#define BACKFACE_CULL
 
+float16 mat16mat16(float16* a, float16* b) {
+	float16 ret;
+	ret.s0 = a->s0 *  b->s0 + a->s4 * b->s1 + a->s8 * b->s2 + a->sc * b->s3;
+	ret.s1 = a->s1 *  b->s0 + a->s5 * b->s1 + a->s9 * b->s2 + a->sd * b->s3;
+	ret.s2 = a->s2 *  b->s0 + a->s6 * b->s1 + a->sa * b->s2 + a->se * b->s3;
+	ret.s3 = a->s3 *  b->s0 + a->s7 * b->s1 + a->sb * b->s2 + a->sf * b->s3;
+
+	ret.s4 = a->s0 *  b->s4 + a->s4 * b->s5 + a->s8 * b->s6 + a->sc * b->s7;
+	ret.s5 = a->s1 *  b->s4 + a->s5 * b->s5 + a->s9 * b->s6 + a->sd * b->s7;
+	ret.s6 = a->s2 *  b->s4 + a->s6 * b->s5 + a->sa * b->s6 + a->se * b->s7;
+	ret.s7 = a->s3 *  b->s4 + a->s7 * b->s5 + a->sb * b->s6 + a->sf * b->s7;
+
+	ret.s8 = a->s0 *  b->s8 + a->s4 * b->s9 + a->s8 * b->sa + a->sc * b->sb;
+	ret.s9 = a->s1 *  b->s8 + a->s5 * b->s9 + a->s9 * b->sa + a->sd * b->sb;
+	ret.sa = a->s2 *  b->s8 + a->s6 * b->s9 + a->sa * b->sa + a->se * b->sb;
+	ret.sb = a->s3 *  b->s8 + a->s7 * b->s9 + a->sb * b->sa + a->sf * b->sb;
+
+	ret.sc = a->s0 *  b->sc + a->s4 * b->sd + a->s8 * b->se + a->sc * b->sf;
+	ret.sd = a->s1 *  b->sc + a->s5 * b->sd + a->s9 * b->se + a->sd * b->sf;
+	ret.se = a->s2 *  b->sc + a->s6 * b->sd + a->sa * b->se + a->se * b->sf;
+	ret.sf = a->s3 *  b->sc + a->s7 * b->sd + a->sb * b->se + a->sf * b->sf;
+
+	return ret;
+}
+
+float4 mat16vec4(float16* a, float4* b) {
+	float4 ret;
+	ret.x = a->s0 * b->x + a->s4 * b->y + a->s8 * b->z + a->sc * b->w;
+	ret.y = a->s1 * b->x + a->s5 * b->y + a->s9 * b->z + a->sd * b->w;
+	ret.z = a->s2 * b->x + a->s6 * b->y + a->sa * b->z + a->se * b->w;
+	ret.w = a->s3 * b->x + a->s7 * b->y + a->sb * b->z + a->sf * b->w;
+	return ret;
+}
+
 bool rayTriangle(struct Ray* ray, global const struct Triangle* tri, float* outT, float3* outN, float2* outTexCoord) {
 	float3 e1, e2;
 	float3 P, Q, T;
@@ -161,7 +195,7 @@ float3 computeRadiance(
 	float3 texColor = (float3) {1.0, 1.0, 1.0};
 
 	if(material->textureId != 0) {
-		const sampler_t samp = CLK_NORMALIZED_COORDS_TRUE | CLK_FILTER_NEAREST;
+		const sampler_t samp = CLK_NORMALIZED_COORDS_TRUE | CLK_FILTER_LINEAR;
 		float4 texOffset = texOffsets[material->textureId - 1];
 		float2 texcoordTx = *texcoord * texOffset.zw + texOffset.xy;
 		float4 texcolor = read_imagef(texAtlas, samp, texcoordTx);
@@ -207,40 +241,6 @@ float3 computeRadiance(
 		}
 	}
 	return color;
-}
-
-float16 mat16mat16(float16* a, float16* b) {
-	float16 ret;
-	ret.s0 = a->s0 *  b->s0 + a->s4 * b->s1 + a->s8 * b->s2 + a->sc * b->s3;
-	ret.s1 = a->s1 *  b->s0 + a->s5 * b->s1 + a->s9 * b->s2 + a->sd * b->s3;
-	ret.s2 = a->s2 *  b->s0 + a->s6 * b->s1 + a->sa * b->s2 + a->se * b->s3;
-	ret.s3 = a->s3 *  b->s0 + a->s7 * b->s1 + a->sb * b->s2 + a->sf * b->s3;
-
-	ret.s4 = a->s0 *  b->s4 + a->s4 * b->s5 + a->s8 * b->s6 + a->sc * b->s7;
-	ret.s5 = a->s1 *  b->s4 + a->s5 * b->s5 + a->s9 * b->s6 + a->sd * b->s7;
-	ret.s6 = a->s2 *  b->s4 + a->s6 * b->s5 + a->sa * b->s6 + a->se * b->s7;
-	ret.s7 = a->s3 *  b->s4 + a->s7 * b->s5 + a->sb * b->s6 + a->sf * b->s7;
-
-	ret.s8 = a->s0 *  b->s8 + a->s4 * b->s9 + a->s8 * b->sa + a->sc * b->sb;
-	ret.s9 = a->s1 *  b->s8 + a->s5 * b->s9 + a->s9 * b->sa + a->sd * b->sb;
-	ret.sa = a->s2 *  b->s8 + a->s6 * b->s9 + a->sa * b->sa + a->se * b->sb;
-	ret.sb = a->s3 *  b->s8 + a->s7 * b->s9 + a->sb * b->sa + a->sf * b->sb;
-
-	ret.sc = a->s0 *  b->sc + a->s4 * b->sd + a->s8 * b->se + a->sc * b->sf;
-	ret.sd = a->s1 *  b->sc + a->s5 * b->sd + a->s9 * b->se + a->sd * b->sf;
-	ret.se = a->s2 *  b->sc + a->s6 * b->sd + a->sa * b->se + a->se * b->sf;
-	ret.sf = a->s3 *  b->sc + a->s7 * b->sd + a->sb * b->se + a->sf * b->sf;
-
-	return ret;
-}
-
-float4 mat16vec4(float16* a, float4* b) {
-	float4 ret;
-	ret.x = a->s0 * b->x + a->s4 * b->y + a->s8 * b->z + a->sc * b->w;
-	ret.y = a->s1 * b->x + a->s5 * b->y + a->s9 * b->z + a->sd * b->w;
-	ret.z = a->s2 * b->x + a->s6 * b->y + a->sa * b->z + a->se * b->w;
-	ret.w = a->s3 * b->x + a->s7 * b->y + a->sb * b->z + a->sf * b->w;
-	return ret;
 }
 
 #endif /* CL_GEOMETRY_H_ */

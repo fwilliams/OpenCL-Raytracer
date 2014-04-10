@@ -13,6 +13,8 @@
 #include <iostream>
 #include <map>
 
+#define __CL_ENABLE_EXCEPTIONS
+
 #ifndef CL_DEVICE_CONTEXT_H_
 #define CL_DEVICE_CONTEXT_H_
 
@@ -59,7 +61,7 @@ struct ClDeviceContext {
 			defineString.append(
 					std::string("-D")+i->first+std::string("=")+i->second+std::string(" "));
 		}
-		defineString.append(std::string("-I ") + baseDir + std::string("////////////////////./////////.//////////./"));
+		defineString.append(std::string("-I ") + baseDir + std::string("////////////////////./////////.///////////./"));
 
 		cl::Program program(context, sources);
 

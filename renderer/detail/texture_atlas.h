@@ -45,7 +45,7 @@ public:
 			size.push_back(1);
 
 			devCtx.commandQueue.enqueueWriteImage(
-					texAtlas.data, true, origin, size, 0, 0, texArray[index++].data());
+					texAtlas.data, false, origin, size, 0, 0, texArray[index++].data());
 		}
 
 		return texAtlas;
@@ -88,9 +88,12 @@ private:
 		// Construct a KD tree with textures as leaf nodes
 		TextureAtlasKDTree tree(maxDims);
 
+		// Ensure there is enough space to pack the texture offsets
+		texPosns.resize(ids.size());
+
 		// Pack the texture positions
 		for(auto i : ids) {
-			texPosns.push_back(tree.insert(i, dims(textures[i])));
+			texPosns[i-1] = tree.insert(i, dims(textures[i]));
 		}
 
 		// Return the size of the texture atlas rounded to the next power of 2

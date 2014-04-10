@@ -172,22 +172,22 @@ Scene<BRDF> buildTiledMirrorBox(
 	scene.lights.push_back(
 			PointLight{
 				cl_float3{{wallSize.x/4.0f, halfSize.y - d.y, wallSize.z/4.0f}},
-				cl_float3{{0.5, 0.5, 0.5}},
+				cl_float3{{0.75, 0.25, 0.25}},
 				1.0f/halfSize.y});
 	scene.lights.push_back(
 			PointLight{
 				cl_float3{{-wallSize.x/4.0f, halfSize.y - d.y, wallSize.z/4.0f}},
-				cl_float3{{0.5, 0.5, 0.5}},
+				cl_float3{{0.25, 0.75, 0.25}},
 				1.0f/halfSize.y});
 	scene.lights.push_back(
 			PointLight{
 				cl_float3{{wallSize.x/4.0f, halfSize.y - d.y, -wallSize.z/4.0f}},
-				cl_float3{{0.5, 0.5, 0.5}},
+				cl_float3{{0.25, 0.25, 0.75}},
 				1.0f/halfSize.y});
 	scene.lights.push_back(
 			PointLight{
 				cl_float3{{-wallSize.x/4.0f, halfSize.y - d.y, -wallSize.z/4.0f}},
-				cl_float3{{0.5, 0.5, 0.5}},
+				cl_float3{{0.75, 0.25, 0.75}},
 				1.0f/halfSize.y});
 
 	// Box

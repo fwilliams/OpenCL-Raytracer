@@ -47,7 +47,7 @@ void initOpenGL() {
 template <typename Renderer>
 void render(int delta, Renderer& rndr) {
 	glm::mat4 viewMatrix;
-	viewMatrix = glm::lookAt(glm::vec3(0.0, 0.0, 0.0), glm::vec3(1.0, 0.0, 1.0), glm::vec3(0.0, 1.0, 0.0));
+	viewMatrix = glm::inverse(glm::lookAt(glm::vec3(3.0, 2.0, 4.99), glm::vec3(0.0, -4.0, 0.0), glm::vec3(0.0, 1.0, 0.0)));
 	rndr.renderToTexture(renderTex, mat4ToFloat16(viewMatrix));
 
 	glClearColor(1, 1, 1, 1);
@@ -97,15 +97,18 @@ void update(int delta) {}
 
 int main(int argc, char* argv[]) {
 	TextureArray textures;
-	auto texIds = textures.createTextures<3>(
+	auto texIds = textures.createTextures<6>(
 			{gli::load_dds("textures/tex1.dds"),
 	  	  	 gli::load_dds("textures/tex2.dds"),
-	  	  	 gli::load_dds("textures/tex3.dds")});
+	  	  	 gli::load_dds("textures/tex3.dds"),
+	  	  	 gli::load_dds("textures/bricks.dds"),
+	  	  	 gli::load_dds("textures/bricks_normals.dds"),
+	  	  	 gli::load_dds("textures/tex4.dds")});
 
 	auto scene = TiledMirrorBox::buildTiledMirrorBox<BLINN_PHONG>(
-			glm::vec3(10.0, 10.0, 10.0), glm::ivec2(0, 0),
-			{{texIds[0], texIds[0], texIds[1],
-			  texIds[1], texIds[2], texIds[2]}});
+			glm::vec3(10.0, 10.0, 10.0), glm::ivec2(0, 10),
+			{{texIds[0], texIds[1], texIds[2],
+			  texIds[3], texIds[4], texIds[5]}});
 
 	auto rndr = Renderer<CL_DEVICE_TYPE_GPU, BLINN_PHONG>(
 			scene, textures, kWidth, kHeight,
