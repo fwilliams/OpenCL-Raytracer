@@ -106,7 +106,7 @@ int main(int argc, char* argv[]) {
 	  	  	 gli::load_dds("textures/tex4.dds")});
 
 	auto scene = TiledMirrorBox::buildTiledMirrorBox<BLINN_PHONG>(
-			glm::vec3(10.0, 10.0, 10.0), glm::ivec2(0, 10),
+			glm::vec3(10.0, 10.0, 10.0), glm::ivec2(0, 3),
 			{{texIds[0], texIds[1], texIds[2],
 			  texIds[3], texIds[4], texIds[5]}});
 
