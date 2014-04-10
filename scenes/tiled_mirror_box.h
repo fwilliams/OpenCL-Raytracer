@@ -121,6 +121,33 @@ constexpr std::array<Material<DIFFUSE>, 8>  DefaultMaterials<DIFFUSE>(const std:
 
 #define TOGGLE(i) glm::pow( -1.0f, static_cast<float>( (glm::abs(i)%2)) )
 
+
+void makeTranslationalFundamentalDomain(
+		const glm::vec3& wallSize,
+		std::vector<Triangle>& newTris,
+		std::vector<Sphere>& newSpheres,
+		std::vector<PointLight>& newLights,
+		std::vector<Triangle>& tris,
+		std::vector<Sphere>& spheres,
+		std::vector<PointLight>& lights) {
+
+	for(unsigned i = 0; i < tris.size(); i += 2) {
+		glm::mat4 tx = glm::scale(glm::mat4(1.0), glm::vec3(-tris[i].normal.s[0], -tris[i].normal.s[1], -tris[i].normal.s[2]));
+
+		std::transform(tris.begin(), tris.begin()+newTris.size(), newTris.begin(),
+				[&tx](Triangle val){transform<Triangle>(val, tx); return val;});
+		tris.insert(tris.end(), newTris.begin(), newTris.end());
+
+		std::transform(spheres.begin(), spheres.begin()+newSpheres.size(), newSpheres.begin(),
+				[&tx](Sphere val){transform<Sphere>(val, tx); return val;});
+		spheres.insert(spheres.end(), newSpheres.begin(), newSpheres.end());
+
+		std::transform(lights.begin(), lights.begin()+newLights.size(), newLights.begin(),
+				[&tx](PointLight val){transform<PointLight>(val, tx); return val;});
+		lights.insert(lights.end(), newLights.begin(), newLights.end());
+	}
+}
+
 inline void makeTile(int i, int j,
 		const glm::vec3& wallSize,
 		std::vector<Triangle>& newTris,

@@ -5,6 +5,7 @@
  *      Author: francis
  */
 
+#include <CL/cl.hpp>
 #include <glm/glm.hpp>
 
 #include <string>

@@ -28,6 +28,13 @@ public:
 		TextureAtlas texAtlas;
 		texAtlas.size = computePositions(texArray, texAtlas.texPositions);
 
+		if(texAtlas.size == glm::ivec2(0, 0)) {
+			texAtlas.data = cl::Image2D(
+							devCtx.context, CL_MEM_READ_ONLY,
+							cl::ImageFormat(CL_RGBA, CL_UNORM_INT8), 1, 1);
+			return texAtlas;
+		}
+
 		texAtlas.data = cl::Image2D(
 				devCtx.context, CL_MEM_READ_ONLY,
 				cl::ImageFormat(CL_RGBA, CL_UNORM_INT8), texAtlas.size.x, texAtlas.size.y);

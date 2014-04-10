@@ -89,7 +89,11 @@ public:
 	}
 
 	glm::ivec2 getSize() {
-		return glm::ivec2(root->rect.z, root->rect.w);
+		if(root != nullptr) {
+			return glm::ivec2(root->rect.z, root->rect.w);
+		} else {
+			return glm::ivec2(0, 0);
+		}
 	}
 
 	glm::ivec4 insert(unsigned texId, glm::ivec2 size) {

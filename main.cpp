@@ -32,8 +32,8 @@ void initOpenGL() {
 
 	glGenTextures(1, &renderTex);
 	glBindTexture(GL_TEXTURE_2D, renderTex);
-	glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, kWidth, kHeight, 0, GL_RGBA, GL_FLOAT, nullptr);
 	glBindTexture(GL_TEXTURE_2D, 0);
 
@@ -106,7 +106,7 @@ int main(int argc, char* argv[]) {
 	  	  	 gli::load_dds("textures/tex4.dds")});
 
 	auto scene = TiledMirrorBox::buildTiledMirrorBox<BLINN_PHONG>(
-			glm::vec3(10.0, 10.0, 10.0), glm::ivec2(0, 3),
+			glm::vec3(10.0, 10.0, 10.0), glm::ivec2(0, 0),
 			{{texIds[0], texIds[1], texIds[2],
 			  texIds[3], texIds[4], texIds[5]}});
 
