@@ -6,26 +6,28 @@
 #include <vector>
 #include <unistd.h>
 
-#include <SDL/SDL.h>
-#include <SDL/SDL_opengl.h>
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_opengl.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
 #include "renderer/renderer.h"
 #include "scenes/tiled_mirror_box.h"
+#include "orbit_camera.h"
 
-//#define RENDER_LIGHTS
-
-using namespace std;
-
-const int kWidth = 800;
-const int kHeight = 600;
-const int numReflectivePasses = 0;
+const int kWidth = 512;
+const int kHeight = 512;
+const int numReflectivePasses = 2;
 const double maxViewDistance = 1000000.0;
-const bool kFullscreen = false;
 
 GLuint renderTex;
+
+SDL_Cursor *arrow, *hand;
+SDL_Window* displayWindow;
+SDL_Renderer* displayRenderer;
+
+OrbitCamera camera(glm::vec2(0.5), 4.0f, glm::vec2(1.0, 4.9));
 
 void initOpenGL() {
 	glEnable(GL_TEXTURE_2D);
@@ -46,9 +48,7 @@ void initOpenGL() {
 
 template <typename Renderer>
 void render(int delta, Renderer& rndr) {
-	glm::mat4 viewMatrix;
-	viewMatrix = glm::inverse(glm::lookAt(glm::vec3(3.0, 2.0, 4.99), glm::vec3(0.0, -4.0, 0.0), glm::vec3(0.0, 1.0, 0.0)));
-	rndr.renderToTexture(renderTex, mat4ToFloat16(viewMatrix));
+	rndr.renderToTexture(renderTex, mat4ToFloat16(camera.getViewMatrix()));
 
 	glClearColor(1, 1, 1, 1);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -90,10 +90,17 @@ void render(int delta, Renderer& rndr) {
 	glMatrixMode(GL_MODELVIEW);
 #endif
 
-	SDL_GL_SwapBuffers();
+	SDL_GL_SwapWindow(displayWindow);
 }
 
-void update(int delta) {}
+void update(int delta, SDL_Event& evt) {
+	camera.update(evt);
+	if(camera.isMoving()) {
+		SDL_SetCursor(hand);
+	} else {
+		SDL_SetCursor(arrow);
+	}
+}
 
 int main(int argc, char* argv[]) {
 	TextureArray textures;
@@ -115,20 +122,17 @@ int main(int argc, char* argv[]) {
 			numReflectivePasses, maxViewDistance);
 
 	SDL_Init(SDL_INIT_EVERYTHING);
+	SDL_CreateWindowAndRenderer(kWidth, kHeight, SDL_WINDOW_OPENGL, &displayWindow, &displayRenderer);
 
-	Uint32 flags = SDL_OPENGL;
-	if(kFullscreen) {
-		flags |= SDL_FULLSCREEN;
-		SDL_ShowCursor(0);
-	}
-
-	SDL_SetVideoMode(kWidth, kHeight, 32, flags);
+	arrow = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_ARROW);
+	hand = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_CROSSHAIR);
 
 	initOpenGL();
 
 	bool loop = true;
 	int lastTicks = SDL_GetTicks();
 	bool first = true;
+
 	while(loop) {
 		int delta = SDL_GetTicks() - lastTicks;
 		lastTicks = SDL_GetTicks();
@@ -139,19 +143,20 @@ int main(int argc, char* argv[]) {
 			} else if(e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_ESCAPE) {
 				loop = false;
 			}
+			update(delta, e);
 			usleep(1000);
 		}
-		if(first) {
+		if(true) {
 			render(1.0, rndr);
 			first = false;
 		}
-		update(delta);
-		usleep(30000);
 
 		std::stringstream ss;
 		ss << 1000.0f / delta;
-		SDL_WM_SetCaption(ss.str().c_str(), 0);
+		SDL_SetWindowTitle(displayWindow, ss.str().c_str());
 	}
+
+	SDL_Quit();
 
 	return 0;
 }
