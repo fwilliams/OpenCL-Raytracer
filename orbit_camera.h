@@ -47,8 +47,9 @@ public:
 				lastMousePos = mousePos;
 			}
 		} else if(evt.type == SDL_MOUSEWHEEL) {
-
-			radius -= evt.wheel.y * vel.z;
+			radius = glm::clamp(
+					radius - evt.wheel.y * vel.z,
+					radiusRange.x, radiusRange.y);
 		}
 	}
 

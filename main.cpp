@@ -27,7 +27,7 @@ SDL_Cursor *arrow, *hand;
 SDL_Window* displayWindow;
 SDL_Renderer* displayRenderer;
 
-OrbitCamera camera(glm::vec2(0.5), 4.0f, glm::vec2(1.0, 4.9));
+OrbitCamera camera(glm::vec3(0.5), 4.0f, glm::vec2(1.0, 4.9));
 
 void initOpenGL() {
 	glEnable(GL_TEXTURE_2D);
@@ -125,7 +125,7 @@ int main(int argc, char* argv[]) {
 	SDL_CreateWindowAndRenderer(kWidth, kHeight, SDL_WINDOW_OPENGL, &displayWindow, &displayRenderer);
 
 	arrow = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_ARROW);
-	hand = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_CROSSHAIR);
+	hand = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_SIZEALL);
 
 	initOpenGL();
 
