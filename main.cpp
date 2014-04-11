@@ -1,14 +1,4 @@
-
-#include <CL/cl.h>
-#include <iostream>
-#include <fstream>
-#include <sstream>
-#include <vector>
-#include <unistd.h>
-
 #include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
 
 #include "renderer/renderer.h"
 #include "scenes/tiled_mirror_box.h"
@@ -16,15 +6,15 @@
 #include "sdl_app.h"
 
 struct App {
-	static const int width = 512;
-	static const int height = 512;
+	static const int width = 800;
+	static const int height = 600;
 
-	const int numReflectivePasses = 2;
+	const int numReflectivePasses = 0;
 	const double maxViewDistance = 10000.0;
 
 	GLuint renderTex;
 	SDL_Cursor *arrow, *hand;
-	OrbitCamera camera = OrbitCamera(glm::vec3(0.5), 4.0f, glm::vec2(1.0, 4.9));
+	OrbitCamera camera = OrbitCamera(glm::vec3(0.005, 0.005, 0.5), 4.0f, glm::vec2(1.0, 4.9));
 	Renderer<CL_DEVICE_TYPE_GPU, BLINN_PHONG>* rndr;
 
 
