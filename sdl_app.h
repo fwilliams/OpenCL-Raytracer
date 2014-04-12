@@ -9,7 +9,7 @@
 #include <SDL2/SDL_opengl.h>
 
 #include <sstream>
-#include <unistd.h>
+
 #ifndef SDL_APP_H_
 #define SDL_APP_H_
 
@@ -44,7 +44,7 @@ private:
 
 	void mainLoop(bool interactive) {
 		bool loop = true;
-		int lastTicks = SDL_GetTicks();\
+		int lastTicks = SDL_GetTicks();
 		bool first = true;
 
 		while(loop) {
@@ -58,7 +58,7 @@ private:
 
 				app.update(delta, e);
 
-				usleep(1000);
+				SDL_Delay(1);
 			}
 
 			if(first) {
