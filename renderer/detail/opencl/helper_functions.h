@@ -173,6 +173,35 @@ float intersect(
 	return minT;
 }
 
+float intersectTest(
+		struct Ray* ray,
+		global const struct Sphere* spheres,
+		global const struct Triangle* tris) {
+	float minT = MAX_RENDER_DISTANCE;
+	float3 n;
+	float2 tc;
+
+	for(int i = 0; i < NUM_SPHERES; i++) {
+		float t;
+		if(raySphere(ray, &spheres[i], &t, &n)) {
+			if(t < minT){
+				minT = t;
+			}
+		}
+	}
+
+	for(int i = 0; i < NUM_TRIANGLES; i++) {
+		float t;
+		if(rayTriangle(ray, &tris[i], &t, &n, &tc)) {
+			if(t < minT){
+				minT = t;
+			}
+		}
+	}
+
+	return minT;
+}
+
 inline float dt(float3 v1, float3 v2) {
 	return v1.x*v2.x + v1.y*v2.y + v1.z*v2.z;
 }
@@ -198,8 +227,7 @@ float3 computeRadiance(
 		const sampler_t samp = CLK_FILTER_LINEAR;
 		float4 texOffset = texOffsets[material->textureId - 1];
 		float2 texcoordTx = *texcoord * texOffset.zw + texOffset.xy;
-		float4 texcolor = read_imagef(texAtlas, samp, texcoordTx);
-		texColor = (float3){texcolor.x, texcolor.y, texcolor.z};
+		texColor = read_imagef(texAtlas, samp, texcoordTx).xyz;
 	}
 
 	for(int j = 0; j < NUM_LIGHTS; j++) {
@@ -208,16 +236,10 @@ float3 computeRadiance(
 		L = normalize(L);
 
 		struct Ray shadowRay;
-		shadowRay.origin = *position + L*RAY_SURFACE_EPSILON;
+		shadowRay.origin = *position + L * RAY_SURFACE_EPSILON;
 		shadowRay.direction = L;
 
-		int index;
-		uint type;
-		float3 n;
-		float2 tc;
-		global const struct Material* mat;
-
-		float st = intersect(&shadowRay, spheres, tris, 0, &n, &tc, &mat);
+		float st = intersectTest(&shadowRay, spheres, tris);
 
 		if(st > distanceToLight) {
 			float attenuation = (1.0/(1.0 + lights[j].attenuation*distanceToLight));
