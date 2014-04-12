@@ -15,22 +15,55 @@
 #ifndef KALEIDESCOPE_H_
 #define KALEIDESCOPE_H_
 
-class Kaleidescope {
-public:
-
-	Kaleidescope(const std::vector<unsigned>& kpoints, float scale) {
+namespace Kaleidescope {
+	template <BRDFType BRDF>
+	constexpr std::array<Material<BRDF>, 2> defaultMaterials() {
+		return std::array<Material<BRDF>, 2>{{
+			Material<BRDF> {
+				cl_float3{{0.0, 0.0, 0.0}},
+				cl_float3{{0.0, 0.0, 0.0}},
+				cl_float3{{0.2, 0.2, 0.6}},
+				cl_float3{{0.0, 0.0, 0.0}},
+				1000.0, no_texture},
+			Material<BRDF> {
+				cl_float3{{0.0, 0.0, 0.0}},
+				cl_float3{{0.0, 0.0, 0.0}},
+				cl_float3{{0.6, 0.2, 0.2}},
+				cl_float3{{0.0, 0.0, 0.0}},
+				500.0, no_texture}
+		}};
 	}
 
-	std::vector<Triangle> triangles;
-	// Need ceiling and floor material
-	// Need way of putting lights and spheres in scene
+	template <>
+	constexpr std::array<Material<DIFFUSE>, 2>  defaultMaterials<DIFFUSE>() {
+		return std::array<Material<DIFFUSE>, 2>{{
+			Material<DIFFUSE> {
+				cl_float3{{0.0, 0.0, 0.0}},
+				cl_float3{{0.0, 0.0, 0.0}},
+				cl_float3{{0.2, 0.2, 0.6}},
+				no_texture},
+			Material<DIFFUSE> {
+				cl_float3{{0.0, 0.0, 0.0}},
+				cl_float3{{0.0, 0.0, 0.0}},
+				cl_float3{{0.6, 0.2, 0.2}},
+				no_texture}
+			}};
+	}
 
-	std::vector<Triangle> triangleFromAngles(const std::array<unsigned, 3>& kpoints, float scale, float depth) {
+	template <typename RandomAccessIterator>
+	RandomAccessIterator cyclic_next(RandomAccessIterator it, RandomAccessIterator cycleBegin, RandomAccessIterator cycleEnd){
+		if(it == cycleEnd - 1) {
+			return cycleBegin;
+		} else {
+			return it + 1;
+		}
+	}
+
+	void triangleFromAngles(const std::array<unsigned, 3>& kpoints, float scale, float depth, std::vector<Triangle>& triangles) {
 		auto minAngleIter = std::max_element(kpoints.begin(), kpoints.end());
 		auto nextAngleIter = minAngleIter;
 
 		float minAngle = glm::pi<float>() / static_cast<float>(*minAngleIter);
-		std::vector<Triangle> tris;
 		Triangle t;
 
 		glm::mat4 rotate = glm::rotate(glm::mat4(1.0), minAngle, glm::vec3(0.0, 0.0, 1.0));
@@ -42,14 +75,11 @@ public:
 		t.v1 = cl_float3{{0.0f, 0.0f, depth}};
 
 		nextAngleIter = cyclic_next(nextAngleIter, kpoints.begin(), kpoints.end());
-		std::cout << *nextAngleIter << std::endl;
 		glm::vec2 v2 = glm::vec2(scale*glm::sin(glm::pi<float>() / static_cast<float>(*nextAngleIter)) / sinA, 0.0);
 		t.v2 = cl_float3{{v2.x, v2.y, depth}};
 
 		nextAngleIter = cyclic_next(nextAngleIter, kpoints.begin(), kpoints.end());
-		std::cout << *nextAngleIter << std::endl;
 		glm::vec4 direction = rotate * glm::vec4(1.0, 0.0, 0.0, 0.0);
-		std::cout << glm::to_string(direction) << std::endl;
 		glm::vec2 v3 = glm::vec2(direction) * scale * (glm::sin(glm::pi<float>() / static_cast<float>(*nextAngleIter)) / sinA);
 		t.v3 = cl_float3{{v3.x, v3.y, depth}};
 
@@ -57,7 +87,7 @@ public:
 		t.normal = cl_float3{{n.x, n.y, n.z}};
 		t.materialId = 0;
 
-		tris.push_back(t);
+		triangles.push_back(t);
 
 
 		glm::mat4 tx = rotate * glm::scale(glm::mat4(1.0), glm::vec3(1.0, -1.0, 1.0)) * invRotate;
@@ -65,23 +95,37 @@ public:
 		Triangle t2 = t;
 		t2.materialId = 1;
 		transform<Triangle>(t2, tx);
-		tris.push_back(t2);
+		triangles.push_back(t2);
 
 		for(unsigned i = 0; i < *minAngleIter; i++) {
-			Triangle t3= tris[tris.size()-2];
-			Triangle t4 = tris[tris.size()-1];
+			Triangle t3= triangles[triangles.size()-2];
+			Triangle t4 = triangles[triangles.size()-1];
 			t3.materialId = 0;
 			t4.materialId = 1;
 
 			transform<Triangle>(t3, rotate2);
 			transform<Triangle>(t4, rotate2);
 
-			tris.push_back(t3);
-			tris.push_back(t4);
+			triangles.push_back(t3);
+			triangles.push_back(t4);
 		}
+	}
 
+	template <BRDFType BRDF>
+	Scene<BRDF> buildKaleidescope(const std::array<unsigned, 3>& kpoints, float scale, float depth) {
+		auto mats = defaultMaterials<BRDF>();
+		std::vector<Triangle> tris;
+		triangleFromAngles(kpoints, scale, depth, tris);
 
-		return tris;
+		std::vector<PointLight> lights;
+		lights.push_back(PointLight{ cl_float3{{0.0f, 0.0f, 5.0f}}, cl_float3{{0.7f, 0.7f, 0.7f}}, 0.01f });
+
+		Scene<BRDF> scene {
+			tris, std::vector<Sphere>(), lights
+		};
+		scene.materials = std::vector<Material<BRDF>>(&mats[0], &mats[0]+mats.size());
+
+		return scene;
 	}
 };
 
