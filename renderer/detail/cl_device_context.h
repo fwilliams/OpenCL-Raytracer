@@ -29,7 +29,7 @@ struct ClDeviceContext {
 
 		device = allDevices[0];
 
-		context = cl::Context( { device });
+ 		context = cl::Context({ device });
 
 		commandQueue = cl::CommandQueue(context, allDevices[0]);
 	}
@@ -69,7 +69,7 @@ struct ClDeviceContext {
 			defineString.append(
 					std::string("-D")+i->first+std::string("=")+i->second+std::string(" "));
 		}
-		defineString.append(std::string("-I ") + baseDir + std::string("///////////////////////////////////////////./////////////.//////////////./"));
+		defineString.append(std::string("-I ") + baseDir + std::string("///////////////////////////////////////////././././/////////////////./////////////.//////////////./"));
 
 		cl::Program program(context, sources);
 
