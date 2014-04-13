@@ -49,15 +49,15 @@ float4 mat16vec4(float16* a, float4* b) {
 	return ret;
 }
 
-bool rayTriangle(struct Ray* ray, global const struct Triangle* tri, float* outT, float3* outN, float2* outTexCoord) {
+bool rayTriangle(struct Ray* ray, struct Triangle tri, float* outT, float3* outN, float2* outTexCoord) {
 	float3 e1, e2;
 	float3 P, Q, T;
 	float det, invDet, u, v;
 	float t;
 
 	//Find vectors for two edges sharing v1
-	e1 = tri->v2 - tri->v1;
-	e2 = tri->v3 - tri->v1;
+	e1 = tri.v2 - tri.v1;
+	e2 = tri.v3 - tri.v1;
 
 	//Begin calculating determinant - also used to calculate u parameter
 	P = cross(ray->direction, e2);
@@ -76,7 +76,7 @@ bool rayTriangle(struct Ray* ray, global const struct Triangle* tri, float* outT
 	invDet = 1.0f / det;
 
 	//calculate distance from V1 to ray origin
-	T = ray->origin - tri->v1;
+	T = ray->origin - tri.v1;
 
 	//Calculate u parameter and test bound
 	u = dot(T, P) * invDet;
@@ -99,12 +99,12 @@ bool rayTriangle(struct Ray* ray, global const struct Triangle* tri, float* outT
 
 	if(t > RAY_TRI_EPSILON) {
 		*outT = t;
-		*outTexCoord = (1.0-u-v)*tri->vt1 + u*tri->vt2 + v*tri->vt3;
+		*outTexCoord = (1.0-u-v)*tri.vt1 + u*tri.vt2 + v*tri.vt3;
 
-		if(dot(tri->normal, tri->normal) == 0.0) {
+		if(dot(tri.normal, tri.normal) == 0.0) {
 			*outN = normalize(cross(e1, e2));
 		} else {
-			*outN = normalize(tri->normal);
+			*outN = normalize(tri.normal);
 		}
 		return true;
 	}
@@ -112,10 +112,10 @@ bool rayTriangle(struct Ray* ray, global const struct Triangle* tri, float* outT
 	return false;
 }
 
-bool raySphere(struct Ray* r, global const struct Sphere* s, float* outT, float3* outN) {
-	float3 rayToCenter = s->position - r->origin ;
+bool raySphere(struct Ray* r, struct Sphere s, float* outT, float3* outN) {
+	float3 rayToCenter = s.position - r->origin ;
 	float dotProduct = dot(r->direction, rayToCenter);
-	float d = dotProduct*dotProduct - dot(rayToCenter,rayToCenter)+s->radius*s->radius;
+	float d = dotProduct * dotProduct - dot(rayToCenter,rayToCenter) + s.radius * s.radius;
 	float sqrtd = sqrt(d);
 
 	if(d < 0) {
@@ -131,7 +131,7 @@ bool raySphere(struct Ray* r, global const struct Sphere* s, float* outT, float3
 		}
 	}
 
-	*outN = normalize((r->origin+*outT * r->direction) - s->position);
+	*outN = normalize((r->origin+*outT * r->direction) - s.position);
 	return true;
 }
 
@@ -148,7 +148,7 @@ float intersect(
 
 	for(int i = 0; i < NUM_SPHERES; i++) {
 		float t;
-		if(raySphere(ray, &spheres[i], &t, &n)) {
+		if(raySphere(ray, spheres[i], &t, &n)) {
 			if(t < minT){
 				minT = t;
 				*outMat = &mats[spheres[i].materialId];
@@ -160,7 +160,7 @@ float intersect(
 
 	for(int i = 0; i < NUM_TRIANGLES; i++) {
 		float t;
-		if(rayTriangle(ray, &tris[i], &t, &n, &tc)) {
+		if(rayTriangle(ray, tris[i], &t, &n, &tc)) {
 			if(t < minT){
 				minT = t;
 				*outMat = &mats[tris[i].materialId];
@@ -183,7 +183,7 @@ float intersectTest(
 
 	for(int i = 0; i < NUM_SPHERES; i++) {
 		float t;
-		if(raySphere(ray, &spheres[i], &t, &n)) {
+		if(raySphere(ray, spheres[i], &t, &n)) {
 			if(t < minT){
 				minT = t;
 			}
@@ -192,7 +192,7 @@ float intersectTest(
 
 	for(int i = 0; i < NUM_TRIANGLES; i++) {
 		float t;
-		if(rayTriangle(ray, &tris[i], &t, &n, &tc)) {
+		if(rayTriangle(ray, tris[i], &t, &n, &tc)) {
 			if(t < minT){
 				minT = t;
 			}
@@ -217,7 +217,7 @@ float3 computeRadiance(
 		global const struct Sphere* spheres,
 		global const struct Triangle* tris,
 		global const float4* texOffsets,
-		global image2d_t texAtlas) {
+		const image2d_t texAtlas) {
 
 	float3 color = (float3){0.0, 0.0, 0.0};
 

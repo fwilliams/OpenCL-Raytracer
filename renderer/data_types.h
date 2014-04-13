@@ -5,10 +5,11 @@
  *      Author: francis
  */
 
-#include <CL/cl.hpp>
 #include <glm/glm.hpp>
 
 #include <string>
+
+#include "detail/cl_device_context.h"
 
 #ifndef DATA_TYPES_H_
 #define DATA_TYPES_H_

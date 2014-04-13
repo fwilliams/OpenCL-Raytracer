@@ -5,9 +5,6 @@
  *      Author: francis
  */
 
-#define __CL_ENABLE_EXCEPTIONS
-
-#include <CL/cl.hpp>
 #include <GL/gl.h>
 #include <gli/gli.hpp>
 
@@ -18,6 +15,7 @@
 #include "data_types.h"
 #include "texture_array.h"
 #include "detail/texture_atlas.h"
+#include "detail/cl_device_context.h"
 
 #ifndef RENDERER_H_
 #define RENDERER_H_
@@ -91,6 +89,8 @@ struct Renderer {
 				GL_TEXTURE_2D,
 				0, GL_RGBA, viewportWidth, viewportHeight, 0, GL_RGBA, GL_FLOAT, pixels);
 		glBindTexture(GL_TEXTURE_2D, 0);
+
+		deviceContext.commandQueue.finish();
 	}
 
 private:

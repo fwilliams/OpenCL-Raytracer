@@ -7,13 +7,12 @@ kernel void first_pass(global struct Ray* rayBuffer,
 					   global const struct PointLight* lights,
 					   global const struct Material* materials,
 					   global const float4* texOffsets,
-					   global const image2d_t texAtlas,
+					   const image2d_t texAtlas,
 					   global float4* res,
 					   float16 viewMatrix) {
 	struct Ray ray;
 
-	float4 origin = (float4) {0.0, 0.0, 0.0, 1.0};
-	ray.origin = mat16vec4(&viewMatrix, &origin).xyz;
+	ray.origin = mat16vec4(&viewMatrix, &(float4) {0.0, 0.0, 0.0, 1.0}).xyz;
 	
 	float4 direction = normalize((float4) {
 		min(((float)get_global_id(0))/(float)get_global_size(0) - 0.5f, 1.0),

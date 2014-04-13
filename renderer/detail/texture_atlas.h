@@ -5,7 +5,6 @@
  *      Author: francis
  */
 
-#include <CL/cl.hpp>
 #include <gli/gli.hpp>
 
 #include <vector>
