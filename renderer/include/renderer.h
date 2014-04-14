@@ -93,7 +93,7 @@ struct Renderer {
 private:
 	const std::string FIRST_PASS_FILE_NAME = "first_pass.cl";
 	const std::string RFLCT_PASS_FILE_NAME = "reflect_pass.cl";
-	const std::string OPENCL_BASE_DIR = "renderer/detail/opencl";
+	const std::string OPENCL_BASE_DIR = "renderer/include/detail/opencl";
 
 	ClDeviceContext<DEVICE_TYPE> deviceContext;
 	unsigned numReflectivePasses;

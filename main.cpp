@@ -3,7 +3,7 @@
 
 #include <iostream>
 
-#include "renderer/renderer.h"
+#include "renderer.h"
 #include "scenes/tiled_mirror_box.h"
 #include "orbit_camera.h"
 #include "sdl_app.h"

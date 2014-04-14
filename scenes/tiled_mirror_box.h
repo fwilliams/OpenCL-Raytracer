@@ -12,7 +12,7 @@
 #include <array>
 #include <algorithm>
 
-#include "renderer/data_types.h"
+#include "data_types.h"
 #include "box.h"
 
 #ifndef TILED_MIRROR_BOX_H_

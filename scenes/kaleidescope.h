@@ -10,7 +10,7 @@
 
 #include <algorithm>
 
-#include "renderer/data_types.h"
+#include "renderer.h"
 
 #ifndef KALEIDESCOPE_H_
 #define KALEIDESCOPE_H_
