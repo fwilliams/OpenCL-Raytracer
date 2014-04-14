@@ -35,7 +35,7 @@ struct Sphere {
 };
 
 struct Triangle {
-	float3 v1, v2, v3;
+	float3 vp1, vp2, vp3;
 	float2 vt1, vt2, vt3;
 	float3 normal;
 	uint   materialId;

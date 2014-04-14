@@ -136,15 +136,15 @@ void makeTranslationalFundamentalDomain(
 		glm::mat4 tx = glm::scale(glm::mat4(1.0), glm::vec3(-tris[i].normal.s[0], -tris[i].normal.s[1], -tris[i].normal.s[2]));
 
 		std::transform(tris.begin(), tris.begin()+newTris.size(), newTris.begin(),
-				[&tx](Triangle val){transform<Triangle>(val, tx); return val;});
+				[&tx](Triangle val){return transform<Triangle>(val, tx);});
 		tris.insert(tris.end(), newTris.begin(), newTris.end());
 
 		std::transform(spheres.begin(), spheres.begin()+newSpheres.size(), newSpheres.begin(),
-				[&tx](Sphere val){transform<Sphere>(val, tx); return val;});
+				[&tx](Sphere val){return transform<Sphere>(val, tx);});
 		spheres.insert(spheres.end(), newSpheres.begin(), newSpheres.end());
 
 		std::transform(lights.begin(), lights.begin()+newLights.size(), newLights.begin(),
-				[&tx](PointLight val){transform<PointLight>(val, tx); return val;});
+				[&tx](PointLight val){return transform<PointLight>(val, tx);});
 		lights.insert(lights.end(), newLights.begin(), newLights.end());
 	}
 }

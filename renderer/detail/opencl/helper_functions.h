@@ -56,8 +56,8 @@ bool rayTriangle(struct Ray* ray, struct Triangle tri, float* outT, float3* outN
 	float t;
 
 	//Find vectors for two edges sharing v1
-	e1 = tri.v2 - tri.v1;
-	e2 = tri.v3 - tri.v1;
+	e1 = tri.vp2 - tri.vp1;
+	e2 = tri.vp3 - tri.vp1;
 
 	//Begin calculating determinant - also used to calculate u parameter
 	P = cross(ray->direction, e2);
@@ -76,7 +76,7 @@ bool rayTriangle(struct Ray* ray, struct Triangle tri, float* outT, float3* outN
 	invDet = 1.0f / det;
 
 	//calculate distance from V1 to ray origin
-	T = ray->origin - tri.v1;
+	T = ray->origin - tri.vp1;
 
 	//Calculate u parameter and test bound
 	u = dot(T, P) * invDet;
@@ -100,12 +100,7 @@ bool rayTriangle(struct Ray* ray, struct Triangle tri, float* outT, float3* outN
 	if(t > RAY_TRI_EPSILON) {
 		*outT = t;
 		*outTexCoord = (1.0-u-v)*tri.vt1 + u*tri.vt2 + v*tri.vt3;
-
-		if(dot(tri.normal, tri.normal) == 0.0) {
-			*outN = normalize(cross(e1, e2));
-		} else {
-			*outN = normalize(tri.normal);
-		}
+		*outN = normalize(tri.normal);
 		return true;
 	}
 

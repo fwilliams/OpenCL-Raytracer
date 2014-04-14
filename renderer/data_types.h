@@ -24,23 +24,88 @@ constexpr cl_float16 mat4ToFloat16(const glm::mat4& mat) {
 }
 
 struct Sphere {
+	void transform(const glm::mat4& tx) {
+		glm::vec4 newPos(position.s[0], position.s[1], position.s[2], 1.0);
+		newPos = tx * newPos;
+		position = cl_float3{{newPos.x, newPos.y, newPos.z}};
+	}
+
 	cl_float  radius;
 	cl_float3 position;
 	cl_uint   materialId;
 };
 
 struct Triangle {
-	cl_float3 v1, v2, v3;
+	void transform(const glm::mat4& tx) {
+		glm::vec4 newV;
+
+		newV = tx * glm::vec4(vp1.s[0], vp1.s[1], vp1.s[2], 1.0);
+		vp1 = {{newV.x, newV.y, newV.z}};
+
+		newV = tx * glm::vec4(vp2.s[0], vp2.s[1], vp2.s[2], 1.0);
+		vp2 = {{newV.x, newV.y, newV.z}};
+
+		newV = tx * glm::vec4(vp3.s[0], vp3.s[1], vp3.s[2], 1.0);
+		vp3 = {{newV.x, newV.y, newV.z}};
+
+		glm::vec3 newN;
+		newN = glm::transpose(glm::inverse(glm::mat3(tx))) *
+				glm::vec3(normal.s[0], normal.s[1], normal.s[2]);
+		normal = {{newN.x, newN.y, newN.z}};
+	}
+
+	cl_float3 vp1, vp2, vp3;
 	cl_float2 vt1, vt2, vt3;
 	cl_float3 normal;
 	cl_uint   materialId;
 };
 
+struct Quad {
+	void transform(const glm::mat4& tx) {
+		glm::vec4 newV;
+
+		newV = tx * glm::vec4(vp1.s[0], vp1.s[1], vp1.s[2], 1.0);
+		vp1 = {{newV.x, newV.y, newV.z}};
+
+		newV = tx * glm::vec4(vp2.s[0], vp2.s[1], vp2.s[2], 1.0);
+		vp2 = {{newV.x, newV.y, newV.z}};
+
+		newV = tx * glm::vec4(vp3.s[0], vp3.s[1], vp3.s[2], 1.0);
+		vp3 = {{newV.x, newV.y, newV.z}};
+
+		newV = tx * glm::vec4(vp4.s[0], vp4.s[1], vp4.s[2], 1.0);
+		vp4 = {{newV.x, newV.y, newV.z}};
+
+		glm::vec3 newN;
+		newN = glm::transpose(glm::inverse(glm::mat3(tx))) *
+				glm::vec3(normal.s[0], normal.s[1], normal.s[2]);
+		normal = {{newN.x, newN.y, newN.z}};
+	}
+
+	cl_float3 vp1, vp2, vp3, vp4;
+	cl_float2 vt1, vt2, vt3, vt4;
+	cl_float3 normal;
+	cl_uint   materialId;
+};
+
 struct PointLight {
+	void transform(const glm::mat4& tx) {
+		glm::vec4 newPos;
+		newPos = tx * glm::vec4(position.s[0], position.s[1], position.s[2], 1.0);
+		position = {{newPos.x, newPos.y, newPos.z}};
+	}
+
 	cl_float3 position;
 	cl_float3 power;
 	cl_float  attenuation;
 };
+
+template <typename T>
+T transform(T& object, const glm::mat4& tx) {
+	T t = object;
+	t.transform(tx);
+	return t;
+}
 
 enum BRDFType {
 	DIFFUSE,
@@ -104,37 +169,5 @@ struct Scene {
 	std::vector<PointLight> lights;
 	std::vector<Material<BRDF>> materials;
 };
-
-template <typename T>
-void transform(T& object, const glm::mat4& tx);
-
-template <>
-void transform<Sphere>(Sphere& sphere, const glm::mat4& tx) {
-	glm::vec4 pos = tx * glm::vec4(sphere.position.s[0], sphere.position.s[1], sphere.position.s[2], 1.0);
-	sphere.position = {{pos.x, pos.y, pos.z}};
-}
-
-template <>
-void transform<Triangle>(Triangle& tri, const glm::mat4& tx) {
-	glm::vec4 v;
-
-	v = tx * glm::vec4(tri.v1.s[0], tri.v1.s[1], tri.v1.s[2], 1.0);
-	tri.v1 = {{v.x, v.y, v.z}};
-
-	v = tx * glm::vec4(tri.v2.s[0], tri.v2.s[1], tri.v2.s[2], 1.0);
-	tri.v2 = {{v.x, v.y, v.z}};
-
-	v = tx * glm::vec4(tri.v3.s[0], tri.v3.s[1], tri.v3.s[2], 1.0);
-	tri.v3 = {{v.x, v.y, v.z}};
-
-	v = tx * glm::vec4(tri.normal.s[0], tri.normal.s[1], tri.normal.s[2], 0.0);
-	tri.normal = {{v.x, v.y, v.z}};
-}
-
-template <>
-void transform<PointLight>(PointLight& light, const glm::mat4& tx) {
-	glm::vec4 pos = tx * glm::vec4(light.position.s[0], light.position.s[1], light.position.s[2], 1.0);
-	light.position = {{pos.x, pos.y, pos.z}};
-}
 
 #endif /* DATA_TYPES_H_ */

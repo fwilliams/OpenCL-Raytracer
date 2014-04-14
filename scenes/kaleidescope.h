@@ -72,16 +72,16 @@ namespace Kaleidescope {
 
 		float sinA = glm::sin(minAngle);
 
-		t.v1 = cl_float3{{0.0f, 0.0f, depth}};
+		t.vp1 = cl_float3{{0.0f, 0.0f, depth}};
 
 		nextAngleIter = cyclic_next(nextAngleIter, kpoints.begin(), kpoints.end());
 		glm::vec2 v2 = glm::vec2(scale*glm::sin(glm::pi<float>() / static_cast<float>(*nextAngleIter)) / sinA, 0.0);
-		t.v2 = cl_float3{{v2.x, v2.y, depth}};
+		t.vp2 = cl_float3{{v2.x, v2.y, depth}};
 
 		nextAngleIter = cyclic_next(nextAngleIter, kpoints.begin(), kpoints.end());
 		glm::vec4 direction = rotate * glm::vec4(1.0, 0.0, 0.0, 0.0);
 		glm::vec2 v3 = glm::vec2(direction) * scale * (glm::sin(glm::pi<float>() / static_cast<float>(*nextAngleIter)) / sinA);
-		t.v3 = cl_float3{{v3.x, v3.y, depth}};
+		t.vp3 = cl_float3{{v3.x, v3.y, depth}};
 
 		glm::vec3 n(0.0, 0.0, 1.0);
 		t.normal = cl_float3{{n.x, n.y, n.z}};
