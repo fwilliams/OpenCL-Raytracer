@@ -89,22 +89,17 @@ namespace Kaleidescope {
 
 		triangles.push_back(t);
 
-
 		glm::mat4 tx = rotate * glm::scale(glm::mat4(1.0), glm::vec3(1.0, -1.0, 1.0)) * invRotate;
-
-		Triangle t2 = t;
+		Triangle t2 = transform<Triangle>(t, tx);
 		t2.materialId = 1;
-		transform<Triangle>(t2, tx);
 		triangles.push_back(t2);
 
 		for(unsigned i = 0; i < *minAngleIter; i++) {
-			Triangle t3= triangles[triangles.size()-2];
-			Triangle t4 = triangles[triangles.size()-1];
+			Triangle t3 = transform<Triangle>(triangles[triangles.size()-2], rotate2);
+			Triangle t4 =transform<Triangle>(triangles[triangles.size()-1], rotate2);
+
 			t3.materialId = 0;
 			t4.materialId = 1;
-
-			transform<Triangle>(t3, rotate2);
-			transform<Triangle>(t4, rotate2);
 
 			triangles.push_back(t3);
 			triangles.push_back(t4);
