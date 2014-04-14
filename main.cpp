@@ -47,25 +47,25 @@ struct App {
 
 
 	void init() {
-		TextureArray textures;
+		Scene<BLINN_PHONG> scene;
 
-//		auto texIds = textures.createTextures<6>(
-//				{gli::load_dds("textures/tex1.dds"),
-//				 gli::load_dds("textures/tex2.dds"),
-//				 gli::load_dds("textures/tex3.dds"),
-//				 gli::load_dds("textures/bricks.dds"),
-//				 gli::load_dds("textures/bricks_normals.dds"),
-//				 gli::load_dds("textures/tex4.dds")});
-//
-//		auto scene = TiledMirrorBox::buildTiledMirrorBox<BLINN_PHONG>(
-//				glm::vec3(10.0, 10.0, 10.0), glm::ivec2(0, 0),
-//				{{texIds[0], texIds[1], texIds[2],
-//				  texIds[3], texIds[4], texIds[5]}});
+		auto texIds = scene.textures.createTextures<6>(
+				{gli::load_dds("textures/tex1.dds"),
+				 gli::load_dds("textures/tex2.dds"),
+				 gli::load_dds("textures/tex3.dds"),
+				 gli::load_dds("textures/bricks.dds"),
+				 gli::load_dds("textures/bricks_normals.dds"),
+				 gli::load_dds("textures/tex4.dds")});
 
-		auto scene = Kaleidescope::buildKaleidescope<BLINN_PHONG>(std::array<unsigned, 3>{{4, 4, 2}}, 1.0f, 0.0f);
+		TiledMirrorBox::buildTiledMirrorBox<BLINN_PHONG>(scene,
+				glm::vec3(10.0, 10.0, 10.0), glm::ivec2(0, 0),
+				{{texIds[0], texIds[1], texIds[2],
+				  texIds[3], texIds[4], texIds[5]}});
+
+//		auto scene = Kaleidescope::buildKaleidescope<BLINN_PHONG>(std::array<unsigned, 3>{{4, 4, 2}}, 1.0f, 0.0f);
 
 		rndr = new Renderer<CL_DEVICE_TYPE_GPU, BLINN_PHONG>(
-				scene, textures, width, height,
+				scene, width, height,
 				numReflectivePasses, maxViewDistance);
 
 		arrow = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_ARROW);

@@ -162,12 +162,4 @@ struct Ray {
 	cl_float3 direction;
 };
 
-template <BRDFType BRDF>
-struct Scene {
-	std::vector<Triangle> tris;
-	std::vector<Sphere> spheres;
-	std::vector<PointLight> lights;
-	std::vector<Material<BRDF>> materials;
-};
-
 #endif /* DATA_TYPES_H_ */

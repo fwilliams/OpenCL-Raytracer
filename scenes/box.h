@@ -9,6 +9,7 @@
 #include <vector>
 
 #include "renderer/data_types.h"
+#include "renderer/geometry_array.h"
 
 #ifndef BOX_H_
 #define BOX_H_

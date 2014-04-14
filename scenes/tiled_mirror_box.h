@@ -177,86 +177,92 @@ inline void makeTile(int i, int j,
 
 template<BRDFType BRDF>
 Scene<BRDF> buildTiledMirrorBox(
+		Scene<BRDF>& scene,
 		const glm::vec3& wallSize, const glm::ivec2& numTiles,
 		const std::array<TextureHdl, 6>& faceTextures) {
 
-	Scene<BRDF> scene;
-
 	auto mats = DefaultMaterials<BRDF>(faceTextures);
-	scene.materials = std::vector<Material<BRDF>>(&mats[0], &mats[0]+8);
+	unsigned matOffset = scene.materials.size();
+	scene.materials.insert(scene.materials.end(), &mats[0], &mats[0]+8);
 
 	glm::vec3 halfSize = wallSize/2.0f;
 
 	// Spheres
+	std::vector<Sphere> spheres;
 	float radius = std::min(std::min(wallSize.x, wallSize.y), wallSize.z) / 10.0f;
 
-	scene.spheres.push_back(Sphere{radius, cl_float3{{-wallSize.x/8.0f, -halfSize.y+radius, -wallSize.z/8.0f}}, 6});
-	scene.spheres.push_back(Sphere{radius, cl_float3{{ wallSize.x/8.0f, -halfSize.y+radius, -wallSize.z/8.0f}}, 7});
-	scene.spheres.push_back(Sphere{radius, cl_float3{{-wallSize.x/8.0f, -halfSize.y+radius,  wallSize.z/8.0f}}, 7});
-	scene.spheres.push_back(Sphere{radius, cl_float3{{ wallSize.x/8.0f, -halfSize.y+radius,  wallSize.z/8.0f}}, 6});
+	spheres.push_back(Sphere{radius, cl_float3{{-wallSize.x/8.0f, -halfSize.y+radius, -wallSize.z/8.0f}}, 6});
+	spheres.push_back(Sphere{radius, cl_float3{{ wallSize.x/8.0f, -halfSize.y+radius, -wallSize.z/8.0f}}, 7});
+	spheres.push_back(Sphere{radius, cl_float3{{-wallSize.x/8.0f, -halfSize.y+radius,  wallSize.z/8.0f}}, 7});
+	spheres.push_back(Sphere{radius, cl_float3{{ wallSize.x/8.0f, -halfSize.y+radius,  wallSize.z/8.0f}}, 6});
 
 	// Lights
+	std::vector<PointLight> lights;
 	glm::vec3 d = wallSize / 30.0f;
-	scene.lights.push_back(
+	lights.push_back(
 			PointLight{
 				cl_float3{{wallSize.x/4.0f, halfSize.y - d.y, wallSize.z/4.0f}},
 				cl_float3{{0.75, 0.25, 0.25}},
 				1.0f/halfSize.y});
-	scene.lights.push_back(
+	lights.push_back(
 			PointLight{
 				cl_float3{{-wallSize.x/4.0f, halfSize.y - d.y, wallSize.z/4.0f}},
 				cl_float3{{0.25, 0.75, 0.25}},
 				1.0f/halfSize.y});
-	scene.lights.push_back(
+	lights.push_back(
 			PointLight{
 				cl_float3{{wallSize.x/4.0f, halfSize.y - d.y, -wallSize.z/4.0f}},
 				cl_float3{{0.25, 0.25, 0.75}},
 				1.0f/halfSize.y});
-	scene.lights.push_back(
+	lights.push_back(
 			PointLight{
 				cl_float3{{-wallSize.x/4.0f, halfSize.y - d.y, -wallSize.z/4.0f}},
 				cl_float3{{0.75, 0.25, 0.75}},
 				1.0f/halfSize.y});
 
 	// Box
+	std::vector<Triangle> tris;
 	if(numTiles == glm::ivec2(0, 0)) {
-		Box::makeBoxInterior(scene.tris, wallSize);
+		Box::makeBoxInterior(tris, wallSize, matOffset);
 	} else if(numTiles == glm::ivec2(0, 1)) {
 		Box::makePartialBoxInterior<1>(
-				scene.tris, wallSize, {{Box::Face::FRONT}},
-				{{0, 1, 3, 4, 5}});
+				tris, wallSize, {{Box::Face::FRONT}},
+				{{matOffset, matOffset+1, matOffset+3, matOffset+4, matOffset+5}});
 	} else if(numTiles == glm::ivec2(1, 0)) {
 		Box::makePartialBoxInterior<1>(
-				scene.tris, wallSize, {{Box::Face::RIGHT}},
-				{{0, 1, 2, 3, 5}});
+				tris, wallSize, {{Box::Face::RIGHT}},
+				{{matOffset, matOffset+1, matOffset+2, matOffset+3, matOffset+5}});
 	} else if(numTiles.x == 0) {
 		Box::makePartialBoxInterior<2>(
-				scene.tris, wallSize, {{Box::Face::FRONT, Box::Face::BACK}},
-				{{0, 1, 4, 5}});
+				tris, wallSize, {{Box::Face::FRONT, Box::Face::BACK}},
+				{{matOffset+0, matOffset+1, matOffset+4, matOffset+5}});
 	} else if(numTiles.y == 0) {
 		Box::makePartialBoxInterior<2>(
-				scene.tris, wallSize, {{Box::Face::RIGHT, Box::Face::LEFT}});
+				tris, wallSize, {{Box::Face::RIGHT, Box::Face::LEFT}}, {{matOffset, matOffset+1}});
 	} else {
 		Box::makePartialBoxInterior<4>(
-				scene.tris, wallSize,
+				tris, wallSize,
 				{{Box::Face::FRONT, Box::Face::BACK, Box::Face::RIGHT, Box::Face::LEFT}});
 	}
 
-	std::vector<Triangle> newTris(scene.tris.size());
-	std::vector<Sphere> newSpheres(scene.spheres.size());
-	std::vector<PointLight> newLights(scene.lights.size());
+	std::vector<Triangle> newTris(tris.size());
+	std::vector<Sphere> newSpheres(spheres.size());
+	std::vector<PointLight> newLights(lights.size());
 
 	for(int i = -numTiles.x; i <= numTiles.x; i++) {
 		for(int j = -numTiles.y; j <= numTiles.y; j++) {
 			if(i != 0 || j != 0) {
 				makeTile(i, j, wallSize,
 						 newTris, newSpheres, newLights,
-						 scene.tris, scene.spheres, scene.lights);
+						 tris, spheres, lights);
 
 			}
 		}
 	}
 
+	scene.geometry.addTriangles(tris.begin(), tris.end());
+	scene.geometry.addSpheres(spheres.begin(), spheres.end());
+	scene.lights.insert(scene.lights.end(), lights.begin(), lights.end());
 	return scene;
 }
 

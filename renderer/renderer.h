@@ -6,14 +6,12 @@
  */
 
 #include <GL/gl.h>
-#include <gli/gli.hpp>
 
 #include <memory>
 #include <vector>
 #include <string>
 
-#include "data_types.h"
-#include "texture_array.h"
+#include "scene.h"
 #include "detail/texture_atlas.h"
 #include "detail/cl_device_context.h"
 
@@ -23,7 +21,6 @@
 template <cl_device_type DEVICE_TYPE, BRDFType BRDF>
 struct Renderer {
 	Renderer(Scene<BRDF>& scene,
-			 TextureArray& textureArray,
 			 size_t vpWidth, size_t vpHeight,
 			 unsigned reflectivePasses, double maxRenderDistance) :
 					deviceContext(ClDeviceContext<DEVICE_TYPE>()), numReflectivePasses(reflectivePasses),
@@ -31,8 +28,8 @@ struct Renderer {
 
 		// Create the program
 		std::map<std::string, std::string> defines {
-			{"NUM_SPHERES", std::to_string(scene.spheres.size())},
-			{"NUM_TRIANGLES", std::to_string(scene.tris.size())},
+			{"NUM_SPHERES", std::to_string(scene.geometry.numSpheres())},
+			{"NUM_TRIANGLES", std::to_string(scene.geometry.numTriangles())},
 			{"NUM_LIGHTS", std::to_string(scene.lights.size())},
 			{"NUM_MATERIALS", std::to_string(scene.materials.size())},
 			{"MAX_RENDER_DISTANCE", std::to_string(maxRenderDistance)},
@@ -49,7 +46,7 @@ struct Renderer {
 				cl::NullRange, cl::NDRange(viewportWidth, viewportHeight),
 				cl::NullRange);
 
-		texAtlas = TextureAtlas::makeTextureAtlas(deviceContext, textureArray);
+		texAtlas = TextureAtlas::makeTextureAtlas(deviceContext, scene.textures);
 		packCLBuffers(scene);
 	}
 
@@ -112,18 +109,18 @@ private:
 		reflectivityBuf = cl::Buffer(deviceContext.context, CL_MEM_READ_WRITE, sizeof(cl_float3)*viewportWidth*viewportHeight);
 		resImg = cl::Buffer(deviceContext.context, CL_MEM_READ_WRITE, sizeof(cl_float4)*viewportWidth*viewportHeight);
 
-		if(!scene.spheres.empty()) {
-			size_t sphereByteSize = sizeof(Sphere) * scene.spheres.size();
+		if(scene.geometry.numSpheres() != 0) {
+			size_t sphereByteSize = sizeof(Sphere) * scene.geometry.numSpheres();
 			sphereBuf = cl::Buffer(deviceContext.context, CL_MEM_READ_ONLY, sphereByteSize);
 			deviceContext.commandQueue.enqueueWriteBuffer(
-					sphereBuf, true, 0, sphereByteSize, scene.spheres.data());
+					sphereBuf, true, 0, sphereByteSize, scene.geometry.sphereData());
 		}
 
-		if(!scene.tris.empty()) {
-			size_t trisByteSize = sizeof(Triangle) *scene.tris.size();
+		if(scene.geometry.numTriangles() != 0) {
+			size_t trisByteSize = sizeof(Triangle) * scene.geometry.numTriangles();
 			triBuf = cl::Buffer(deviceContext.context, CL_MEM_READ_ONLY, trisByteSize);
 			deviceContext.commandQueue.enqueueWriteBuffer(
-					triBuf, true, 0, trisByteSize, scene.tris.data());
+					triBuf, true, 0, trisByteSize, scene.geometry.triData());
 		}
 
 		if(!scene.lights.empty()) {
