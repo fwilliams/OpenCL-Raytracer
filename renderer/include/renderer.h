@@ -20,6 +20,9 @@
 
 template <cl_device_type DEVICE_TYPE, BRDFType BRDF>
 struct Renderer {
+	~Renderer() {
+		std::cout << "Nuking renderer" << std::endl;
+	}
 	Renderer(Scene<BRDF>& scene,
 			 size_t vpWidth, size_t vpHeight,
 			 unsigned reflectivePasses, double maxRenderDistance) :

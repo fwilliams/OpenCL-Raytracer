@@ -69,7 +69,7 @@ struct ClDeviceContext {
 			defineString.append(
 					std::string("-D")+i->first+std::string("=")+i->second+std::string(" "));
 		}
-		defineString.append(std::string("-I ") + baseDir + std::string("////////////////////////////////////////////////././././/////////////////./////////////.//////////////./"));
+		defineString.append(std::string("-I ") + baseDir + std::string("//////////////////////////////////////////////////////////////////////////////////////////////////////././././/////////////////./////////////.//////////////./"));
 
 		cl::Program program(context, sources);
 

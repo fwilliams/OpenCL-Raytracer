@@ -221,7 +221,7 @@ float3 computeRadiance(
 	if(material->textureId != 0) {
 		const sampler_t samp = CLK_FILTER_LINEAR;
 		float4 texOffset = texOffsets[material->textureId - 1];
-		float2 texcoordTx = *texcoord * texOffset.zw + texOffset.xy;
+		float2 texcoordTx = ((*texcoord) * texOffset.zw) + texOffset.xy;
 		texColor = read_imagef(texAtlas, samp, texcoordTx).xyz;
 	}
 

@@ -20,12 +20,12 @@ struct App {
 
 	GLuint renderTex;
 	SDL_Cursor *arrow, *hand;
-	OrbitCamera camera = OrbitCamera(glm::vec3(0.005, 0.005, 0.5), 4.0f, glm::vec2(1.0, 4.9));
+	OrbitCamera camera = OrbitCamera(glm::vec3(0.005, 0.005, 0.5), 4.0f, glm::vec2(5.0, 40.0));
 	Renderer<CL_DEVICE_TYPE_GPU, BLINN_PHONG>* rndr;
-
 
 	~App() {
 		delete rndr;
+		glDeleteTextures(1, &renderTex);
 	}
 
 	void initGL() {
@@ -57,12 +57,14 @@ struct App {
 				 gli::load_dds("textures/bricks_normals.dds"),
 				 gli::load_dds("textures/tex4.dds")});
 
-		TiledMirrorBox::buildTiledMirrorBox<BLINN_PHONG>(scene,
-				glm::vec3(10.0, 10.0, 10.0), glm::ivec2(0, 0),
-				{{texIds[0], texIds[1], texIds[2],
-				  texIds[3], texIds[4], texIds[5]}});
+		auto texId = scene.textures.createTexture(gli::load_dds("textures/bricks.dds"));
 
-//		auto scene = Kaleidescope::buildKaleidescope<BLINN_PHONG>(std::array<unsigned, 3>{{4, 4, 2}}, 1.0f, 0.0f);
+//		TiledMirrorBox::buildTiledMirrorBox<BLINN_PHONG>(scene,
+//				glm::vec3(10.0, 10.0, 10.0), glm::ivec2(0, 0),
+//				{{texIds[0], texIds[1], texIds[2],
+//				  texIds[3], texIds[4], texIds[5]}});
+
+		Kaleidescope::buildKaleidescope<BLINN_PHONG>(scene, std::array<unsigned, 3>{{6, 3, 2}}, 7.0f, 5.0f, texId);
 
 		rndr = new Renderer<CL_DEVICE_TYPE_GPU, BLINN_PHONG>(
 				scene, width, height,

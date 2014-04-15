@@ -18,7 +18,7 @@ const cl_uint no_texture = 0;
 struct TextureArray {
 	typedef std::vector<gli::storage>::iterator iterator;
 
-	TextureHdl createTexture(gli::storage& strg) {
+	TextureHdl createTexture(const gli::storage& strg) {
 		storage.push_back(strg);
 		return static_cast<TextureHdl>(storage.size());
 	}

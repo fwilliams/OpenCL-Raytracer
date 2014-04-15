@@ -64,6 +64,13 @@ T transform(T& object, const glm::mat4& tx) {
 	return t;
 }
 
+template <typename Iter>
+void transform(Iter begin, Iter end, const glm::mat4& tx) {
+	for(Iter i = begin; i != end; i++) {
+		i->transform(tx);
+	}
+}
+
 enum BRDFType {
 	DIFFUSE,
 	PHONG,
