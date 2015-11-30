@@ -134,6 +134,5 @@ struct App {
 int main(int argc, char* argv[]) {
 	SDLApp<App> app(App::width, App::height, "Ray Tracer Demo");
 	app.renderInteractive();
-
 	return 0;
 }
