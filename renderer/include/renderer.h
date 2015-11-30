@@ -53,7 +53,6 @@ struct Renderer {
 		packCLBuffers(scene);
 	}
 
-
 	void renderToTexture(GLuint tex, cl_float16 viewMatrix) {
 		firstPass(rayBuf,
 				reflectivityBuf,
