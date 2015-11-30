@@ -2,7 +2,7 @@
  * texture_array.h
  *
  *  Created on: Apr 7, 2014
- *      Author: francis
+ *      Author: Francis Williams
  */
 
 #include <gli/gli.hpp>
