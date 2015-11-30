@@ -2,7 +2,7 @@
  * cl_device_context.h
  *
  *  Created on: Mar 11, 2014
- *      Author: francis
+ *      Author: Francis Williams
  */
 
 #define __CL_ENABLE_EXCEPTIONS
