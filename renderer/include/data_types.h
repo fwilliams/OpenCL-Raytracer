@@ -25,7 +25,6 @@ constexpr cl_float16 mat4ToFloat16(const glm::mat4& mat) {
 
 struct Sphere {
 	void transform(const glm::mat4& tx);
-
 	cl_float  radius;
 	cl_float3 position;
 	cl_uint   materialId;
