@@ -2,7 +2,7 @@
  * box.h
  *
  *  Created on: Apr 1, 2014
- *      Author: francis
+ *      Author: Francis Williams
  */
 
 #include <array>
