@@ -1,8 +1,8 @@
 /*
- * cl_geometry.h
+ * helper_functions.h
  *
  *  Created on: Mar 17, 2014
- *      Author: francis
+ *      Author: Francis Williams
  */
 
 #include "ide_fix.h"
